@@ -6,8 +6,10 @@ import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
+import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.trashcan.CustomItems
 
 class AbilitiesCommand : TabExecutor {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
@@ -18,6 +20,32 @@ class AbilitiesCommand : TabExecutor {
 
         if (args!![0].lowercase() == "getall") {
             sender.sendMessage(Component.text(AbilitiesCore.hashMap.toString()).color(NamedTextColor.YELLOW))
+            return true
+        }
+
+        if (sender !is Player) {
+            sender.sendMessage(Component.text("not a player").color(NamedTextColor.RED))
+            return true
+        }
+
+        if (args[0].lowercase() == "give") {
+            if (args.size < 2) {
+                sender.sendMessage(Component.text("not enough arguments").color(NamedTextColor.RED))
+                return true
+            }
+            var soulbound: String? = null
+            if (args.size > 2) {
+                soulbound = args[2]
+            }
+            try {
+                val valueOf = CustomItems.valueOf(args[1])
+                if (sender.inventory.addItem(valueOf.giveItem(soulBouder = soulbound)).isEmpty())
+                    sender.sendMessage(
+                        Component.text("gave $valueOf").color(NamedTextColor.YELLOW)
+                    ) else sender.sendMessage(Component.text("not enough space").color(NamedTextColor.RED))
+            } catch (e: Exception) {
+                sender.sendMessage(Component.text("not found " + args[1]).color(NamedTextColor.RED))
+            }
             return true
         }
 
@@ -49,12 +77,17 @@ class AbilitiesCommand : TabExecutor {
             }
             if (clazz != null) {
                 if (AbilitiesCore.hashMap.containsKey(player.name)) {
-                    sender.sendMessage(Component.text(
-                        "Abilities of ${player.name} are already set. To replace them remove them first").color(NamedTextColor.RED))
+                    sender.sendMessage(
+                        Component.text(
+                            "Abilities of ${player.name} are already set. To replace them remove them first"
+                        ).color(NamedTextColor.RED)
+                    )
                     return false
                 }
                 clazz.constructors[0].newInstance(player.name)
-                sender.sendMessage(Component.text("Gave ${player.name} abilities of ${clazz.simpleName}").color(NamedTextColor.GREEN))
+                sender.sendMessage(
+                    Component.text("Gave ${player.name} abilities of ${clazz.simpleName}").color(NamedTextColor.GREEN)
+                )
                 if (size < 4 || args[3].lowercase() != "hide") {
                     player.sendMessage(
                         Component.text("Вам выдали ${clazz.simpleName} origin.").color(NamedTextColor.GREEN)
@@ -81,13 +114,18 @@ class AbilitiesCommand : TabExecutor {
     ): List<String>? {
         if (args == null) return emptyList()
         when (args.size) {
-            1 -> return mutableListOf("set", "getAll")
+            1 -> return mutableListOf("set", "getAll", "give")
             2 -> when (args[0].lowercase()) {
                 "set" -> return null
+                "give" -> return CustomItems.entries.map { it.toString() }
             }
+
             3 -> when (args[0].lowercase()) {
-                "set" -> return Warvilore.abilitiesList?.plus("remove")?.filter { it.lowercase().startsWith(args[2].lowercase()) }
+                "set" -> return Warvilore.abilitiesList?.plus("remove")
+                    ?.filter { it.lowercase().startsWith(args[2].lowercase()) }
+                "give" -> return null
             }
+
             4 -> when (args[0].lowercase()) {
                 "set" -> return listOf("hide")
             }

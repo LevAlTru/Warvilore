@@ -3,11 +3,12 @@ package uwu.levaltru.warvilore
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import org.bukkit.Bukkit
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
 import org.bukkit.entity.SpectralArrow
-import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
@@ -17,7 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.meta.Damageable
+import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
@@ -25,8 +26,10 @@ import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
 import uwu.levaltru.warvilore.abilities.abilities.Nekomancer
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.tickables.DeathSpirit
+import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
+import uwu.levaltru.warvilore.trashcan.Namespaces
 
 class CustomEvents : Listener {
 
@@ -59,7 +62,48 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onAttack(event: PrePlayerAttackEntityEvent) {
-        event.player.getAbilities()?.onAttack(event)
+        val player = event.player
+        val item = player.inventory.itemInMainHand
+        val itemMeta = item.itemMeta
+
+        if (itemMeta != null) {
+            if (event.willAttack())
+                if (itemMeta.isSoulBound()) {
+                    val asCustomItem = LevsUtils.getAsCustomItem(itemMeta)
+                    if (itemMeta.getSoulBound() != player.name) {
+                        val i =
+                            itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER]
+                                ?: asCustomItem?.timesBeforeBreak ?: 0
+                        if (i <= 0)
+                            if (asCustomItem != null)
+                                player.inventory.setItemInMainHand(asCustomItem.onBreak(player, event.attacked))
+                            else {
+                                item.amount = 0
+                                player.world.playSound(
+                                    player.location,
+                                    Sound.ENTITY_ITEM_BREAK,
+                                    SoundCategory.MASTER,
+                                    1f,
+                                    1f
+                                )
+                            }
+                        else {
+                            itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER] =
+                                i - 1
+                            item.itemMeta = itemMeta
+                        }
+                    } else {
+                        itemMeta.persistentDataContainer.set(
+                            Namespaces.TIMES_BEFORE_BREAK.namespace,
+                            PersistentDataType.INTEGER,
+                            asCustomItem?.timesBeforeBreak ?: 1
+                        )
+                        item.itemMeta = itemMeta
+                    }
+                }
+        }
+
+        player.getAbilities()?.onAttack(event)
     }
 
     @EventHandler
@@ -76,15 +120,6 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onAction(event: PlayerInteractEvent) {
-        val item = event.item
-        val itemMeta = item?.itemMeta
-        if (event.action.isLeftClick)
-            if (itemMeta?.isSoulBound() == true) {
-                if (itemMeta.getSoulBound() != event.player.name) {
-//                    (itemMeta as? Damageable)?.damage = (itemMeta as? Damageable)?.maxDamage
-                    return
-                }
-            }
         event.player.getAbilities()?.onAction(event)
     }
 

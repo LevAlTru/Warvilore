@@ -1,14 +1,9 @@
 package uwu.levaltru.warvilore.trashcan
 
-import org.bukkit.Location
-import org.bukkit.NamespacedKey
-import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
-import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import java.util.*
-import javax.annotation.meta.TypeQualifierNickname
 import kotlin.math.floor
 
 object LevsUtils {
@@ -40,6 +35,11 @@ object LevsUtils {
 
     fun ItemMeta.getSoulBound(): String? {
         return this.persistentDataContainer.get(Namespaces.SOULBOUND.namespace, PersistentDataType.STRING)
+    }
+
+    fun getAsCustomItem(itemMeta: ItemMeta): CustomItems? {
+        val s = itemMeta.persistentDataContainer[Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING] ?: return null
+        return CustomItems.valueOf(s)
     }
 
 }

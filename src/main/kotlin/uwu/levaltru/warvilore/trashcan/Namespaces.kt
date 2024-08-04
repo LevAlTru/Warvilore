@@ -19,6 +19,7 @@ enum class Namespaces(val namespace: NamespacedKey) {
 
 
 
+    CUSTOM_ITEM(Warvilore.namespace("customItem")),
     SOULBOUND(Warvilore.namespace("souldbound")),
     TIMES_BEFORE_BREAK(Warvilore.namespace("timesBeforeBreak")),
 }
