@@ -1,0 +1,17 @@
+name: Warvilore
+version: '0.1'
+main: uwu.levaltru.warvilore.Warvilore
+api-version: '1.20'
+prefix: WarviLore
+authors: [ LevAlTru ]
+description: Mod for custom abilities for server called Warvior
+commands:
+  warvibilities:
+    description: A command for assigning and removing origins
+    permission: warvibilities.ability_command
+    aliases:
+      - abilities
+  aboutme:
+    description: A command for describing your origin (if you have one)
+  software:
+    description: A command for walking computer origin
