@@ -1,9 +1,12 @@
 package uwu.levaltru.warvilore.abilities.bases
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
+import io.papermc.paper.tag.EntityTags
 import org.bukkit.attribute.Attribute
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
+import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.potion.PotionEffectType
@@ -25,9 +28,20 @@ abstract class Undead(string: String) : AbilitiesCore(string) {
 
     override fun onDamage(event: EntityDamageEvent) {
         when (event.damageSource.damageType) {
-            DamageType.MAGIC, DamageType.INDIRECT_MAGIC, DamageType.WITHER -> {
+            DamageType.MAGIC, DamageType.INDIRECT_MAGIC -> {
                 event.isCancelled = true
                 player!!.heal(event.damage, EntityRegainHealthEvent.RegainReason.CUSTOM)
+            }
+            DamageType.DROWN -> {
+                event.isCancelled = true
+                EntityTags.UNDEADS
+            }
+            DamageType.PLAYER_ATTACK -> {
+                val causingEntity = event.damageSource.causingEntity
+                if (causingEntity is Player) {
+                    val itemMeta = causingEntity.inventory.itemInMainHand.itemMeta
+                    if (itemMeta != null) event.damage += itemMeta.getEnchantLevel(Enchantment.SMITE) * 2.5
+                }
             }
             else -> return
         }
@@ -38,7 +52,6 @@ abstract class Undead(string: String) : AbilitiesCore(string) {
             EntityRegainHealthEvent.RegainReason.MAGIC, EntityRegainHealthEvent.RegainReason.MAGIC_REGEN -> {
                 event.isCancelled = true
                 player!!.damage(event.amount, DamageSource.builder(DamageType.GENERIC).build())
-//                player!!.velocity = player!!.velocity.add(Vector(random.nextGaussian() * 0.3, 0.3, random.nextGaussian() * 0.3))
             }
             else -> return
         }

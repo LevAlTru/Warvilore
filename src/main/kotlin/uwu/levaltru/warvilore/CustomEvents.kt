@@ -2,9 +2,8 @@ package uwu.levaltru.warvilore
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
-import org.bukkit.Bukkit
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
+import io.papermc.paper.tag.EntityTags
+import org.bukkit.*
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
@@ -24,6 +23,7 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
 import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
 import uwu.levaltru.warvilore.abilities.abilities.Nekomancer
+import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils
@@ -75,8 +75,7 @@ class CustomEvents : Listener {
                             itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER]
                                 ?: asCustomItem?.timesBeforeBreak ?: 0
                         if (i <= 0)
-                            if (asCustomItem != null)
-                                player.inventory.setItemInMainHand(asCustomItem.onBreak(player, event.attacked))
+                            if (asCustomItem != null) asCustomItem.onBreak(player, event.attacked)
                             else {
                                 item.amount = 0
                                 player.world.playSound(
@@ -109,6 +108,23 @@ class CustomEvents : Listener {
     @EventHandler
     fun onDamage(event: EntityDamageEvent) {
         val entity = event.entity
+
+        if (EntityTags.UNDEADS.values.contains(entity.type)) {
+            val player = event.damageSource.causingEntity
+            if ((player as? Player)?.getAbilities() is Undead) {
+                var strings =
+                    entity.persistentDataContainer[Namespaces.WHO_HAVE_HIT.namespace, PersistentDataType.LIST.strings()]
+                        ?.toMutableList()
+                if (strings != null) {
+                    if (!strings.contains(player.name))
+                        strings.add(player.name)
+                }
+                else strings = mutableListOf(player.name)
+                entity.persistentDataContainer[Namespaces.WHO_HAVE_HIT.namespace, PersistentDataType.LIST.strings()] =
+                    strings
+            }
+        }
+
         if (entity is Player) entity.getAbilities()?.onDamage(event)
     }
 
@@ -168,5 +184,22 @@ class CustomEvents : Listener {
         abilities?.onDeath(event)
         if (abilities is Nekomancer) return
         DeathSpirit(player.location.add(0.0, player.height / 2, 0.0), (abilities is EvilAurable), player.name)
+    }
+
+    @EventHandler
+    fun onMobAgro(event: EntityTargetLivingEntityEvent) {
+        val entity = event.entity
+        val target = event.target
+
+        if (!EntityTags.UNDEADS.values.contains(entity.type)) return
+
+        if (target !is Player) return
+        if (target.getAbilities() is Undead) {
+            val strings =
+                entity.persistentDataContainer[Namespaces.WHO_HAVE_HIT.namespace, PersistentDataType.LIST.strings()]
+            if (strings == null || !strings.contains(target.name)) event.isCancelled = true
+        }
+
+
     }
 }

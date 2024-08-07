@@ -1,6 +1,6 @@
 package uwu.levaltru.warvilore.trashcan
 
-class softwareArgument(val key: String, val value: String) {
+class SoftwareArgument(val key: String, val value: String) {
 
     
 

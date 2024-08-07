@@ -72,7 +72,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
         TODO("Not yet implemented")
     }
 
-    fun saveSoftware(software: SoftwareBase?) {
+    private fun saveSoftware(software: SoftwareBase?) {
         val data = player!!.persistentDataContainer
         if (software != null)
             data[Namespaces.SOFTWARE_SAVE_PLACE.namespace, PersistentDataType.STRING] = software::class.java.simpleName

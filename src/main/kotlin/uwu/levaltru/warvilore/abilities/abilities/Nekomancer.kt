@@ -78,6 +78,7 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
         } else timeBeforeNextStroke--
 
         if (prevLoc != null
+            && prevLoc!!.world == player!!.location.world
             && player!!.location.distanceSquared(prevLoc!!) < .0001
             && player!!.isSneaking
             && (mana > REVIVAL_COST || standStillTime > 10)

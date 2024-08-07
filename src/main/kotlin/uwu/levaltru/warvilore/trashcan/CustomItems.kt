@@ -3,11 +3,14 @@ package uwu.levaltru.warvilore.trashcan
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.apache.logging.log4j.util.BiConsumer
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemFlag
@@ -16,7 +19,9 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
+import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
 import java.util.*
+import kotlin.reflect.jvm.internal.impl.name.Name
 
 private const val MEA_CULPA_CUSTOM_MODEL = 1
 private const val FROSTMOURNE_CUSTOM_MODEL = 1
@@ -26,7 +31,7 @@ enum class CustomItems(
     val customModel: Int,
     val material: Material,
     val whenGive: BiConsumer<ItemMeta, Material>,
-    val onBreak: (Player, Entity) -> ItemStack
+    val onBreak: (Player, Entity) -> Unit
 ) {
     FROSTMOURNE(
         2, FROSTMOURNE_CUSTOM_MODEL, Material.NETHERITE_SWORD,
@@ -61,22 +66,25 @@ enum class CustomItems(
             }
         },
         { p, e ->
-            val locy = p.location.add(0.0, p.height / 2, 0.0).add(p.location.direction)
-            p.world.spawnParticle(
-                Particle.END_ROD, locy,
-                500, .1, .1, .1, .5, null, true
-            )
-            p.world.playSound(locy, org.bukkit.Sound.ITEM_TRIDENT_THUNDER, 5f, 0.5f)
+            val originalItem = p.inventory.itemInMainHand
+            val item = ItemStack(Material.NETHERITE_SWORD)
+            val itemMeta = item.itemMeta
+            if (itemMeta is Damageable) {
+                itemMeta.damage = 2000
+                for ((enchant, level) in originalItem.enchantments)
+                    itemMeta.addEnchant(enchant, level, true)
+                item.itemMeta = itemMeta
+            }
+            p.inventory.setItemInMainHand(item)
 
-            val velocity = p.location.direction.multiply(Vector(1, 0, 1)).normalize().multiply(1.5)
-            e.velocity = velocity.clone().add(Vector(0.0, 0.8, 0.0))
-            p.velocity = velocity.clone().multiply(-1).add(Vector(0.0, 0.8, 0.0))
-
-            ItemStack(Material.AIR)
+            val pLoc = p.location
+            val locy = p.location.add(0.0, p.height / 2, 0.0)
+                .add(pLoc.direction.multiply(pLoc.distance(e.location) / 2))
+            LevsUtils.frostmourneExplosion(locy, p)
         },
     ),
     MEA_CULPA(
-        4, MEA_CULPA_CUSTOM_MODEL, Material.IRON_SWORD,
+        2, MEA_CULPA_CUSTOM_MODEL, Material.IRON_SWORD,
         { itemMeta, material ->
             run {
                 if (!itemMeta.hasItemName()) itemMeta.itemName(
@@ -95,7 +103,7 @@ enum class CustomItems(
                 .1, .1, .1, .1, null, true)
             locy.world.spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, locy, 200,
                 .1, .1, .1, .2, null, true)
-            ItemStack(Material.AIR)
+            p.inventory.setItemInMainHand(ItemStack.empty())
         },
     );
 
@@ -103,7 +111,8 @@ enum class CustomItems(
         return replaceItem(ItemStack(material, amount), soulBouder)
     }
 
-    fun replaceItem(item: ItemStack, soulBouder: String?): ItemStack {
+    fun replaceItem(item2: ItemStack, soulBouder: String?): ItemStack {
+        val item = item2.withType(this.material)
         val itemMeta = item.itemMeta.apply {
             setCustomModelData(customModel)
             persistentDataContainer[Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING] =
