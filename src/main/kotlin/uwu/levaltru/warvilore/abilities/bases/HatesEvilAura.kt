@@ -108,32 +108,11 @@ abstract class HatesEvilAura(nickname: String): AbilitiesCore(nickname) {
         evilAuraSickness = 0
     }
 
-    override fun onAction(event: PlayerInteractEvent) {
-        if (event.action.name != "RIGHT_CLICK_AIR") return
-        when (player!!.inventory.itemInMainHand.type) {
-            Material.DANDELION,
-            Material.POPPY,
-            Material.BLUE_ORCHID,
-            Material.ALLIUM,
-            Material.AZURE_BLUET,
-            Material.RED_TULIP,
-            Material.ORANGE_TULIP,
-            Material.WHITE_TULIP,
-            Material.PINK_TULIP,
-            Material.OXEYE_DAISY,
-            Material.CORNFLOWER,
-            Material.LILY_OF_THE_VALLEY,
-            Material.TORCHFLOWER,
-            Material.PINK_PETALS,
-            Material.LILAC,
-            Material.ROSE_BUSH,
-            Material.PEONY,
-            Material.PITCHER_PLANT -> {}
-            else -> return
-        }
+    fun showEvilAuraPoisoning() {
         player!!.sendActionBar(
             Component.text("${evilAuraSickness / 250}.${(evilAuraSickness / 25) % 10}")
-                .style(Style.style(TextDecoration.ITALIC, TextDecoration.BOLD, NamedTextColor.DARK_PURPLE)))
+                .style(Style.style(TextDecoration.ITALIC, TextDecoration.BOLD, NamedTextColor.DARK_PURPLE))
+        )
         player!!.playSound(player!!.location, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.MASTER, 1f, 0.1f)
     }
 }

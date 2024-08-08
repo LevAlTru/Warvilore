@@ -34,15 +34,26 @@ class SoftwareCommand : TabExecutor {
             }
         }
         var newInstance: SoftwareBase? = null
-        if (clazz != null)
-            newInstance = clazz.constructors[0].newInstance() as SoftwareBase
+        if (clazz != null) newInstance =
+            clazz.constructors[0].newInstance(args.copyOfRange(1, args.size).joinToString(separator = " ")) as SoftwareBase
+        if (args.any { it.lowercase() == "help" }) {
+            newInstance?.description()?.forEach { sender.sendMessage(it) }
+                ?: sender.sendMessage(Component.text("null").color(NamedTextColor.LIGHT_PURPLE))
+            return false
+        }
 
         abilities.changeSoftware(newInstance)
 
         sender.sendMessage(Component.text("Set active software to: ").color(NamedTextColor.GREEN)
             .append {
                 Component.text(if (clazz != null) clazz.simpleName else "null").color(NamedTextColor.LIGHT_PURPLE)
-            })
+            }
+            .append { if (args.size > 1 && newInstance != null) {
+                Component.text(" with arguments: ").color(NamedTextColor.GREEN)
+                    .append { Component.text(
+                        newInstance.arguments.map { "${it.key}:${it.value}" }.joinToString(separator = " ")
+                    ).color(NamedTextColor.LIGHT_PURPLE) }
+            } else Component.text("") })
         return true
     }
 
@@ -54,27 +65,31 @@ class SoftwareCommand : TabExecutor {
     ): List<String>? {
         if ((sender as? Player)?.getAbilities() !is WalkingComputer) return listOf()
         if (args?.size == 1) {
-            return Warvilore.softwareList?.plus("null")
+            return Warvilore.softwareList?.plus("null")?.filter { it.lowercase().startsWith(args[0].lowercase()) }
         } else if ((args?.size ?: -1) > 1) {
-            var clazz: Class<*>? = null
+            val clazz: Class<*>
             if (args!![0].lowercase() != "null") {
                 try {
                     clazz = Class.forName("uwu.levaltru.warvilore.software." + args[0])
                 } catch (e: ClassNotFoundException) {
                     return listOf("ERROR_NULL")
                 }
+            } else return listOf()
+            val newInstance = clazz?.constructors?.get(0)
+                ?.newInstance(args.copyOfRange(1, args.size).joinToString { " " }) as? SoftwareBase ?: return listOf("ERROR_NULL")
+            val lastArg = args[args.size - 1]
+            if (lastArg.contains(":")) {
+                return newInstance.possibleArguments().filter { it.startsWith(lastArg) }
+            } else {
+                val map = newInstance.possibleArguments().map { it.split(":")[0] }
+                val list = mutableListOf<String>()
+                for (i in map.indices) {
+                    if (i == 0) list.add(map[i] + ":")
+                    else if (map[i] != map[i - 1]) list.add(map[i] + ":")
+                }
+                if (args.size == 2) list.add("help")
+                return list
             }
-            val newInstance = clazz?.constructors?.get(0)?.newInstance() as? SoftwareBase
-                ?: return listOf("ERROR_NULL")
-            val arguments = newInstance.arguments
-            val lastArgument = args[args.size - 1]
-            if (lastArgument.contains(":"))
-                return arguments.filter { it.startsWith(lastArgument) }
-            val map = arguments.map { it.split(":")[0] }
-            val map2 = mutableListOf<String>()
-            for (i in map.indices)
-                if (i == 0 || map[i] != map[i - 1]) map2.add(map[i])
-            return map2
         }
         return listOf("ERROR_CHECK_FAIL")
     }

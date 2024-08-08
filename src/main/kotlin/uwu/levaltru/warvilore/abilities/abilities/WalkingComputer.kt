@@ -34,7 +34,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
     private var activeSoftware: SoftwareBase? = null
 
     override fun onTick(event: ServerTickEndEvent) {
-        activeSoftware?.tick(player!!)
+        if (activeSoftware?.tick(player!!) == true) changeSoftware(null)
     }
 
     override fun onDamage(event: EntityDamageEvent) {
@@ -61,21 +61,27 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
             try {
                 changeSoftware(
                     Class.forName(Warvilore::class.java.`package`.name + ".software." + s)
-                        .constructors[0].newInstance() as? SoftwareBase
+                        .constructors[0].newInstance(data[Namespaces.SOFTWARE_SAVE_ARGS_PLACE.namespace, PersistentDataType.STRING])
+                            as? SoftwareBase ?: return
                 )
             } catch (e: ClassNotFoundException) {
             }
         }
     }
 
-    override fun getAboutMe(): List<Component> {
-        TODO("Not yet implemented")
-    }
-
     private fun saveSoftware(software: SoftwareBase?) {
         val data = player!!.persistentDataContainer
-        if (software != null)
+        if (software != null) {
             data[Namespaces.SOFTWARE_SAVE_PLACE.namespace, PersistentDataType.STRING] = software::class.java.simpleName
-        else data[Namespaces.SOFTWARE_SAVE_PLACE.namespace, PersistentDataType.STRING] = "null"
+            data[Namespaces.SOFTWARE_SAVE_ARGS_PLACE.namespace, PersistentDataType.STRING] =
+                software.arguments.map { "${it.key}:${it.value}" }.joinToString(separator = " ")
+        } else {
+            data[Namespaces.SOFTWARE_SAVE_PLACE.namespace, PersistentDataType.STRING] = "null"
+            data[Namespaces.SOFTWARE_SAVE_ARGS_PLACE.namespace, PersistentDataType.STRING] = "null"
+        }
+    }
+
+    override fun getAboutMe(): List<Component> {
+        TODO("Not yet implemented")
     }
 }

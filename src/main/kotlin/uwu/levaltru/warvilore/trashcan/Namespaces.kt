@@ -6,6 +6,7 @@ import uwu.levaltru.warvilore.Warvilore
 enum class Namespaces(val namespace: NamespacedKey) {
     ABILITY_SAVE_PLACE(Warvilore.namespace("ability")),
     SOFTWARE_SAVE_PLACE(Warvilore.namespace("activeSoftware")),
+    SOFTWARE_SAVE_ARGS_PLACE(Warvilore.namespace("activeSoftwareArgs")),
 
 
     INVISIBILITY_COUNTER(Warvilore.namespace("invisibilityCounter")),

@@ -1,83 +1,115 @@
 package uwu.levaltru.warvilore.software
 
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextColor
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.SoftwareBase
-import kotlin.reflect.jvm.internal.impl.descriptors.Named
 
-class Coordinates(val string: String) : SoftwareBase() {
+class Coordinates(string: String) : SoftwareBase(string) {
 
-    override fun tick(player: Player) {
-        val name = player.world.name
-        val color: TextColor
-        val loc = player.location.toVector()
-        when (string) {
-            "type:portal" -> {
-                when (name) {
-                    "world" -> {
-                        loc.multiply(Vector(0.125, 1.0, 0.125))
+    override fun tick(player: Player): Boolean {
+        val toVector = player.location.toVector()
+        var color = NamedTextColor.GOLD
+        val worldName = player.world.name
+        when (arguments["show"]) {
+            "other" -> {
+                if (worldName == "world_the_end") {
+                    player.sendActionBar(
+                        Component.text(
+                            "%.2f | %.2f | %.2f"
+                                .format(toVector.x, toVector.y, toVector.z)
+                        ).color(NamedTextColor.LIGHT_PURPLE)
+                    )
+                    return false
+                }
+                when (worldName) {
+                    "world_nether" -> {
+                        toVector.multiply(Vector(8.0, 1.0, 8.0))
+                        color = NamedTextColor.GREEN
+                    }
+                }
+            }
+
+            "current", null -> {
+                if (worldName == "world_the_end") {
+                    player.sendActionBar(
+                        Component.text(
+                            "%.2f | %.2f | %.2f"
+                                .format(toVector.x, toVector.y, toVector.z)
+                        ).color(NamedTextColor.LIGHT_PURPLE)
+                    )
+                    return false
+                }
+                when (worldName) {
+                    "world_nether" -> {
                         color = NamedTextColor.RED
                     }
 
-                    "world_nether" -> {
-                        loc.multiply(Vector(8.0, 1.0, 8.0))
+                    "world" -> {
                         color = NamedTextColor.GREEN
                     }
-
-                    else -> color = NamedTextColor.GOLD
                 }
-                player.sendActionBar(text("%2d | %2d | %2d".format(loc.x, loc.y, loc.z)).color(color))
             }
 
-            "type:current" -> {
-                when (name) {
-                    "world" -> color = NamedTextColor.GREEN
-                    "world_nether" -> color = NamedTextColor.RED
-                    "world_the_end" -> color = NamedTextColor.LIGHT_PURPLE
-                    else -> color = NamedTextColor.GOLD
+            "both" -> {
+                if (worldName == "world_the_end") {
+                    player.sendActionBar(
+                        Component.text(
+                            "%.2f | %.2f | %.2f"
+                                .format(toVector.x, toVector.y, toVector.z)
+                        ).color(NamedTextColor.LIGHT_PURPLE)
+                    )
+                    return false
                 }
-                player.sendActionBar(text("%2d | %2d | %2d".format(loc.x, loc.y, loc.z)).color(color))
-            }
+                val nether: Vector
+                val overworld: Vector
 
-            "type:both" -> {
-                var locO = loc.clone()
-                var locN = loc.clone()
-                when (name) {
-                    "world" -> locN.multiply(Vector(0.125, 1.0, 0.125))
-                    "world_nether" -> locO.multiply(Vector(8.0, 1.0, 8.0))
+                when (worldName) {
+                    "world_nether" -> {
+                        nether = toVector.clone()
+                        overworld = toVector.clone().multiply(Vector(8.0, 1.0, 8.0))
+                    }
+
                     else -> {
-                        player.sendActionBar(
-                            text(
-                                "%2d | %2d | %2d".format(
-                                    locO.x,
-                                    locO.y,
-                                    locO.z
-                                )
-                            ).color(NamedTextColor.GOLD)
-                        )
-                        return
+                        nether = toVector.clone().multiply(Vector(0.125, 1.0, 0.125))
+                        overworld = toVector.clone()
                     }
                 }
-                player.sendActionBar(text("%2d | %2d | %2d".format(locO.x, locO.y, locO.z)).color(NamedTextColor.GREEN)
-                    .append { text(" |-| ").color(NamedTextColor.GOLD) }
-                    .append { text("%2d | %2d | %2d".format(locN.x, locN.y, locN.z)) }.color(NamedTextColor.RED)
+
+                player.sendActionBar(text("%.2f | %.2f | %.2f".format(overworld.x, overworld.y, overworld.z)).color(
+                    NamedTextColor.GREEN
                 )
+                    .append { text(" | ").color(NamedTextColor.GOLD) }
+                    .append {
+                        text(
+                            "%.2f | %.2f | %.2f".format(
+                                nether.x,
+                                nether.y,
+                                nether.z
+                            )
+                        ).color(NamedTextColor.RED)
+                    })
+                return false
+            }
+
+            else -> {
+                player.sendMessage(text("Invalid argument (${arguments["show"]})").color(NamedTextColor.RED))
+                return true
             }
         }
+        player.sendActionBar(
+            Component.text("%.2f | %.2f | %.2f".format(toVector.x, toVector.y, toVector.z)).color(color)
+        )
+        return false
     }
 
-    override val arguments: List<String>
-        get() = listOf(
-            "type:portal", "type:both", "type:adaptive"
-        )
+    override fun possibleArguments(): List<String> = listOf("show:other", "show:current", "show:both")
 
-    override val description: List<TextComponent>
-        get() = listOf(
-            text("Shows coordinates like if you pressed F3."),
-            text("Also it is the second software ever created for testing arguments system.")
-        )
+    override fun description() = listOf(
+        text("Shows coordinates like you've pressed F3.").color(NamedTextColor.RED),
+        text("Also it is the second software ever created (for arguments testing).").color(NamedTextColor.RED),
+    )
+
 
 }

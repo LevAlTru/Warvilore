@@ -13,6 +13,7 @@ import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.type.Sapling
 import org.bukkit.entity.Item
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.bases.HatesEvilAura
@@ -85,8 +86,32 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
             ) { it.itemStack = drop }
             spawn.velocity = Vector(random.nextGaussian() * 0.1, 0.1, random.nextGaussian() * 0.1)
         }
+    }
 
-
+    override fun onAction(event: PlayerInteractEvent) {
+        if (event.action.name != "RIGHT_CLICK_AIR") return
+        when (player!!.inventory.itemInMainHand.type) {
+            Material.DANDELION,
+            Material.POPPY,
+            Material.BLUE_ORCHID,
+            Material.ALLIUM,
+            Material.AZURE_BLUET,
+            Material.RED_TULIP,
+            Material.ORANGE_TULIP,
+            Material.WHITE_TULIP,
+            Material.PINK_TULIP,
+            Material.OXEYE_DAISY,
+            Material.CORNFLOWER,
+            Material.LILY_OF_THE_VALLEY,
+            Material.TORCHFLOWER,
+            Material.PINK_PETALS,
+            Material.LILAC,
+            Material.ROSE_BUSH,
+            Material.PEONY,
+            Material.PITCHER_PLANT -> {}
+            else -> return
+        }
+        showEvilAuraPoisoning()
     }
 
     override fun getAboutMe(): List<Component> = listOf(

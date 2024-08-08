@@ -125,7 +125,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
             if (item.type == Material.IRON_SWORD) {
                 val itemMeta = item.itemMeta
                 if (!itemMeta.hasCustomModelData() || item.isMeaCulpa()) {
-                    CustomItems.MEA_CULPA.replaceItem(item, player!!.name)
+                    player!!.inventory.setItemInMainHand(CustomItems.MEA_CULPA.replaceItem(item, player!!.name))
                     canBloodSlice = true
                     heartAttack(0)
                 }
@@ -179,7 +179,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
         ) {
 
             BloodySlice(player!!.eyeLocation, player!!.location.direction.multiply(1.5), player!!.uniqueId)
-            heartAttack(250)
+            heartAttack(270)
             player!!.world.playSound(
                 player!!.location,
                 Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM,
@@ -209,11 +209,10 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
     fun heartAttack(i: Int) {
         if (player!!.gameMode != GameMode.CREATIVE) {
-            val damageSource = DamageSource.builder(DamageType.GENERIC).build()
+            val damageSource = DamageSource.builder(DamageType.GENERIC).withDirectEntity(player!!).build()
             player!!.damage(0.01, damageSource)
             player!!.health -= player!!.health.coerceAtMost(6.99)
         }
-        player!!.playSound(player!!, Sound.ENTITY_PLAYER_BREATH, 1f, 0.5f)
         player!!.addPotionEffects(
             listOf(
                 PotionEffect(PotionEffectType.BLINDNESS, 300 - i, 0, true, false, true),

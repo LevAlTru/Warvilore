@@ -85,7 +85,7 @@ enum class CustomItems(
     ),
     MEA_CULPA(
         2, MEA_CULPA_CUSTOM_MODEL, Material.IRON_SWORD,
-        { itemMeta, material ->
+        { itemMeta, _ ->
             run {
                 if (!itemMeta.hasItemName()) itemMeta.itemName(
                     Component.text("Mea Culpa")

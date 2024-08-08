@@ -191,10 +191,11 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
     override fun onAction(event: PlayerInteractEvent) {
         if (event.action.name != "RIGHT_CLICK_AIR") return
         val item = player!!.inventory.itemInMainHand
-        if (item.type != Material.NETHERITE_SWORD) return
-
-        if (!item.isFrostmourne()) return
-
+        when (item.type) {
+            Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD,
+            Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD -> {}
+            else -> return
+        }
 
         val temp = getFormatedTemperature(player!!.location.add(0.0, player!!.height / 2, 0.0))
 
@@ -403,6 +404,16 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
                 else -> {}
             }
         }
+
+        fun getUnderFormatedTemperature(locy: Location): Double {
+            val temperature = locy.block.temperature
+            var d = if (locy.world.isUltraWarm) 5.0
+            else (temperature - 0.25) * 4 / 3
+            if (!locy.world.isFixedTime)
+                d += (sin((locy.world.time * PI) / 12000) * 0.2 + 0.05).coerceAtLeast(0.0) *
+                        (locy.block.lightFromSky.toDouble() / 15)
+            return d
+        }
     }
 
     override fun getEvilAura(): Double {
@@ -444,16 +455,12 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
                 ).color(NamedTextColor.GREEN)
             }
             .append { text("Ледяную Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) },
-        text(""),
         text(
             "  - Небольшая рекомендация: делай это когда у тебя много холода, " +
-                    "так как этот процесс забирает много твоих сил."
+                    "так как этот процесс забирает много твоих сил. Еще ты можешь загореться."
         ).color(NamedTextColor.GOLD),
         text(""),
-        text("- Когда ты нажимаешь на ").color(NamedTextColor.GREEN)
-            .append { text("Ледяную Скорбь, ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
-            .append { text("тебе показывается температура и шкала твоего холода").color(NamedTextColor.GREEN) },
-        text(""),
+        text("- Когда ты нажимаешь на любой меч, тебе показывается температура и шкала твоего холода").color(NamedTextColor.GREEN),
         text(
             "  - Стрелка вниз (↓) обозначает что тут холодно (aka тебе хорошо). " +
                     "Стрелка вверх (↑) обозначает что тут жарко (aka тебе плохо). " +
