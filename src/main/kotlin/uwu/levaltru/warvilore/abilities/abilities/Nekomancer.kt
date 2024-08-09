@@ -15,6 +15,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.abilities.interfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils
@@ -33,10 +34,10 @@ private const val GOLDEN_APPLE_MANA = 600
 private const val HOW_OFTEN_GET_SICK_MIN = 20 * 60 * 3
 private const val HOW_OFTEN_GET_SICK_MAX = 20 * 60 * 5
 
-class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
+class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSouls {
 
     var prevLoc: Location? = null
-                var standStillTime = 0
+    var standStillTime = 0
     var mana: Int = 0
         get() {
             field = player?.persistentDataContainer?.get(
@@ -63,7 +64,8 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
         set(value) {
             player?.persistentDataContainer?.set(
                 Namespaces.BEFORE_NEXT_STROKE.namespace,
-                PersistentDataType.INTEGER, value)
+                PersistentDataType.INTEGER, value
+            )
             field = value
         }
 
@@ -82,7 +84,8 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
             && player!!.location.distanceSquared(prevLoc!!) < .0001
             && player!!.isSneaking
             && (mana > REVIVAL_COST || standStillTime > 10)
-            && mana > 0)
+            && mana > 0
+        )
             standStillTime++
         else {
             if (circleOfRevival()) {
@@ -217,7 +220,8 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
                 }
                 stack.amount = 0
             }
-            deadPlayer.location.getNearbyPlayers(32.0).forEach { it.stopSound(Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_CHARGED) }
+            deadPlayer.location.getNearbyPlayers(32.0)
+                .forEach { it.stopSound(Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_CHARGED) }
             effects(deadPlayer)
             deadPlayer.teleport(loc)
             spirit.nickname = null
@@ -226,8 +230,10 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
         }
         if (spiritsNearby.isNotEmpty()) {
             val world = player!!.world
-            world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, location.add(.0, .2,.0),
-                200, 1.0 ,0.1, 1.0, 0.05, null, true)
+            world.spawnParticle(
+                Particle.TRIAL_SPAWNER_DETECTION, location.add(.0, .2, .0),
+                200, 1.0, 0.1, 1.0, 0.05, null, true
+            )
             location.getNearbyPlayers(32.0).forEach { it.stopSound(Sound.BLOCK_BEACON_AMBIENT) }
             world.playSound(location, Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 0.8f)
             player!!.velocity = spawnRandomVector()
@@ -264,19 +270,25 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
     override fun onEating(event: PlayerItemConsumeEvent) {
         when (event.item.type) {
             Material.GOLDEN_APPLE -> {
-                player!!.world.spawnParticle(Particle.SCRAPE, player!!.location.add(0.0, player!!.height / 2, 0.0),
-                    10, .2, .4, .2, 2.0, null, true)
+                player!!.world.spawnParticle(
+                    Particle.SCRAPE, player!!.location.add(0.0, player!!.height / 2, 0.0),
+                    10, .2, .4, .2, 2.0, null, true
+                )
                 player!!.world.playSound(player!!.location, Sound.ENTITY_ALLAY_ITEM_GIVEN, 1f, 0.7f)
                 mana = (mana + GOLDEN_APPLE_MANA).coerceAtMost(MAX_MANA)
                 displayMana()
             }
+
             Material.ENCHANTED_GOLDEN_APPLE -> {
-                player!!.world.spawnParticle(Particle.SCRAPE, player!!.location.add(0.0, player!!.height / 2, 0.0),
-                    100, .2, .4, .2, 2.0, null, true)
+                player!!.world.spawnParticle(
+                    Particle.SCRAPE, player!!.location.add(0.0, player!!.height / 2, 0.0),
+                    100, .2, .4, .2, 2.0, null, true
+                )
                 player!!.world.playSound(player!!.location, Sound.ENTITY_ALLAY_ITEM_GIVEN, 1f, 0.7f)
                 mana = MAX_MANA
                 displayMana()
             }
+
             else -> {}
         }
     }
@@ -295,7 +307,8 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
     }
 
     private fun effects(deadPlayer: Player) {
-        val particle = if (deadPlayer.isEvil()) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION
+        val particle =
+            if (deadPlayer.isEvil()) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION
         val add = deadPlayer.location.add(0.0, deadPlayer.height / 2, 0.0)
         add.world.spawnParticle(particle, add, 250, .2, .4, .2, .1, null, true)
         add.world.playSound(add, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM, SoundCategory.MASTER, 1f, 0.5f)
@@ -324,15 +337,19 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable {
         text("Твои навыки:").color(NamedTextColor.LIGHT_PURPLE),
         text("- Когда ты на шифте, у тебя появляется круг регенерации для тебя и твоей команды").color(NamedTextColor.GREEN),
         text("- Ты видишь души.").color(NamedTextColor.GREEN),
-        text("- Твой круг регенерации умеет заряжаться. " +
-                "Дуги в твоем круге задерживаются в этом мире на подольше. " +
-                "Когда он полностью заряжен и ты бьешь рукой по полу, " +
-                "игроки чьи души были в твоем кругу телепортируются на точку их души.").color(NamedTextColor.GREEN),
+        text(
+            "- Твой круг регенерации умеет заряжаться. " +
+                    "Дуги в твоем круге задерживаются в этом мире на подольше. " +
+                    "Когда он полностью заряжен и ты бьешь рукой по полу, " +
+                    "игроки чьи души были в твоем кругу телепортируются на точку их души."
+        ).color(NamedTextColor.GREEN),
         text("- - Но для этого нужно чтобы игрок возродился и был в сети! ").color(NamedTextColor.GOLD).append {
             text("Иначе их душа разрушится моментально!").color(NamedTextColor.RED)
         },
-        text("- Также у тебя есть мана. Чтобы восстановить твою ману ты можешь ждать, " +
-                "или съесть золотое или золотое зачарованное яблоко").color(NamedTextColor.AQUA),
+        text(
+            "- Также у тебя есть мана. Чтобы восстановить твою ману ты можешь ждать, " +
+                    "или съесть золотое или золотое зачарованное яблоко"
+        ).color(NamedTextColor.AQUA),
         text("- - Еще если ты ударишь яблоком по воздуху, ты увидишь свою ману").color(NamedTextColor.AQUA),
     )
 }

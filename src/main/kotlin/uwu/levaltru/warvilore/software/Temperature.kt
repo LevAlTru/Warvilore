@@ -52,10 +52,10 @@ class Temperature(string: String) : SoftwareBase(string) {
     )
 
     override fun description(): List<TextComponent> = listOf(
-        text("Shows the temperature of the place on which you're standing on.").color(NamedTextColor.RED),
-        text("It isn't useful for you, but ").color(NamedTextColor.RED)
+        text("Shows the temperature of the place on which you're standing on.").color(NamedTextColor.LIGHT_PURPLE),
+        text("It isn't useful for you, but ").color(NamedTextColor.LIGHT_PURPLE)
             .append { text("The Coldest One").color(NamedTextColor.AQUA) }
-            .append { text(" might look for your help.").color(NamedTextColor.RED) },
+            .append { text(" might look for your help.").color(NamedTextColor.LIGHT_PURPLE) },
         text(""),
         text("raw - real temperature given by \"block.temperature\"").color(NamedTextColor.YELLOW),
         text(""),

@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
@@ -199,7 +200,13 @@ class CustomEvents : Listener {
                 entity.persistentDataContainer[Namespaces.WHO_HAVE_HIT.namespace, PersistentDataType.LIST.strings()]
             if (strings == null || !strings.contains(target.name)) event.isCancelled = true
         }
+    }
 
-
+    @EventHandler
+    fun onChunkLoad(event: ChunkLoadEvent) {
+        for (entity in event.chunk.entities) {
+            if (entity.persistentDataContainer[Namespaces.SHOULD_DESPAWN.namespace, PersistentDataType.BOOLEAN] == true)
+                entity.remove()
+        }
     }
 }

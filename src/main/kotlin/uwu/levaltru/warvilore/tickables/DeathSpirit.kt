@@ -6,7 +6,7 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
-import uwu.levaltru.warvilore.abilities.abilities.Nekomancer
+import uwu.levaltru.warvilore.abilities.interfaces.CanSeeSouls
 import java.util.*
 
 private val random = Random()
@@ -29,7 +29,7 @@ class DeathSpirit(val loc: Location, val isOminous: Boolean, var nickname: Strin
     override fun tick(): Boolean {
 
         if (nickname == null) return remove()
-        if (age % 50  == 0) nearbyPlayers = loc.getNearbyPlayers(128.0).filter { it.getAbilities() is Nekomancer }
+        if (age % 50  == 0) nearbyPlayers = loc.getNearbyPlayers(128.0).filter { it.getAbilities() is CanSeeSouls }
 
         if (nearbyPlayers != null) {
             for (player in nearbyPlayers!!) {

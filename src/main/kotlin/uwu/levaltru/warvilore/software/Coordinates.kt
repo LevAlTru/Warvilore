@@ -28,6 +28,10 @@ class Coordinates(string: String) : SoftwareBase(string) {
                         toVector.multiply(Vector(8.0, 1.0, 8.0))
                         color = NamedTextColor.GREEN
                     }
+                    "world" -> {
+                        toVector.multiply(Vector(0.125, 1.0, 0.125))
+                        color = NamedTextColor.RED
+                    }
                 }
             }
 
@@ -107,8 +111,8 @@ class Coordinates(string: String) : SoftwareBase(string) {
     override fun possibleArguments(): List<String> = listOf("show:other", "show:current", "show:both")
 
     override fun description() = listOf(
-        text("Shows coordinates like you've pressed F3.").color(NamedTextColor.RED),
-        text("Also it is the second software ever created (for arguments testing).").color(NamedTextColor.RED),
+        text("Shows coordinates like you've pressed F3.").color(NamedTextColor.LIGHT_PURPLE),
+        text("Also it is the second software ever created (for arguments testing).").color(NamedTextColor.LIGHT_PURPLE),
     )
 
 

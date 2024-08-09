@@ -27,7 +27,7 @@ class CPURuntime(val string: String) : SoftwareBase(string) {
     override fun possibleArguments() = listOf<String>()
 
     override fun description() = listOf(
-        text("System active time.").color(NamedTextColor.RED),
-        text("Also it is the first software ever created.").color(NamedTextColor.RED),
+        text("System active time.").color(NamedTextColor.LIGHT_PURPLE),
+        text("Also it is the first software ever created.").color(NamedTextColor.LIGHT_PURPLE),
     )
 }

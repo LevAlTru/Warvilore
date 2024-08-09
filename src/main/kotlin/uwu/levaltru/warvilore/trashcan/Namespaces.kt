@@ -18,6 +18,11 @@ enum class Namespaces(val namespace: NamespacedKey) {
     COLDNESS(Warvilore.namespace("coldness")),
     CHARGE(Warvilore.namespace("charge")),
 
+    HALO_SPEED(Warvilore.namespace("haloSpeed")),
+    HALO_COLOR(Warvilore.namespace("haloColor")),
+    HALO_TYPE(Warvilore.namespace("haloType")),
+    HALO_SHOULD_WIGGLE(Warvilore.namespace("haloShouldWiggle")),
+
 
     CUSTOM_ITEM(Warvilore.namespace("customItem")),
     SOULBOUND(Warvilore.namespace("souldbound")),
@@ -25,4 +30,7 @@ enum class Namespaces(val namespace: NamespacedKey) {
 
 
     WHO_HAVE_HIT(Warvilore.namespace("whoHaveHit")),
+
+
+    SHOULD_DESPAWN(Warvilore.namespace("shouldDespawn")),
 }

@@ -30,15 +30,16 @@ class CrashExe(string: String) : SoftwareBase(string) {
             player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 0.5f)
             player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 2.0f)
         }
-        if (i1 <= 0) {
-            player.spawnParticle(
-                Particle.ELECTRIC_SPARK, player.location, 1000000000,
-                0.0, 0.0, 0.0, 0.0, null, true
-            )
-            return true
-        }
-        i1--
-        return false
+        return i1-- <= 0
+    }
+
+    override fun onShutDown(player: Player) {
+        player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 0.5f)
+        player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 2.0f)
+        player.spawnParticle(
+            Particle.ELECTRIC_SPARK, player.location, 1000000000,
+            0.0, 0.0, 0.0, 0.0, null, true
+        )
     }
 
     override fun possibleArguments(): List<String> = listOf()

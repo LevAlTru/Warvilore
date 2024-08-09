@@ -7,6 +7,7 @@ import org.reflections.Reflections
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.commands.AbilitiesCommand
 import uwu.levaltru.warvilore.commands.AboutMeCommand
+import uwu.levaltru.warvilore.commands.HaloCommand
 import uwu.levaltru.warvilore.commands.SoftwareCommand
 
 
@@ -48,11 +49,18 @@ class Warvilore : JavaPlugin() {
         val abilitiesCommandExecutor = AbilitiesCommand()
         abilitiesCommand!!.setExecutor(abilitiesCommandExecutor)
         abilitiesCommand.tabCompleter = abilitiesCommandExecutor
+
+        getCommand("aboutme")!!.setExecutor(AboutMeCommand())
+
         val softwareCommand = getCommand("software")
         val softwareCommandExecutor = SoftwareCommand()
         softwareCommand!!.setExecutor(softwareCommandExecutor)
         softwareCommand.tabCompleter = softwareCommandExecutor
-        getCommand("aboutme")!!.setExecutor(AboutMeCommand())
+
+        val haloCommand = getCommand("halo")
+        val haloCommandExecutor = HaloCommand()
+        haloCommand!!.setExecutor(haloCommandExecutor)
+        haloCommand.tabCompleter = haloCommandExecutor
     }
 
     override fun onDisable() {}

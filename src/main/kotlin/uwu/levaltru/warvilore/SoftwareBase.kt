@@ -20,6 +20,8 @@ abstract class SoftwareBase(val s: String) {
     abstract fun possibleArguments(): List<String>
 
     abstract fun tick(player: Player): Boolean
+    open fun onShutDown(player: Player) {}
+    open fun onDeath(player: Player) {}
 
     fun text(text: String) = Component.text(text)
 }

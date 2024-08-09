@@ -63,7 +63,7 @@ class SoftwareCommand : TabExecutor {
         label: String,
         args: Array<out String>?
     ): List<String>? {
-        if ((sender as? Player)?.getAbilities() !is WalkingComputer) return listOf()
+        if ((sender as? Player)?.getAbilities() !is WalkingComputer) return listOf("ERROR_ILLEGAL_ACCESS")
         if (args?.size == 1) {
             return Warvilore.softwareList?.plus("null")?.filter { it.lowercase().startsWith(args[0].lowercase()) }
         } else if ((args?.size ?: -1) > 1) {
