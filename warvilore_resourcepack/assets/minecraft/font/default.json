@@ -1,0 +1,58 @@
+{
+    "providers": [
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/halo_square.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE550"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/halo_smooth_square.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE551"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/halo_circle.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE552"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/halo_cross.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE553"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/halo_vortex_larger.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE554"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/halo_vortex.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE555"
+            ]
+        }
+    ]
+}
