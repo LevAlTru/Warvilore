@@ -5,10 +5,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.Reflections
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.commands.AbilitiesCommand
-import uwu.levaltru.warvilore.commands.AboutMeCommand
-import uwu.levaltru.warvilore.commands.HaloCommand
-import uwu.levaltru.warvilore.commands.SoftwareCommand
+import uwu.levaltru.warvilore.commands.*
 
 
 class Warvilore : JavaPlugin() {
@@ -52,15 +49,10 @@ class Warvilore : JavaPlugin() {
 
         getCommand("aboutme")!!.setExecutor(AboutMeCommand())
 
-        val softwareCommand = getCommand("software")
-        val softwareCommandExecutor = SoftwareCommand()
-        softwareCommand!!.setExecutor(softwareCommandExecutor)
-        softwareCommand.tabCompleter = softwareCommandExecutor
-
-        val haloCommand = getCommand("halo")
-        val haloCommandExecutor = HaloCommand()
-        haloCommand!!.setExecutor(haloCommandExecutor)
-        haloCommand.tabCompleter = haloCommandExecutor
+        val abilkaCommand = getCommand("abilka")
+        val abilkaCommandExecutor = AbilkaCommand()
+        abilkaCommand!!.setExecutor(abilkaCommandExecutor)
+        abilkaCommand.tabCompleter = abilkaCommandExecutor
     }
 
     override fun onDisable() {}

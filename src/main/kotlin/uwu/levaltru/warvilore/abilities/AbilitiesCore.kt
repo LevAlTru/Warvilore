@@ -3,6 +3,9 @@ package uwu.levaltru.warvilore.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -34,6 +37,7 @@ abstract class AbilitiesCore(val nickname: String) {
         fun Player.getAbilities(): AbilitiesCore? {
             return hashMap[this.name]
         }
+
         fun String.getAbilities(): AbilitiesCore? {
             return hashMap[this]
         }
@@ -41,6 +45,7 @@ abstract class AbilitiesCore(val nickname: String) {
         fun Player.isEvil(): Boolean {
             return hashMap[this.name]?.isEvil() == true
         }
+
         fun AbilitiesCore.isEvil(): Boolean {
             return this is EvilAurable
         }
@@ -55,7 +60,8 @@ abstract class AbilitiesCore(val nickname: String) {
                 try {
                     Class.forName(Warvilore::class.java.`package`.name + ".abilities.abilities." + s)
                         .constructors[0].newInstance(player.name)
-                } catch (e: ClassNotFoundException) {}
+                } catch (e: ClassNotFoundException) {
+                }
             }
         }
 
@@ -64,7 +70,8 @@ abstract class AbilitiesCore(val nickname: String) {
             val data = player.persistentDataContainer
 
             if (abilitiesCore != null) {
-                data[Namespaces.ABILITY_SAVE_PLACE.namespace, PersistentDataType.STRING] = abilitiesCore::class.java.simpleName
+                data[Namespaces.ABILITY_SAVE_PLACE.namespace, PersistentDataType.STRING] =
+                    abilitiesCore::class.java.simpleName
 
             } else data[Namespaces.ABILITY_SAVE_PLACE.namespace, PersistentDataType.STRING] = "remove"
         }
@@ -85,6 +92,12 @@ abstract class AbilitiesCore(val nickname: String) {
     open fun onLeave(event: PlayerQuitEvent) {}
 
     abstract fun getAboutMe(): List<Component>
+
+    open fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) =
+        sender.sendMessage(text("Нет кастомного функционала =(").color(NamedTextColor.RED))
+    open fun completeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String>? =
+        listOf("nulla")
+
     fun text(text: String) = Component.text(text)
 
 }
