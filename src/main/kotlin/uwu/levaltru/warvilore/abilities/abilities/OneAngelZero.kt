@@ -193,8 +193,8 @@ class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
             Particle.END_ROD, location, 30,
             .2, 0.0, .2, .1, null, true
         )
-        location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_CHARGE_ACTIVATE, SoundCategory.MASTER, 3f, 0.8f)
-        location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_CHARGE_ACTIVATE, SoundCategory.MASTER, 3f, 1.2f)
+        location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, SoundCategory.MASTER, 3f, 0.8f)
+        location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, SoundCategory.MASTER, 3f, 1.2f)
 
         for (p in location.getNearbyPlayers(32.0)) {
             if (p.uniqueId == player!!.uniqueId) continue

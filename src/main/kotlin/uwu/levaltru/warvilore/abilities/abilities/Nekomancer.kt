@@ -166,7 +166,7 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
             )
             if (deadPlayer.ticksLived % 8 == 0)
                 deadPlayer.world.playSound(
-                    deadPlayer.location, Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_CHARGED,
+                    deadPlayer.location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE,
                     SoundCategory.MASTER, 1f, 0.5f
                 )
             if (standStillTime == (READY_TO_REVIVE - 65))
@@ -221,7 +221,7 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
                 stack.amount = 0
             }
             deadPlayer.location.getNearbyPlayers(32.0)
-                .forEach { it.stopSound(Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_CHARGED) }
+                .forEach { it.stopSound(Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE) }
             effects(deadPlayer)
             deadPlayer.teleport(loc)
             spirit.nickname = null
