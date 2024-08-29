@@ -9,7 +9,7 @@ import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.trashcan.CustomItems
+import uwu.levaltru.warvilore.trashcan.CustomWeapons
 
 class AbilitiesCommand : TabExecutor {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>?): Boolean {
@@ -38,7 +38,7 @@ class AbilitiesCommand : TabExecutor {
                 soulbound = args[2]
             }
             try {
-                val valueOf = CustomItems.valueOf(args[1])
+                val valueOf = CustomWeapons.valueOf(args[1])
                 if (sender.inventory.addItem(valueOf.giveItem(soulBouder = soulbound)).isEmpty())
                     sender.sendMessage(
                         Component.text("gave $valueOf").color(NamedTextColor.YELLOW)
@@ -117,7 +117,7 @@ class AbilitiesCommand : TabExecutor {
             1 -> return mutableListOf("set", "getAll", "give")
             2 -> when (args[0].lowercase()) {
                 "set" -> return null
-                "give" -> return CustomItems.entries.map { it.toString() }
+                "give" -> return CustomWeapons.entries.map { it.toString() }
             }
 
             3 -> when (args[0].lowercase()) {

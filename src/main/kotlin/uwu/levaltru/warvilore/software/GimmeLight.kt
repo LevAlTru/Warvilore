@@ -7,7 +7,6 @@ import org.bukkit.Material
 import org.bukkit.block.data.Levelled
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.SoftwareBase
-import uwu.levaltru.warvilore.Warvilore
 
 class GimmeLight(string: String) : SoftwareBase(string) {
 

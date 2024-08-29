@@ -6,25 +6,23 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Ageable
 import org.bukkit.block.data.type.Sapling
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Item
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.bases.HatesEvilAura
-import javax.inject.Named
 
 class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
 
     override fun onTick(event: ServerTickEndEvent) {
-
-        if (player == null) return
-
         super.onTick(event)
 
         val randLoc = player!!.location.clone().add(
@@ -89,7 +87,8 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
     }
 
     override fun onAction(event: PlayerInteractEvent) {
-        if (event.action.name != "RIGHT_CLICK_AIR") return
+        val action = event.action
+        if (action.name != "RIGHT_CLICK_AIR") return
         when (player!!.inventory.itemInMainHand.type) {
             Material.DANDELION,
             Material.POPPY,
@@ -108,26 +107,32 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
             Material.LILAC,
             Material.ROSE_BUSH,
             Material.PEONY,
-            Material.PITCHER_PLANT -> {}
+            Material.PITCHER_PLANT -> showEvilAuraPoisoning()
+
+            Material.NETHERITE_SWORD,
+            Material.WOODEN_SWORD,
+            Material.GOLDEN_SWORD,
+            Material.IRON_SWORD,
+            Material.STONE_SWORD,
+            Material.DIAMOND_SWORD -> {
+
+                TODO("make a three")
+
+            }
+
             else -> return
         }
-        showEvilAuraPoisoning()
     }
 
     override fun getAboutMe(): List<Component> = listOf(
-        text("Твои плюсы:").color(NamedTextColor.DARK_GREEN),
-        text("- Когда ты стоишь около агрокультур или саженцов, они растут быстрее.")
-            .color(NamedTextColor.GREEN),
-        text(
-            "- Когда ты вскапываешь агрокультуры, и ты не на шифте, они автоматически садятся обратно."
-        ).color(NamedTextColor.GREEN),
-        text("Твои минусы:").color(NamedTextColor.DARK_RED),
-        text("- Тебе становится плохо когда ты находишся рядом с ").color(NamedTextColor.RED)
-            .append {
-                text("темными людьми.").style(Style.style(TextDecoration.ITALIC, NamedTextColor.RED))
-            },
-        text("- - Чтобы проверить наскольно тебе попа, нажми по воздуху с любым цветком в руках.")
-            .color(NamedTextColor.LIGHT_PURPLE),
+        text("Твои умения:").color(NamedTextColor.GREEN),
+        text("- Когда ты стоишь около агрокультур или саженцов, они растут быстрее.").color(NamedTextColor.GREEN),
+        text("- Когда ты вскапываешь агрокультуры, и ты не на шифте, они автоматически садятся обратно.").color(NamedTextColor.GREEN),
+        text("- Тебе становится плохо когда ты находишся рядом с ").color(NamedTextColor.RED).append { text("темными людьми.").style(Style.style(TextDecoration.ITALIC, NamedTextColor.RED)) },
+        text("  - Чтобы проверить наскольно тебе попа, нажми по воздуху с любым цветком в руках.").color(NamedTextColor.LIGHT_PURPLE),
+        text("- Когда ты нажимаешь на живое существо, ты создаешь дерево на его месте.").color(NamedTextColor.GREEN),
+        text("  - Существо должен стоять на месте где может вырастить дерево.").color(NamedTextColor.GOLD),
+        text("  - Также если дереву будет недостаточно места, оно разрушит блоки.").color(NamedTextColor.GOLD),
     )
 
 }

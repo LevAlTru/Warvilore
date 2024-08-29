@@ -3,6 +3,8 @@ package uwu.levaltru.warvilore.tickables.projectiles
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.block.data.Waterlogged
+import org.bukkit.damage.DamageSource
+import org.bukkit.damage.DamageType
 import org.bukkit.entity.Damageable
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
@@ -81,7 +83,9 @@ class ReallyFastArrow(location: Location, velocity: Vector, val owner: UUID,
             world.playSound(location, Sound.BLOCK_GLASS_BREAK, SoundCategory.MASTER, 0.5f, 1.1f)
         }
         val player = Bukkit.getPlayer(owner)
-        (entity as? Damageable)?.damage(damage, player)
+        val damageType = DamageSource.builder(DamageType.ARROW)
+        player?.let { damageType.withDirectEntity(it) }
+        (entity as? Damageable)?.damage(damage, damageType.build())
         if (knockback > 0) (entity as? Damageable)?.velocity =
             velocity.clone().normalize().multiply(Vector(0.6 * knockback, 0.0, 0.6 * knockback)).add(Vector(0.0, 0.33, 0.0))
         if (fire) entity?.let { it.fireTicks = max(100, it.fireTicks) }

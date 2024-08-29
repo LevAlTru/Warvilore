@@ -5,7 +5,9 @@ import org.bukkit.NamespacedKey
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.Reflections
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.commands.*
+import uwu.levaltru.warvilore.commands.AbilitiesCommand
+import uwu.levaltru.warvilore.commands.AbilkaCommand
+import uwu.levaltru.warvilore.commands.AboutMeCommand
 
 
 class Warvilore : JavaPlugin() {

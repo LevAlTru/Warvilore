@@ -43,10 +43,10 @@ object LevsUtils {
         return this.persistentDataContainer.get(Namespaces.SOULBOUND.namespace, PersistentDataType.STRING)
     }
 
-    fun getAsCustomItem(itemMeta: ItemMeta): CustomItems? {
+    fun getAsCustomItem(itemMeta: ItemMeta): CustomWeapons? {
         val s =
             itemMeta.persistentDataContainer[Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING] ?: return null
-        return CustomItems.valueOf(s)
+        return CustomWeapons.valueOf(s)
     }
 
     fun frostmourneExplosion(locy: Location, p: Player, hitCaster: Boolean = true) {
@@ -81,6 +81,6 @@ object LevsUtils {
         }
     }
 
-    fun myMod(d: Double, m: Double): Double = if (d < 0) (d % m + m) % m else d % m
+//    fun myMod(d: Double, m: Double): Double = if (d < 0) (d % m + m) % m else d % m
 
 }

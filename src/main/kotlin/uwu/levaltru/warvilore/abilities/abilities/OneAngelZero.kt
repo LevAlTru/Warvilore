@@ -23,32 +23,27 @@ import org.bukkit.util.Transformation
 import org.bukkit.util.Vector
 import org.joml.Quaternionf
 import org.joml.Vector3f
+import uwu.levaltru.warvilore.abilities.abilities.OneAngelZero.HaloTypes
 import uwu.levaltru.warvilore.abilities.bases.HatesEvilAura
 import uwu.levaltru.warvilore.abilities.interfaces.CanSeeSouls
 import uwu.levaltru.warvilore.trashcan.Namespaces
-import java.lang.NumberFormatException
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+private const val SCALE = 2.25f
+private const val COOLDOWN = 20 * 10
+private const val DEFAULT_SPEED = 1f
+private val DEFAULT_TYPE = HaloTypes.SMOOTH_SQUARE
+private val DEFAULT_COLOR = NamedTextColor.GOLD.value()
+
 class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
 
     // make everyone go blind when they look at the halo (on command)
 
-    private val SCALE
-        get() = 2.25f
-
-    private val COOLDOWN
-        get() = 20 * 10
     private val AMBIENT_SOUND
         get() = random.nextInt(20 * 15, 20 * 30)
-    private val DEFAULT_SPEED
-        get() = 1f
-    private val DEFAULT_TYPE
-        get() = HaloTypes.SMOOTH_SQUARE
-    private val DEFAULT_COLOR
-        get() = NamedTextColor.GOLD.value()
 
     private var haloUp: TextDisplay? = null
     private var haloDown: TextDisplay? = null
@@ -317,13 +312,10 @@ class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
         text("- Твой урон от падения снижен в двое").color(NamedTextColor.GREEN),
         text(""),
         text(
-            "- Когда ты на шифте и у тебя нет ничего в руках и ты смотришь в низ, " +
-                    "ты испускаешь яркую волну света которая может ослепить игроков рядом. " +
-                    "Также эта волна света дает тебе скачок вверх если ты в воздухе. " +
-                    "Также этот скачок всегда дает импульс вверх достаточный чтобы не разбиться."
-        ).color(NamedTextColor.GREEN),
+            "- Когда ты на шифте и у тебя нет ничего в руках и ты смотришь в низ, ты испускаешь яркую волну света которая может ослепить игроков рядом. " +
+                    "Также эта волна света дает тебе скачок вверх если ты в воздухе. Также этот скачок всегда дает импульс вверх достаточный чтобы не разбиться.").color(NamedTextColor.GREEN),
         text(""),
-        text("- У тебя есть нимб который ты можешь настраивать через /halo.").color(NamedTextColor.YELLOW),
+        text("- У тебя есть нимб который ты можешь настраивать через /abilka.").color(NamedTextColor.YELLOW),
         text("  - Хоть ты можешь его настроить, ты не можешь его скрыть.").color(NamedTextColor.RED),
     )
 

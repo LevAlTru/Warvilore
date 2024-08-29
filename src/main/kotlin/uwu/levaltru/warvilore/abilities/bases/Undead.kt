@@ -10,7 +10,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.potion.PotionEffectType
-import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 
 abstract class Undead(string: String) : AbilitiesCore(string) {

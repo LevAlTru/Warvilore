@@ -26,7 +26,7 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
-import uwu.levaltru.warvilore.trashcan.CustomItems
+import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import java.util.*
@@ -145,10 +145,10 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
                     if (!item.isFrostmourne()) {
                         if (beforeSword < BEFORE_SWORD_TIMES) beforeSword++
                         else {
-                            coldness = (coldness - 10000).coerceAtLeast(0)
+                            coldness = (coldness - MAX_COLDNESS / 2).coerceAtLeast(0)
                             beforeSword = 0
                             player!!.inventory.setItemInMainHand(
-                                CustomItems.FROSTMOURNE.replaceItem(
+                                CustomWeapons.FROSTMOURNE.replaceItem(
                                     item,
                                     player!!.name
                                 )
@@ -344,7 +344,7 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
 
     companion object {
         fun ItemStack.isFrostmourne(): Boolean =
-            CustomItems.FROSTMOURNE.equals(this)
+            CustomWeapons.FROSTMOURNE.equals(this)
 
         fun snowyfi(loc: Location) {
             val block = loc.block
@@ -427,46 +427,24 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
         text("Твои умения:").color(NamedTextColor.GREEN),
         text(""),
         text("- Ты нежить. Это значит что другая нежить не будет тебя атаковать если её не провоцировать. " +
-                "Также это значит что на некоторые типы урона тебе просто все ровно," +
-                " парочку даже восполняют тебе здоровье.").color(NamedTextColor.GREEN),
+                "Также это значит что на некоторые типы урона тебе просто все ровно, парочку даже восполняют тебе здоровье.").color(NamedTextColor.GREEN),
         text(""),
-        text(
-            "- Снег и лед это материалы по которым ты двигаешься с увеличенной скоростью. " +
-                    "Также это материалы которые обнуляют твой урон от падения (даже снежные ковры)."
+        text("- Снег и лед это материалы по которым ты двигаешься с увеличенной скоростью. Также это материалы которые обнуляют твой урон от падения (даже снежные ковры)."
         ).color(NamedTextColor.GREEN),
         text(""),
         text("- Добыча снега или льда голой рукой ").color(NamedTextColor.GREEN)
-            .append {
-                text("Ледяной Скорбью, ").style(
-                    Style.style(
-                        TextDecoration.ITALIC,
-                        NamedTextColor.DARK_AQUA
-                    )
-                )
-            }
+            .append { text("Ледяной Скорбью, ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
             .append { text("осуществляется с эффектом шелкового касания.").color(NamedTextColor.GREEN) },
         text(""),
         text("- Когда ты на шифте, и у тебя в руках незеритовый меч или ").color(NamedTextColor.GREEN)
             .append { text("Ледяная Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
-            .append {
-                text(
-                    "Ты создаешь холод вокруг себя. Если у тебя в руках незеритовый меч, " +
-                            "то спустя какое-то время он превратится в "
-                ).color(NamedTextColor.GREEN)
-            }
+            .append { text("Ты создаешь холод вокруг себя. Если у тебя в руках незеритовый меч, то спустя какое-то время он превратится в ").color(NamedTextColor.GREEN) }
             .append { text("Ледяную Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) },
-        text(
-            "  - Небольшая рекомендация: делай это когда у тебя много холода, " +
-                    "так как этот процесс забирает много твоих сил. Еще ты можешь загореться."
-        ).color(NamedTextColor.GOLD),
+        text("  - Небольшая рекомендация: делай это когда у тебя много холода, так как этот процесс забирает много твоих сил. Еще ты можешь загореться.").color(NamedTextColor.GOLD),
         text(""),
         text("- Когда ты нажимаешь на любой меч, тебе показывается температура и шкала твоего холода").color(NamedTextColor.GREEN),
-        text(
-            "  - Стрелка вниз (↓) обозначает что тут холодно (aka тебе хорошо). " +
-                    "Стрелка вверх (↑) обозначает что тут жарко (aka тебе плохо). " +
-                    "Цвет в стрелках является как дополнительным индикатором холода / жары " +
-                    "(aka красная стрелка вниз горячее чем синяя стрелка вниз но тебе и там и там хорошо)."
-        ).color(NamedTextColor.YELLOW),
+        text("  - Стрелка вниз (↓) обозначает что тут холодно (aka тебе хорошо). Стрелка вверх (↑) обозначает что тут жарко (aka тебе плохо). " +
+                "Цвет в стрелках является как дополнительным индикатором холода / жары (aka красная стрелка вниз горячее чем синяя стрелка вниз но тебе и там и там хорошо).").color(NamedTextColor.YELLOW),
         text(""),
         text(""),
         text("Твои минусы:").color(NamedTextColor.RED),
@@ -478,9 +456,7 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
         text("    p - Огнеупорность на броне;").color(NamedTextColor.YELLOW),
         text("    f - если есть огнестойкость = 2, если нет = 1").color(NamedTextColor.YELLOW),
         text(""),
-        text("- Урон от огня утроен, и твоя шкала холода уменьшается когда ты получаешь урон от огня.").color(
-            NamedTextColor.RED
-        ),
+        text("- Урон от огня утроен, и твоя шкала холода уменьшается когда ты получаешь урон от огня.").color(NamedTextColor.RED),
         text(""),
         text("- Эффективность твоих умений зависит от шкалы холода.").color(NamedTextColor.RED),
         text(""),

@@ -3,7 +3,9 @@ package uwu.levaltru.warvilore
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
@@ -74,23 +76,25 @@ class CustomEvents : Listener {
                     if (itemMeta.getSoulBound() != player.name) {
                         val i =
                             itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER]
-                                ?: asCustomItem?.timesBeforeBreak ?: 0
-                        if (i <= 0)
-                            if (asCustomItem != null) asCustomItem.onBreak(player, event.attacked)
+                                ?: asCustomItem?.timesBeforeBreak
+                        if (i != null) {
+                            if (i <= 0)
+                                if (asCustomItem != null) asCustomItem.onBreak(player, event.attacked)
+                                else {
+                                    item.amount = 0
+                                    player.world.playSound(
+                                        player.location,
+                                        Sound.ENTITY_ITEM_BREAK,
+                                        SoundCategory.MASTER,
+                                        1f,
+                                        1f
+                                    )
+                                }
                             else {
-                                item.amount = 0
-                                player.world.playSound(
-                                    player.location,
-                                    Sound.ENTITY_ITEM_BREAK,
-                                    SoundCategory.MASTER,
-                                    1f,
-                                    1f
-                                )
+                                itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER] =
+                                    i - 1
+                                item.itemMeta = itemMeta
                             }
-                        else {
-                            itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER] =
-                                i - 1
-                            item.itemMeta = itemMeta
                         }
                     } else {
                         itemMeta.persistentDataContainer.set(

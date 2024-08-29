@@ -11,19 +11,15 @@ import org.bukkit.damage.DamageType
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.projectiles.BloodySlice
-import uwu.levaltru.warvilore.trashcan.CustomItems
-import uwu.levaltru.warvilore.trashcan.LevsUtils
-import uwu.levaltru.warvilore.trashcan.LevsUtils.setSoulBoundTo
+import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.max
-import kotlin.reflect.jvm.internal.impl.descriptors.Named
 
 private const val RIGHT_CLICK_TIMES = 6
 
@@ -77,6 +73,10 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
             || location.distanceSquared(prevLoc!!) > 0.0001
             || !player!!.isSneaking
         ) {
+            if (timeBeforeNextPray > 1 && timeBeforeNextPray % 20 == 0)
+                player!!.sendActionBar(text("${timeBeforeNextPray / 20}s").color(NamedTextColor.RED))
+            else if (timeBeforeNextPray == 0)
+                player!!.sendActionBar(text(""))
             prevLoc = location.clone()
             rightClickTimes = 0
             timeBeforeNextPray -= timeBeforeNextPray.coerceAtMost(1)
@@ -125,7 +125,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
             if (item.type == Material.IRON_SWORD) {
                 val itemMeta = item.itemMeta
                 if (!itemMeta.hasCustomModelData() || item.isMeaCulpa()) {
-                    player!!.inventory.setItemInMainHand(CustomItems.MEA_CULPA.replaceItem(item, player!!.name))
+                    player!!.inventory.setItemInMainHand(CustomWeapons.MEA_CULPA.replaceItem(item, player!!.name))
                     canBloodSlice = true
                     heartAttack(0)
                 }
@@ -177,9 +177,8 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
             (canBloodSlice || player!!.gameMode == GameMode.CREATIVE)
             && event.action.isRightClick
         ) {
-
             BloodySlice(player!!.eyeLocation, player!!.location.direction.multiply(1.5), player!!.uniqueId)
-            heartAttack(270)
+            heartAttack(170)
             player!!.world.playSound(
                 player!!.location,
                 Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM,
@@ -205,9 +204,9 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
     private fun isBurning(): Boolean = rightClickTimes >= RIGHT_CLICK_TIMES
 
-    fun ItemStack.isMeaCulpa(): Boolean = CustomItems.MEA_CULPA.equals(this)
+    fun ItemStack.isMeaCulpa(): Boolean = CustomWeapons.MEA_CULPA.equals(this)
 
-    fun heartAttack(i: Int) {
+    private fun heartAttack(i: Int) {
         if (player!!.gameMode != GameMode.CREATIVE) {
             val damageSource = DamageSource.builder(DamageType.GENERIC).withDirectEntity(player!!).build()
             player!!.damage(0.01, damageSource)
@@ -215,9 +214,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
         }
         player!!.addPotionEffects(
             listOf(
-                PotionEffect(PotionEffectType.BLINDNESS, 300 - i, 0, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, 400 - i, 0, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, 325 - i, 1, true, false, true),
+                PotionEffect(PotionEffectType.BLINDNESS, 200 - i, 0, true, false, true),
                 PotionEffect(PotionEffectType.SLOWNESS, 250 - i, 2, true, false, true),
                 PotionEffect(PotionEffectType.SLOWNESS, 175 - i, 3, true, false, true),
                 PotionEffect(PotionEffectType.SLOWNESS, 100 - i, 4, true, false, true),
@@ -226,36 +223,20 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
     }
 
     override fun getAboutMe(): List<Component> = listOf(
-        text(
-            "С тобой бог, и он тебя слышит. " +
-                    "Для молитвы богу тебе надо присесть и наживать по земле с железным мечем в руках. " +
-                    "Пока ты в присяди, "
-        ).append { text("синий огонь ").color(NamedTextColor.DARK_AQUA) }.append {
-            text(
-                "твоей вины опутает тебя и окресность вокгур. " +
-                        "Он будет тебя защищать до конца молитвы. " +
-                        "Если ты будешь молится достаточно долго, то твой железный мечь будет награжден новой формой."
-            )
-        }.color(NamedTextColor.GREEN),
-
+        text("С тобой бог. Для молитвы богу тебе надо присесть и наживать по земле с железным мечем в руках. Пока ты в присяди, ")
+            .append { text("синий огонь ").color(NamedTextColor.DARK_AQUA) }
+            .append {
+                text("твоей вины опутает тебя и окресность вокгур. Он будет тебя защищать до конца молитвы. Если ты будешь молится достаточно долго, то твой железный мечь будет награжден новой формой.")
+                    .color(NamedTextColor.GREEN)
+            },
         text("Его имя ").color(NamedTextColor.GREEN)
-            .append {
-                text("Mea Culpa. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA))
-            }.append { text("Этот меч позволит тебе выпускать ").color(NamedTextColor.GREEN) }
+            .append { text("Mea Culpa. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
+            .append { text("Этот меч позволит тебе выпускать ").color(NamedTextColor.GREEN) }
             .append { text("Лезвие Крови. ").color(NamedTextColor.RED) },
-
         text("Но будь осторожен! После каждой молитвы дьявол захочет тебе помешать! ").color(NamedTextColor.GOLD)
-            .append {
-                text("Ты почуствешь себя плохо, и ты даже потеряешь часть своих жизней. ").color(NamedTextColor.RED)
-            }
-            .append {
-                text("Также это будет происходить когда ты используешь ").color(NamedTextColor.GOLD)
-            }
-            .append {
-                text("Лезвие Крови ").color(NamedTextColor.RED)
-            }
-            .append {
-                text("(потому что selfharm это больно u know?).").color(NamedTextColor.LIGHT_PURPLE)
-            }
+            .append { text("Ты почуствешь себя плохо, и ты даже потеряешь часть своих жизней. ").color(NamedTextColor.RED) }
+            .append { text("Также это будет происходить когда ты используешь ").color(NamedTextColor.GOLD) }
+            .append { text("Лезвие Крови ").color(NamedTextColor.RED) }
+            .append { text("(потому что selfharm это больно u know?).").color(NamedTextColor.LIGHT_PURPLE) }
     )
 }

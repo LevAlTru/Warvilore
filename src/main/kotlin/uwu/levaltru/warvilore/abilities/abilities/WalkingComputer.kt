@@ -24,7 +24,6 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.SoftwareBase
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.min
 
@@ -299,14 +298,9 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
     override fun getAboutMe(): List<Component> = listOf(
         text("Твои умения:").color(NamedTextColor.GREEN),
         text(""),
-        text("- Ты компьютер. У тебя есть возможность использовать различный софт через команду /software.").color(
-            NamedTextColor.GREEN
-        ),
+        text("- Ты компьютер. У тебя есть возможность использовать различный софт через команду /abilka.").color(NamedTextColor.GREEN),
         text(""),
-        text(
-            "- Когда по тебе бьет молния ты перезаряжаешься. " +
-                    "У тебя появляются дополнительные эффекты на 5 минут."
-        ).color(NamedTextColor.GREEN),
+        text("- Когда по тебе бьет молния ты перезаряжаешься. У тебя появляются дополнительные эффекты на 5 минут.").color(NamedTextColor.GREEN),
         text(""),
         text("Твои минусы:").color(NamedTextColor.RED),
         text(""),
