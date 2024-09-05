@@ -12,6 +12,7 @@ enum class Namespaces(val namespace: NamespacedKey) {
     INVISIBILITY_COUNTER(Warvilore.namespace("invisibilityCounter")),
     EVIL_AURA_SICKNESS(Warvilore.namespace("evilAuraSickness")),
     MANA(Warvilore.namespace("mana")),
+    TREE_COOLDOWN(Warvilore.namespace("treeCooldown")),
     BEFORE_NEXT_STROKE(Warvilore.namespace("timeBeforeNextStroke")),
     BEFORE_NEXT_PRAY(Warvilore.namespace("timeBeforeNextPray")),
     CAN_BLOOD_SLICE(Warvilore.namespace("canBloodSlice")),

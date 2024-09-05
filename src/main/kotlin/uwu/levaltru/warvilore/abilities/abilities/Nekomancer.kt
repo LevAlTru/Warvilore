@@ -15,8 +15,8 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils

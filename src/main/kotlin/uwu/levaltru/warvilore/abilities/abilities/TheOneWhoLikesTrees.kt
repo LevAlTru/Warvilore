@@ -9,7 +9,6 @@ import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Ageable
-import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.type.Sapling
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
@@ -21,7 +20,6 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.BoundingBox
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Warvilore
-import uwu.levaltru.warvilore.abilities.abilities.TheOneWhoLikesTrees.Companion.isBlockTreeThing
 import uwu.levaltru.warvilore.abilities.bases.HatesEvilAura
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
@@ -36,14 +34,14 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
     var treeCooldown: Int = 0
         get() {
             field = player?.persistentDataContainer?.get(
-                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                Namespaces.TREE_COOLDOWN.namespace,
                 PersistentDataType.INTEGER
             ) ?: 0
             return field
         }
         set(value) {
             player?.persistentDataContainer?.set(
-                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                Namespaces.TREE_COOLDOWN.namespace,
                 PersistentDataType.INTEGER, value
             )
             field = value

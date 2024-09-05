@@ -14,10 +14,9 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
-import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 
 private const val MAX_MANA: Int = 10000

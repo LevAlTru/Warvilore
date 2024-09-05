@@ -3,7 +3,6 @@ package uwu.levaltru.warvilore.trashcan
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Entity
@@ -15,7 +14,6 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.Warvilore
-import java.util.*
 
 enum class CustomWeapons(
     val timesBeforeBreak: Int? = null,

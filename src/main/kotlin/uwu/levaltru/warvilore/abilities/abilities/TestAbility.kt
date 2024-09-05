@@ -3,7 +3,6 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.command.Command
@@ -15,7 +14,6 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import kotlin.math.ceil
-import kotlin.time.times
 
 class TestAbility(nickname: String) : AbilitiesCore(nickname) {
     override fun onTick(event: ServerTickEndEvent) {

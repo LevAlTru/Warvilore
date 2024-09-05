@@ -25,7 +25,6 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
 import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
-import uwu.levaltru.warvilore.abilities.abilities.Nekomancer
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
