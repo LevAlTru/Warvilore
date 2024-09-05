@@ -25,7 +25,7 @@ import org.joml.Quaternionf
 import org.joml.Vector3f
 import uwu.levaltru.warvilore.abilities.abilities.OneAngelZero.HaloTypes
 import uwu.levaltru.warvilore.abilities.bases.HatesEvilAura
-import uwu.levaltru.warvilore.abilities.interfaces.CanSeeSouls
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.cos
 import kotlin.math.max
@@ -59,8 +59,7 @@ class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
     private var rotation = 0.0f
 
     override fun onTick(event: ServerTickEndEvent) {
-        if (!player!!.isDead)
-            halosTick()
+        if (!player!!.isDead) halosTick()
         cooldown--
     }
 
@@ -171,7 +170,7 @@ class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
 
     override fun onDamage(event: EntityDamageEvent) {
         when (event.damageSource.damageType) {
-            DamageType.FALL -> event.damage *= 0.5
+            DamageType.FALL, DamageType.STALAGMITE -> event.damage *= 0.5
         }
     }
 
@@ -200,7 +199,7 @@ class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
             if (p.uniqueId == player!!.uniqueId) continue
             val vec = location.clone().subtract(p.eyeLocation).toVector().normalize()
             val dot = vec.dot(p.location.direction.normalize())
-            if (dot > 0.97) {
+            if (dot > 0.95) {
                 val distance = p.eyeLocation.distance(location)
                 if (distance > 32.0) continue
                 val factor = (32.0 - distance) / 32.0
@@ -309,10 +308,10 @@ class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
     override fun getAboutMe(): List<Component> = listOf(
         text("Твои умения:").color(NamedTextColor.LIGHT_PURPLE),
         text(""),
-        text("- Твой урон от падения снижен в двое").color(NamedTextColor.GREEN),
+        text("- Твой урон от падения снижен вдвое").color(NamedTextColor.GREEN),
         text(""),
         text(
-            "- Когда ты на шифте и у тебя нет ничего в руках и ты смотришь в низ, ты испускаешь яркую волну света которая может ослепить игроков рядом. " +
+            "- Когда ты на шифте, и у тебя нет ничего в руках, и ты смотришь в низ, ты испускаешь яркую волну света которая может ослепить игроков рядом. " +
                     "Также эта волна света дает тебе скачок вверх если ты в воздухе. Также этот скачок всегда дает импульс вверх достаточный чтобы не разбиться.").color(NamedTextColor.GREEN),
         text(""),
         text("- У тебя есть нимб который ты можешь настраивать через /abilka.").color(NamedTextColor.YELLOW),

@@ -22,16 +22,15 @@ class Warvilore : JavaPlugin() {
 
         log("Creating list of abilities for command usage...")
         abilitiesList = emptyList<String>().toMutableList()
-        for (clazz in Reflections(Warvilore::class.java.`package`.name + ".abilities.abilities")
-            .getSubTypesOf(AbilitiesCore::class.java)) {
+        for (clazz in Reflections(Warvilore::class.java.`package`.name + ".abilities.abilities").getSubTypesOf(AbilitiesCore::class.java)
+            .filter { it.packageName.contains("abilities.abilities") }) {
             log(clazz.name)
             abilitiesList!!.add(clazz.simpleName)
         }
 
         log("Creating list of software for walking computers usage...")
         softwareList = emptyList<String>().toMutableList()
-        for (clazz in Reflections(Warvilore::class.java.`package`.name + ".software")
-            .getSubTypesOf(SoftwareBase::class.java)) {
+        for (clazz in Reflections(Warvilore::class.java.`package`.name + ".software").getSubTypesOf(SoftwareBase::class.java)) {
             log(clazz.name)
             softwareList!!.add(clazz.simpleName)
         }
@@ -64,12 +63,8 @@ class Warvilore : JavaPlugin() {
         var abilitiesList: MutableList<String>? = null
         var softwareList: MutableList<String>? = null
 
-        fun log(string: String) {
-            instance.logger.info(string)
-        }
+        fun log(string: String) { instance.logger.info(string) }
 
-        fun namespace(s: String): NamespacedKey {
-            return NamespacedKey(instance, s)
-        }
+        fun namespace(s: String): NamespacedKey = NamespacedKey(instance, s)
     }
 }

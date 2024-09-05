@@ -18,11 +18,12 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.persistence.PersistentDataType
+import uwu.levaltru.warvilore.Actionable
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.trashcan.Namespaces
 
-abstract class AbilitiesCore(val nickname: String) {
+abstract class AbilitiesCore(val nickname: String): Actionable() {
 
     val random = java.util.Random()
     var player: Player? = null
@@ -77,19 +78,6 @@ abstract class AbilitiesCore(val nickname: String) {
         }
 
     }
-
-    open fun onTick(event: ServerTickEndEvent) {}
-    open fun onBlockBreak(event: BlockBreakEvent) {}
-    open fun onBlockPlace(event: BlockPlaceEvent) {}
-    open fun onDamage(event: EntityDamageEvent) {}
-    open fun onHeal(event: EntityRegainHealthEvent) {}
-    open fun onAction(event: PlayerInteractEvent) {}
-    open fun onEating(event: PlayerItemConsumeEvent) {}
-    open fun onDeath(event: PlayerDeathEvent) {}
-    open fun onBowShooting(event: EntityShootBowEvent) {}
-    open fun onAttack(event: PrePlayerAttackEntityEvent) {}
-    open fun onJoin(event: PlayerJoinEvent) {}
-    open fun onLeave(event: PlayerQuitEvent) {}
 
     abstract fun getAboutMe(): List<Component>
 

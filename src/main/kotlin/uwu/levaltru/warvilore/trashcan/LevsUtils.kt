@@ -1,6 +1,7 @@
 package uwu.levaltru.warvilore.trashcan
 
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Player
@@ -68,7 +69,7 @@ object LevsUtils {
         locy.world.playSound(locy, org.bukkit.Sound.ITEM_TRIDENT_THUNDER, 5f, 0.5f)
 
         val entities = locy.getNearbyLivingEntities(16.0)
-        val damageSource = DamageSource.builder(org.bukkit.damage.DamageType.FREEZE).withDirectEntity(p).build()
+        val damageSource = DamageSource.builder(org.bukkit.damage.DamageType.FREEZE).withDirectEntity(p).withCausingEntity(p).build()
         for (entity in entities) {
             val location = entity.location
             if (location.distanceSquared(locy) > 16.0 * 16.0) continue
@@ -78,6 +79,13 @@ object LevsUtils {
                 .normalize().multiply(1.5).add(Vector(0.0, 0.8, 0.0))
             entity.velocity = vector
             entity.freezeTicks = entity.freezeTicks.coerceAtLeast(1000)
+        }
+    }
+
+    fun isSword(material: Material): Boolean {
+        return when (material) {
+            Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD -> true
+            else -> false
         }
     }
 

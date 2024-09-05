@@ -15,8 +15,9 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.abilities.interfaces.CanSeeSouls
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
@@ -34,7 +35,7 @@ private const val GOLDEN_APPLE_MANA = 600
 private const val HOW_OFTEN_GET_SICK_MIN = 20 * 60 * 3
 private const val HOW_OFTEN_GET_SICK_MAX = 20 * 60 * 5
 
-class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSouls {
+class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSouls, CantLeaveSouls {
 
     var prevLoc: Location? = null
     var standStillTime = 0
@@ -75,7 +76,6 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
 
         if (timeBeforeNextStroke <= 0) {
             manaDeficiency()
-            player!!.playSound(player!!.location, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, 0.33f, 0.5f)
             timeBeforeNextStroke = (random.nextInt(HOW_OFTEN_GET_SICK_MIN, HOW_OFTEN_GET_SICK_MAX))
         } else timeBeforeNextStroke--
 
@@ -166,11 +166,11 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
             )
             if (deadPlayer.ticksLived % 8 == 0)
                 deadPlayer.world.playSound(
-                    deadPlayer.location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE,
+                    deadPlayer.location, Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS,
                     SoundCategory.MASTER, 1f, 0.5f
                 )
             if (standStillTime == (READY_TO_REVIVE - 65))
-                deadPlayer.world.playSound(deadPlayer.location, Sound.ENTITY_WARDEN_SONIC_CHARGE, 3.0f, 0.5f)
+                deadPlayer.world.playSound(deadPlayer.location, Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS, 2.5f, 0.5f)
         }
     }
 
@@ -245,25 +245,16 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
     }
 
     private fun manaDeficiency() {
-        if (mana < 4500) // 4500 / 6000 = 75%
-            player!!.addPotionEffect(
-                PotionEffect(PotionEffectType.NAUSEA, 30 * 20, 0, true, false, true)
-            )
+        if (mana < 4500) {
+            player!!.addPotionEffect(PotionEffect(PotionEffectType.NAUSEA, 30 * 20, 0, true, false, true))
+            player!!.playSound(player!!.location, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, 0.33f, 0.5f)
+        }
         else return
-        if (mana < 3000)
-            player!!.addPotionEffect(
-                PotionEffect(PotionEffectType.DARKNESS, 15 * 20, 0, true, false, true)
-            )
+        if (mana < 3000) player!!.addPotionEffect(PotionEffect(PotionEffectType.DARKNESS, 15 * 20, 0, true, false, true))
         else return
-        if (mana < 1500)
-            player!!.addPotionEffect(
-                PotionEffect(PotionEffectType.BLINDNESS, 30 * 20, 0, true, false, true)
-            )
+        if (mana < 1500) player!!.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 30 * 20, 0, true, false, true))
         else return
-        if (mana < 500)
-            player!!.addPotionEffect(
-                PotionEffect(PotionEffectType.WITHER, 20 * 20, 0, true, false, true)
-            )
+        if (mana < 500) player!!.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 20 * 20, 0, true, false, true))
         else return
     }
 

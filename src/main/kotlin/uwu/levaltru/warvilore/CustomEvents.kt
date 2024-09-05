@@ -28,6 +28,7 @@ import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
 import uwu.levaltru.warvilore.abilities.abilities.Nekomancer
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
@@ -187,8 +188,8 @@ class CustomEvents : Listener {
         val player = event.player
         val abilities = player.getAbilities()
         abilities?.onDeath(event)
-        if (abilities is Nekomancer) return
-        DeathSpirit(player.location.add(0.0, player.height / 2, 0.0), (abilities is EvilAurable), player.name)
+        if (abilities is CantLeaveSouls) return
+        if (!event.isCancelled) DeathSpirit(player.location.add(0.0, player.height / 2, 0.0), (abilities is EvilAurable), player.name)
     }
 
     @EventHandler

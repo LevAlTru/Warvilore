@@ -9,6 +9,7 @@ import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 
 class AbilitiesCommand : TabExecutor {
@@ -49,10 +50,23 @@ class AbilitiesCommand : TabExecutor {
             return true
         }
 
+        if (args[0].lowercase() == "get") {
+            val player = Bukkit.getPlayer(args[1])
+            if (player == null) {
+                sender.sendMessage(Component.text("Player is not found").color(NamedTextColor.RED))
+                return true
+            }
+            sender.sendMessage(
+                Component.text("${player.name} is ").color(NamedTextColor.GOLD)
+                    .append(Component.text(player.getAbilities()?.let { it::class.simpleName } ?: "none")
+                        .color(NamedTextColor.LIGHT_PURPLE))
+            )
+            return true
+        }
+
         if (size < 3) return false
 
         if (args[0].lowercase() == "set") {
-
             val player = Bukkit.getPlayer(args[1])
             var clazz: Class<*>? = null
             if (args[2].lowercase() != "remove") {
@@ -114,15 +128,19 @@ class AbilitiesCommand : TabExecutor {
     ): List<String>? {
         if (args == null) return emptyList()
         when (args.size) {
-            1 -> return mutableListOf("set", "getAll", "give")
+            1 -> return mutableListOf("set", "get", "getAll", "give")
             2 -> when (args[0].lowercase()) {
-                "set" -> return null
-                "give" -> return CustomWeapons.entries.map { it.toString() }
+                "set", "get" -> return null
+                "give" -> return CustomWeapons.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
             }
 
             3 -> when (args[0].lowercase()) {
                 "set" -> return Warvilore.abilitiesList?.plus("remove")
-                    ?.filter { it.lowercase().startsWith(args[2].lowercase()) }
+                    ?.filter { it.lowercase().startsWith(args[2].lowercase()) } ?: listOf("ERROR")
+
+                "get" -> return Warvilore.abilitiesList?.filter { it.lowercase().startsWith(args[2].lowercase()) }
+                    ?: listOf("ERROR")
+
                 "give" -> return null
             }
 

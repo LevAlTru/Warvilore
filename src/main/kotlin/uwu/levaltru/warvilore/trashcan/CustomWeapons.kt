@@ -3,6 +3,7 @@ package uwu.levaltru.warvilore.trashcan
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Entity
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
+import uwu.levaltru.warvilore.Warvilore
 import java.util.*
 
 enum class CustomWeapons(
@@ -34,22 +36,15 @@ enum class CustomWeapons(
                             b.amount
                         }
                     }
-                    itemMeta.addAttributeModifier(
-                        a,
-                        AttributeModifier(b.uniqueId, b.name, amount, b.operation, b.slotGroup)
-                    )
+                    itemMeta.addAttributeModifier(a, AttributeModifier(b.key, amount, b.operation, b.slotGroup))
                 }
                 itemMeta.addAttributeModifier(
                     Attribute.PLAYER_ENTITY_INTERACTION_RANGE,
-                    AttributeModifier(
-                        UUID.randomUUID(), "theColdestOneSword", 1.5,
-                        AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND
-                    )
+                    AttributeModifier(Warvilore.namespace("theColdestOneSword"), 1.5, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.HAND)
                 )
                 itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                if (itemMeta.hasItemName()) {
-                    itemMeta.itemName(itemMeta.itemName().color(NamedTextColor.DARK_AQUA))
-                } else itemMeta.itemName(Component.text("Ледяная Скорбь").color(NamedTextColor.DARK_AQUA))
+                if (itemMeta.hasItemName()) itemMeta.itemName(itemMeta.itemName().color(NamedTextColor.DARK_AQUA))
+                else itemMeta.itemName(Component.text("Ледяная Скорбь").color(NamedTextColor.DARK_AQUA))
                 (itemMeta as? Damageable)?.damage = 0
             }
         },
@@ -59,15 +54,13 @@ enum class CustomWeapons(
             val itemMeta = item.itemMeta
             if (itemMeta is Damageable) {
                 itemMeta.damage = 2000
-                for ((enchant, level) in originalItem.enchantments)
-                    itemMeta.addEnchant(enchant, level, true)
+                for ((enchant, level) in originalItem.enchantments) itemMeta.addEnchant(enchant, level, true)
                 item.itemMeta = itemMeta
             }
             p.inventory.setItemInMainHand(item)
 
             val pLoc = p.location
-            val locy = p.location.add(0.0, p.height / 2, 0.0)
-                .add(pLoc.direction.multiply(pLoc.distance(e.location) / 2))
+            val locy = p.location.add(0.0, p.height / 2, 0.0).add(pLoc.direction.multiply(pLoc.distance(e.location) / 2))
             LevsUtils.frostmourneExplosion(locy, p)
         },
     ),
@@ -75,10 +68,7 @@ enum class CustomWeapons(
         2, 1, Material.IRON_SWORD,
         { itemMeta ->
             run {
-                if (!itemMeta.hasItemName()) itemMeta.itemName(
-                    Component.text("Mea Culpa")
-                        .color(NamedTextColor.DARK_AQUA)
-                )
+                if (!itemMeta.hasItemName()) itemMeta.itemName(Component.text("Mea Culpa").color(NamedTextColor.DARK_AQUA))
                 else itemMeta.itemName(itemMeta.itemName().color(NamedTextColor.DARK_AQUA))
                 (itemMeta as Damageable).damage = 0
                 itemMeta.setMaxDamage(250)
@@ -93,10 +83,6 @@ enum class CustomWeapons(
                 .1, .1, .1, .2, null, true)
             p.inventory.setItemInMainHand(ItemStack.empty())
         },
-    ),
-    SOUL_BOTTLE(
-        2, 1, Material.GLASS_BOTTLE,
-        { itemMeta -> }
     ),
 
     ;

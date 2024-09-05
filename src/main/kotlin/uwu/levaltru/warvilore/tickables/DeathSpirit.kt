@@ -6,7 +6,7 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
-import uwu.levaltru.warvilore.abilities.interfaces.CanSeeSouls
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import java.util.*
 
 private val random = Random()
@@ -40,8 +40,7 @@ class DeathSpirit(val loc: Location, val isOminous: Boolean, var nickname: Strin
                         .1, .1, .1, .03, null, true
                     )
                 }
-                if (age % 4 == 0)
-                    player.playSound(loc, Sound.PARTICLE_SOUL_ESCAPE, 0.5f, 1f)
+                if (age % 4 == 0) player.playSound(loc, Sound.PARTICLE_SOUL_ESCAPE, 0.5f, 1f)
             }
         }
 

@@ -14,6 +14,7 @@ import org.bukkit.damage.DamageType
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -62,6 +63,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
                     PotionEffect(PotionEffectType.HASTE, 10, 1, true, false, true),
                     PotionEffect(PotionEffectType.SPEED, 10, 1, true, false, true),
                     PotionEffect(PotionEffectType.JUMP_BOOST, 10, 1, true, false, true),
+                    PotionEffect(PotionEffectType.SATURATION, 10, 1, true, false, true),
                 )
             )
             charge--
@@ -117,7 +119,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
                     }
                 }
                 player!!.inventory.clear()
-                val source = DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).build()
+                val source = DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).withCausingEntity(player!!).build()
                 player!!.damage(100.0, source)
                 player!!.health = 0.0
                 charge = 0
@@ -128,7 +130,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
 
     private fun electricExplosion(power: Double) {
         val entities = player!!.location.getNearbyLivingEntities(power)
-        val source = DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).build()
+        val source = DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).withCausingEntity(player!!).build()
         val size = entities.size
         for (e in entities) {
             if (e.uniqueId == player!!.uniqueId) continue
@@ -163,6 +165,14 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
                     PotionEffect(PotionEffectType.BLINDNESS, 25, 0, true, false, true)
                 )
             }
+            DamageType.MAGIC, DamageType.INDIRECT_MAGIC, DamageType.WITHER, DamageType.DROWN, -> event.isCancelled = true
+        }
+    }
+
+    override fun onHeal(event: EntityRegainHealthEvent) {
+        when (event.regainReason) {
+            EntityRegainHealthEvent.RegainReason.MAGIC, EntityRegainHealthEvent.RegainReason.MAGIC_REGEN, -> event.isCancelled = true
+            else -> {}
         }
     }
 
@@ -239,8 +249,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
         if (clazz != null) newInstance =
             clazz.constructors[0].newInstance(args.copyOfRange(1, args.size).joinToString(separator = " ")) as SoftwareBase
         if (args.any { it.lowercase() == "help" }) {
-            newInstance?.description()?.forEach { sender.sendMessage(it) }
-                ?: sender.sendMessage(Component.text("null").color(NamedTextColor.LIGHT_PURPLE))
+            newInstance?.description()?.forEach { sender.sendMessage(it) } ?: sender.sendMessage(Component.text("null").color(NamedTextColor.LIGHT_PURPLE))
             return
         }
 
@@ -252,9 +261,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
             }
             .append { if (args.size > 1 && newInstance != null) {
                 Component.text(" with arguments: ").color(NamedTextColor.GREEN)
-                    .append { Component.text(
-                        newInstance.arguments.map { "${it.key}:${it.value}" }.joinToString(separator = " ")
-                    ).color(NamedTextColor.LIGHT_PURPLE) }
+                    .append { Component.text(newInstance.arguments.map { "${it.key}:${it.value}" }.joinToString(separator = " ")).color(NamedTextColor.LIGHT_PURPLE) }
             } else Component.text("") })
     }
 
@@ -299,15 +306,14 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
         text("Твои умения:").color(NamedTextColor.GREEN),
         text(""),
         text("- Ты компьютер. У тебя есть возможность использовать различный софт через команду /abilka.").color(NamedTextColor.GREEN),
+        text("  - Еще ты не восприимчив к типам урона органических существ (отравление, моментальный урон и иссушение)."),
         text(""),
         text("- Когда по тебе бьет молния ты перезаряжаешься. У тебя появляются дополнительные эффекты на 5 минут.").color(NamedTextColor.GREEN),
         text(""),
         text("Твои минусы:").color(NamedTextColor.RED),
         text(""),
         text("- Ты компьютер. Ты боишься воды (но не дождя).").color(NamedTextColor.RED),
-        text(
-            "  - Когда ты перезаряжен, ты взрываешься при контакте с водой. " +
-                    "Также это наносит колоссальный крон тебе и тем кто касается воды около тебя."
-        ).color(NamedTextColor.RED),
+        text("  - Еще ты не восприимчив к типам регенерации органических существ (регенерация и исцеление).").color(NamedTextColor.RED),
+        text("  - Когда ты перезаряжен, ты взрываешься при контакте с водой. Также это наносит колоссальный крон тебе и тем кто касается воды около тебя.").color(NamedTextColor.RED),
     )
 }

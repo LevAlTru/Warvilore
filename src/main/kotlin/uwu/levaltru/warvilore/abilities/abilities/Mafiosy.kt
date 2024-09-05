@@ -12,12 +12,14 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 
-private const val COOLDOWN: Int = 20 * 60 * 2
+private const val COOLDOWN: Int = 20 * 80
 private const val DURATION: Int = 20 * 20
+private const val REGUIRED_PLAYER_AMOUNT = 3
 
-open class MafiosyLesser(nickname: String) : AbilitiesCore(nickname) {
+open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
     //    override fun getEvilAura(): Double {
 //        if (isMafiInvisible()) return 16.0
 //        return 4.0
@@ -45,17 +47,7 @@ open class MafiosyLesser(nickname: String) : AbilitiesCore(nickname) {
 
     fun invisibleFun(event: PlayerInteractEvent): Boolean {
         if (event.action.name != "RIGHT_CLICK_AIR") return false
-        when (player!!.inventory.itemInMainHand.type) {
-            Material.WOODEN_SWORD,
-            Material.STONE_SWORD,
-            Material.IRON_SWORD,
-            Material.GOLDEN_SWORD,
-            Material.DIAMOND_SWORD,
-            Material.NETHERITE_SWORD -> {
-            }
-
-            else -> return false
-        }
+        if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return false
         if (cooldown > 0 && player!!.gameMode != GameMode.CREATIVE) {
             player!!.sendActionBar(Component.text("${cooldown / 20}s").color(NamedTextColor.RED))
             player!!.playSound(player!!.location, Sound.BLOCK_DECORATED_POT_INSERT_FAIL, SoundCategory.MASTER, 1f, 1f)
@@ -80,6 +72,19 @@ open class MafiosyLesser(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun onTick(event: ServerTickEndEvent) {
+        if (player!!.ticksLived % 100 == 0) {
+            var ye = 0
+            for (pla in player!!.location.getNearbyPlayers(8.0)) {
+                if (pla.location.distanceSquared(player!!.location) < 64.0) {
+                    if (pla.getAbilities() is Mafiosy) {
+                        ye++
+                        if (ye < REGUIRED_PLAYER_AMOUNT) continue
+                        player!!.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 110, 0, true, true, true))
+                        break
+                    }
+                }
+            }
+        }
         if (cooldown > 0) cooldown--
     }
 
@@ -93,7 +98,7 @@ open class MafiosyLesser(nickname: String) : AbilitiesCore(nickname) {
         text("Твои навыки:").color(NamedTextColor.GREEN),
         text("- При нажатии на любой меч, ты уходишь в ").color(NamedTextColor.GREEN)
             .append { text("true ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.GREEN)) }
-            .append { text("невидимость на 20 секунд.").color(NamedTextColor.GREEN) },
-        text("  - Перезаряжается 2 минуты.").color(NamedTextColor.GOLD)
+            .append { text("невидимость на ${DURATION / 20} секунд.").color(NamedTextColor.GREEN) },
+        text("  - Перезаряжается ${COOLDOWN / 20} секунд.").color(NamedTextColor.GOLD)
     )
 }

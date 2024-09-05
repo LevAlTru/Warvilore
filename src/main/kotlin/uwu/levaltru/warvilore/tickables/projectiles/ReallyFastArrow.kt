@@ -18,7 +18,7 @@ import kotlin.math.max
 private const val MAX_AGE = 20 * 60
 
 private const val STEP_SIZE = 0.1
-private val random = java.util.Random()
+private val random = Random()
 
 class ReallyFastArrow(location: Location, velocity: Vector, val owner: UUID,
                       val damage: Double, val knockback: Int, var fire: Boolean, val effects: List<PotionEffect>) :
@@ -84,7 +84,7 @@ class ReallyFastArrow(location: Location, velocity: Vector, val owner: UUID,
         }
         val player = Bukkit.getPlayer(owner)
         val damageType = DamageSource.builder(DamageType.ARROW)
-        player?.let { damageType.withDirectEntity(it) }
+        player?.let { damageType.withDirectEntity(it).withCausingEntity(it) }
         (entity as? Damageable)?.damage(damage, damageType.build())
         if (knockback > 0) (entity as? Damageable)?.velocity =
             velocity.clone().normalize().multiply(Vector(0.6 * knockback, 0.0, 0.6 * knockback)).add(Vector(0.0, 0.33, 0.0))

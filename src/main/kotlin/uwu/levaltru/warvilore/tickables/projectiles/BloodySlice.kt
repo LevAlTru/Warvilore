@@ -47,7 +47,7 @@ class BloodySlice(location: Location, velocity: Vector, val owner: UUID) :
         val entities = point.getNearbyLivingEntities(velocity.length())
         val damageSource = DamageSource.builder(DamageType.PLAYER_ATTACK)
         val player = Bukkit.getPlayer(owner)
-        player?.let { damageSource.withDirectEntity(player) }
+        player?.let { damageSource.withDirectEntity(player).withCausingEntity(player) }
         val damageSourceBuilt = damageSource.build()
 
         for (vec in getInBeetweens(STEP_SIZE)) {
@@ -62,10 +62,10 @@ class BloodySlice(location: Location, velocity: Vector, val owner: UUID) :
                 livingEntity.damage(15.0 * scale, damageSourceBuilt)
 
                 val vector = velocity.clone().rotateAroundY(90.0)                         // a stupid way to get
-                val subtract = livingEntity.location.toVector().subtract(location.toVector())   // "is entity on the
+                val subtract = livingEntity.location.toVector().subtract(location.toVector())  // "is entity on the
                 vector.multiply(Vector(1, 0, 1)).normalize()                                 // right side of this
-                val dot = vector.dot(subtract.normalize())                                    // vector on it is on
-                if (dot < 0) vector.multiply(-1)                                                  // the left?"
+                val dot = vector.dot(subtract.normalize())                                   // vector on it is on
+                if (dot < 0) vector.multiply(-1)                                                // the left?"
 
                 vector.multiply(0.7 * scale).add(Vector(0.0, 0.7 * scale, 0.0))
                 livingEntity.velocity = vector

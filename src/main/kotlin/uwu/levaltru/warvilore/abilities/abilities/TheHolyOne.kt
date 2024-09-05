@@ -23,8 +23,8 @@ import kotlin.math.max
 
 private const val RIGHT_CLICK_TIMES = 6
 
-private const val PRAY_COOLDOWN = 20 * 60
-private const val PRAY_SCORE = 30
+private const val PRAY_COOLDOWN = 20 * 45
+private const val PRAY_SCORE = 20
 
 class TheHolyOne(string: String) : AbilitiesCore(string) {
 
@@ -100,7 +100,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
         )
 
 
-        val damageSource = DamageSource.builder(DamageType.IN_FIRE).withDirectEntity(player!!).build()
+        val damageSource = DamageSource.builder(DamageType.IN_FIRE).withDirectEntity(player!!).withCausingEntity(player!!).build()
         val nearbyLivingEntities = location.getNearbyLivingEntities(10.0)
         if (burningScore >= PRAY_SCORE) {
             for (livingEntity in nearbyLivingEntities.filter { it.location.distanceSquared(location) < 100.0 }) {
@@ -178,7 +178,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
             && event.action.isRightClick
         ) {
             BloodySlice(player!!.eyeLocation, player!!.location.direction.multiply(1.5), player!!.uniqueId)
-            heartAttack(170)
+            heartAttack(75)
             player!!.world.playSound(
                 player!!.location,
                 Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM,
@@ -208,22 +208,22 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
     private fun heartAttack(i: Int) {
         if (player!!.gameMode != GameMode.CREATIVE) {
-            val damageSource = DamageSource.builder(DamageType.GENERIC).withDirectEntity(player!!).build()
+            val damageSource = DamageSource.builder(DamageType.GENERIC).withDirectEntity(player!!).withCausingEntity(player!!).build()
             player!!.damage(0.01, damageSource)
             player!!.health -= player!!.health.coerceAtMost(6.99)
         }
         player!!.addPotionEffects(
             listOf(
-                PotionEffect(PotionEffectType.BLINDNESS, 200 - i, 0, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, 250 - i, 2, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, 175 - i, 3, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, 100 - i, 4, true, false, true),
+                PotionEffect(PotionEffectType.BLINDNESS, max(100 - i, 0), 0, true, false, true),
+                PotionEffect(PotionEffectType.SLOWNESS, max(250 - i, 0), 2, true, false, true),
+                PotionEffect(PotionEffectType.SLOWNESS, max(175 - i, 0), 3, true, false, true),
+                PotionEffect(PotionEffectType.SLOWNESS, max(100 - i, 0), 4, true, false, true),
             )
         )
     }
 
     override fun getAboutMe(): List<Component> = listOf(
-        text("С тобой бог. Для молитвы богу тебе надо присесть и наживать по земле с железным мечем в руках. Пока ты в присяди, ")
+        text("С тобой бог. Для молитвы богу тебе надо присесть и наживать по земле с железным мечем в руках. Пока ты в присяди, ").color(NamedTextColor.GREEN)
             .append { text("синий огонь ").color(NamedTextColor.DARK_AQUA) }
             .append {
                 text("твоей вины опутает тебя и окресность вокгур. Он будет тебя защищать до конца молитвы. Если ты будешь молится достаточно долго, то твой железный мечь будет награжден новой формой.")
