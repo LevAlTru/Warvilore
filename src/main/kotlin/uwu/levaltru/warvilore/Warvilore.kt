@@ -8,6 +8,7 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.commands.AbilitiesCommand
 import uwu.levaltru.warvilore.commands.AbilkaCommand
 import uwu.levaltru.warvilore.commands.AboutMeCommand
+import uwu.levaltru.warvilore.tickables.Zone
 
 
 class Warvilore : JavaPlugin() {
@@ -19,6 +20,9 @@ class Warvilore : JavaPlugin() {
 
         log("Events registration...")
         Bukkit.getPluginManager().registerEvents(CustomEvents(), this)
+
+        log("Zone instance...")
+        Zone.getInstance()
 
         log("Creating list of abilities for command usage...")
         abilitiesList = emptyList<String>().toMutableList()
@@ -37,6 +41,8 @@ class Warvilore : JavaPlugin() {
 
         log("Commands registration...")
         registerCommands()
+
+
 
         log("All done!")
 

@@ -34,4 +34,15 @@ enum class Namespaces(val namespace: NamespacedKey) {
 
 
     SHOULD_DESPAWN(Warvilore.namespace("shouldDespawn")),
+
+
+    WORLD_ZONE_BLUE(Warvilore.namespace("zoneBlur")),
+    WORLD_ZONE_BLUE_SPEED(Warvilore.namespace("zoneBlurSpeed")),
+    WORLD_ZONE_APPROACHING_BLUE(Warvilore.namespace("zoneApproachingBlur")),
+    WORLD_ZONE_DISTANCE(Warvilore.namespace("zoneDistance")),
+    WORLD_ZONE_APPROACHING_DISTANCE(Warvilore.namespace("zoneApproachingDistance")),
+    WORLD_ZONE_SPEED(Warvilore.namespace("zoneSpeed")),
+    WORLD_ZONE_TYPE(Warvilore.namespace("zoneType")),
+
+    ;
 }

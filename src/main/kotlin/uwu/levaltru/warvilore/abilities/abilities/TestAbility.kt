@@ -12,7 +12,9 @@ import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.ceil
 
 class TestAbility(nickname: String) : AbilitiesCore(nickname) {
@@ -79,10 +81,8 @@ class TestAbility(nickname: String) : AbilitiesCore(nickname) {
         args: Array<out String>
     ): List<String>? {
         return when (args.size) {
-            1 -> listOf("x")
-            2 -> listOf("y")
-            3 -> listOf("z")
-            4 -> listOf("size")
+            1 -> Namespaces.values().map { it.name }.filter { it.lowercase().contains("world") }
+            2 -> listOf("value")
             else -> listOf("")
         }
     }
@@ -90,15 +90,12 @@ class TestAbility(nickname: String) : AbilitiesCore(nickname) {
     override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
         if (sender !is Player) return
         try {
-            val x = args[0].toInt()
-            val y = args[1].toInt()
-            val z = args[2].toInt()
-            val size = args[3].toDouble()
+            val valueOf = Namespaces.valueOf(args[0])
+            val double = args[1].toDouble()
 
-            val i = ceil(size).toInt()
-            for (x1 in -i..i)
-                for (z1 in -i..i)
-                    if (x1 * x1 + z1 * z1 < size * size) sender.world.setType(x + x1, y, z + z1, Material.DIAMOND_BLOCK)
+            player!!.world.persistentDataContainer.set(valueOf.namespace, PersistentDataType.DOUBLE, double)
+
+            sender.sendMessage(Component.text("set ${valueOf.namespace} to $double").color(NamedTextColor.GREEN))
 
         } catch (e: Exception) {
             sender.sendMessage(Component.text("error: $e").color(NamedTextColor.RED))
