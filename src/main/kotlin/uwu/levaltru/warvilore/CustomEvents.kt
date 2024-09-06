@@ -8,6 +8,7 @@ import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.SpectralArrow
 import org.bukkit.event.EventHandler
@@ -20,6 +21,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
+import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
@@ -39,6 +41,7 @@ class CustomEvents : Listener {
     @EventHandler
     fun onTick(event: ServerTickEndEvent?) {
         Tickable.Tick()
+        Zone.getInstance().tick()
         for (player in Bukkit.getOnlinePlayers()) {
             event?.let {
                 player.getAbilities()?.let {
@@ -123,8 +126,7 @@ class CustomEvents : Listener {
                 if (strings != null) {
                     if (!strings.contains(player.name))
                         strings.add(player.name)
-                }
-                else strings = mutableListOf(player.name)
+                } else strings = mutableListOf(player.name)
                 entity.persistentDataContainer[Namespaces.WHO_HAVE_HIT.namespace, PersistentDataType.LIST.strings()] =
                     strings
             }
@@ -188,7 +190,11 @@ class CustomEvents : Listener {
         val abilities = player.getAbilities()
         abilities?.onDeath(event)
         if (abilities is CantLeaveSouls) return
-        if (!event.isCancelled) DeathSpirit(player.location.add(0.0, player.height / 2, 0.0), (abilities is EvilAurable), player.name)
+        if (!event.isCancelled) DeathSpirit(
+            player.location.add(0.0, player.height / 2, 0.0),
+            (abilities is EvilAurable),
+            player.name
+        )
     }
 
     @EventHandler
@@ -207,8 +213,21 @@ class CustomEvents : Listener {
     }
 
     @EventHandler
+    fun onMobSpawn(event: EntitySpawnEvent) {
+        event.isCancelled = event.entity.entitySpawnReason == CreatureSpawnEvent.SpawnReason.NATURAL &&
+                Zone.factorOf(event.location.blockX / 16, event.location.blockZ / 16, event.location.world) > 0.01
+    }
+
+    @EventHandler
+    fun onPortalThing(event: PortalCreateEvent) {
+        event.isCancelled = (event.world.persistentDataContainer.get(Namespaces.WORLD_ARE_PORTAL_ALLOWED.namespace, PersistentDataType.DOUBLE) ?: 0) == 0
+    }
+
+    @EventHandler
     fun onChunkLoad(event: ChunkLoadEvent) {
+        val b = event.isNewChunk && Zone.factorOf(event.chunk.x / 16, event.chunk.z / 16, event.world) > 0.01
         for (entity in event.chunk.entities) {
+            if (b && entity is LivingEntity) entity.remove()
             if (entity.persistentDataContainer[Namespaces.SHOULD_DESPAWN.namespace, PersistentDataType.BOOLEAN] == true)
                 entity.remove()
         }

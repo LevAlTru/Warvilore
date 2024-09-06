@@ -14,66 +14,11 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.ceil
 
-class TestAbility(nickname: String) : AbilitiesCore(nickname) {
-    override fun onTick(event: ServerTickEndEvent) {
-        player?.world?.spawnParticle(
-            Particle.END_ROD,
-            player!!.location,
-            1,
-            0.3, 0.1, 0.3,
-            0.02,
-            null, true
-        )
-    }
-
-    override fun onBlockBreak(event: BlockBreakEvent) {
-        event.block.world.spawnParticle(
-            Particle.END_ROD,
-            event.block.location.toCenterLocation(),
-            100,
-            0.2, 0.2, 0.2,
-            0.1,
-            null, true
-        )
-    }
-
-    override fun onBlockPlace(event: BlockPlaceEvent) {
-        event.block.world.spawnParticle(
-            Particle.END_ROD,
-            event.block.location.toCenterLocation(),
-            100,
-            0.2, 0.2, 0.2,
-            0.1,
-            null, true
-        )
-    }
-
-    override fun onDamage(event: EntityDamageEvent) {
-        if (event.damageSource.damageType == DamageType.FALL) {
-            player?.world?.spawnParticle(
-                Particle.END_ROD,
-                player!!.location,
-                100,
-                0.3, 0.1, 0.3,
-                0.05,
-                null, true
-            )
-            event.isCancelled = true
-        } else {
-            player?.world?.spawnParticle(
-                Particle.END_ROD,
-                player!!.location.clone().add(0.0, player!!.height / 2, 0.0),
-                100,
-                0.1, 0.3, 0.1,
-                0.1,
-                null, true
-            )
-        }
-    }
-
+class TestAbility(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     override fun completeCommand(
         sender: CommandSender,
         command: Command,
@@ -103,4 +48,6 @@ class TestAbility(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun getAboutMe(): List<Component> = listOf(text("test ability").color(NamedTextColor.DARK_PURPLE))
+
+    override fun getEvilAura(): Double = 5.0
 }

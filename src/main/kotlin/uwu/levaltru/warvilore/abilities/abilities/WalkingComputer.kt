@@ -160,7 +160,6 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
         when (event.damageSource.damageType) {
             DamageType.LIGHTNING_BOLT -> {
                 charge = MAX_CHARGE
-                event.damage = 0.01
                 player!!.addPotionEffect(
                     PotionEffect(PotionEffectType.BLINDNESS, 25, 0, true, false, true)
                 )
