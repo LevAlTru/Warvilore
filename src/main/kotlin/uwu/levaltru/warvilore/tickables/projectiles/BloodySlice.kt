@@ -59,7 +59,7 @@ class BloodySlice(location: Location, velocity: Vector, val owner: UUID) :
                 val uuid = livingEntity.uniqueId
                 if (set.contains(uuid)) continue
                 set.add(uuid)
-                livingEntity.damage(15.0 * scale, damageSourceBuilt)
+                livingEntity.damage(10.0 * scale, damageSourceBuilt)
 
                 val vector = velocity.clone().rotateAroundY(90.0)                         // a stupid way to get
                 val subtract = livingEntity.location.toVector().subtract(location.toVector())  // "is entity on the

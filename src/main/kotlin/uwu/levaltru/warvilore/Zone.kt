@@ -63,76 +63,6 @@ class Zone private constructor() {
                     Namespaces.WORLD_ZONE_TYPE.namespace,
                     PersistentDataType.DOUBLE
                 )?.toInt()) {
-                    1 -> {
-                        val location = Location(
-                            world,
-                            chunk.x * 16 + 8.0,
-                            world.minHeight + world.maxHeight.toDouble() / 2,
-                            chunk.z * 16 + 8.0
-                        )
-                        if (random.nextDouble() < 0.05 * factor) {
-                            val x = random.nextInt(0, 16)
-                            val z = random.nextInt(0, 16)
-                            val fx = chunk.x * 16 + x
-                            val fz = chunk.z * 16 + z
-                            world.spawn(
-                                Location(
-                                    world,
-                                    fx + 0.5,
-                                    world.getHighestBlockAt(fx, fz).y + 1.0,
-                                    fz + 0.5
-                                ),
-                                LightningStrike::class.java, SpawnReason.COMMAND
-                            ) {
-                                it.persistentDataContainer.set(
-                                    Namespaces.SHOULD_DESPAWN.namespace,
-                                    PersistentDataType.BOOLEAN,
-                                    true
-                                )
-                            }
-                            chunk.entities.filterIsInstance<LivingEntity>().forEach {
-                                it.addPotionEffect(
-                                    PotionEffect(
-                                        PotionEffectType.WITHER, 120, 1, true, true, true
-                                    )
-                                )
-                            }
-                        }
-
-                        for (segment in world.minHeight..<world.maxHeight step 16) {
-                            val nextDouble = random.nextDouble()
-                            var d = nextDouble * nextDouble * 15 * factor
-                            while (d > 1 || random.nextDouble() < d) {
-                                d--
-
-                                val x = random.nextDouble(0.0, 16.0)
-                                val y = random.nextDouble(0.0, 16.0)
-                                val z = random.nextDouble(0.0, 16.0)
-                                val fx = chunk.x * 16 + x
-                                val fy = segment + y
-                                val fz = chunk.z * 16 + z
-
-                                if (Location(
-                                        location.world,
-                                        location.x,
-                                        segment + 8.0,
-                                        location.z
-                                    ).getNearbyPlayers(24.0).isNotEmpty()
-                                ) world.spawnParticle(
-                                    Particle.ELECTRIC_SPARK,
-                                    fx,
-                                    fy,
-                                    fz,
-                                    0,
-                                    random.nextDouble(0.75, 1.5),
-                                    -random.nextDouble(0.5, 1.0),
-                                    random.nextDouble(1.0, 3.0),
-                                    1.0 * factor
-                                )
-                            }
-                        }
-                    }
-
                     2 -> {
                         val location = Location(
                             world,
@@ -194,7 +124,76 @@ class Zone private constructor() {
                         }
                     }
 
-                    else -> {}
+                    else -> {
+                        val location = Location(
+                            world,
+                            chunk.x * 16 + 8.0,
+                            world.minHeight + world.maxHeight.toDouble() / 2,
+                            chunk.z * 16 + 8.0
+                        )
+                        if (random.nextDouble() < 0.05 * factor) {
+                            if (!chunk.isEntitiesLoaded) continue
+                            val x = random.nextInt(0, 16)
+                            val z = random.nextInt(0, 16)
+                            val fx = chunk.x * 16 + x
+                            val fz = chunk.z * 16 + z
+                            world.spawn(
+                                Location(
+                                    world,
+                                    fx + 0.5,
+                                    world.getHighestBlockAt(fx, fz).y + 1.0,
+                                    fz + 0.5
+                                ),
+                                LightningStrike::class.java, SpawnReason.COMMAND
+                            ) {
+                                it.persistentDataContainer.set(
+                                    Namespaces.SHOULD_DESPAWN.namespace,
+                                    PersistentDataType.BOOLEAN,
+                                    true
+                                )
+                            }
+                            chunk.entities.filterIsInstance<LivingEntity>().forEach {
+                                it.addPotionEffect(
+                                    PotionEffect(
+                                        PotionEffectType.WITHER, 120, 1, true, true, true
+                                    )
+                                )
+                            }
+                        }
+
+                        for (segment in world.minHeight..<world.maxHeight step 16) {
+                            val nextDouble = random.nextDouble()
+                            var d = nextDouble * nextDouble * 45 * factor
+                            while (d > 1 || random.nextDouble() < d) {
+                                d--
+
+                                val x = random.nextDouble(0.0, 16.0)
+                                val y = random.nextDouble(0.0, 16.0)
+                                val z = random.nextDouble(0.0, 16.0)
+                                val fx = chunk.x * 16 + x
+                                val fy = segment + y
+                                val fz = chunk.z * 16 + z
+
+                                if (Location(
+                                        location.world,
+                                        location.x,
+                                        segment + 8.0,
+                                        location.z
+                                    ).getNearbyPlayers(24.0).isNotEmpty()
+                                ) world.spawnParticle(
+                                    Particle.ELECTRIC_SPARK,
+                                    fx,
+                                    fy,
+                                    fz,
+                                    0,
+                                    random.nextDouble(0.75, 1.5),
+                                    -random.nextDouble(0.5, 1.0),
+                                    random.nextDouble(1.0, 3.0),
+                                    1.0 * factor
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

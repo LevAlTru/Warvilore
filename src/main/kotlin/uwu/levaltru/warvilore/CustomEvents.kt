@@ -136,6 +136,12 @@ class CustomEvents : Listener {
     }
 
     @EventHandler
+    fun onKill(event: EntityDeathEvent) {
+        val killer = event.damageSource.causingEntity ?: return
+        if (killer is Player) killer.getAbilities()?.onKill(event)
+    }
+
+    @EventHandler
     fun onHeal(event: EntityRegainHealthEvent) {
         val entity = event.entity
         if (entity is Player) entity.getAbilities()?.onHeal(event)

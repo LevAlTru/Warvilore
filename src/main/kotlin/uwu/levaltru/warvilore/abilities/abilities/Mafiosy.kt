@@ -79,7 +79,7 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
                     if (pla.getAbilities() is Mafiosy) {
                         ye++
                         if (ye < REGUIRED_PLAYER_AMOUNT) continue
-                        player!!.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 110, 0, true, true, true))
+                        player!!.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 110, 0, true, false, true))
                         break
                     }
                 }

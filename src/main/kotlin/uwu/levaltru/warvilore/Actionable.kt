@@ -4,10 +4,7 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntityRegainHealthEvent
-import org.bukkit.event.entity.EntityShootBowEvent
-import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.entity.*
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -24,6 +21,7 @@ abstract class Actionable {
     open fun onDeath(event: PlayerDeathEvent) {}
     open fun onBowShooting(event: EntityShootBowEvent) {}
     open fun onAttack(event: PrePlayerAttackEntityEvent) {}
+    open fun onKill(event: EntityDeathEvent) {}
     open fun onJoin(event: PlayerJoinEvent) {}
     open fun onLeave(event: PlayerQuitEvent) {}
 }

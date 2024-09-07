@@ -14,18 +14,52 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.trashcan.LevsUtils
+import uwu.levaltru.warvilore.trashcan.Namespaces
 import java.util.*
 import kotlin.math.max
 
+private const val MAX_CHARGES = 3
 private const val DASH_DURATION = 5
 private const val DAMAGE_TICKS_DURATION = 10
-private const val COOLDOWN_DURATION = 7 * 20 + 10
+private const val COOLDOWN_DURATION = 12
+private const val REFIL_TIME = 20 * 10
 
-class DashingSamurai(nickname: String) : AbilitiesCore(nickname), EvilAurable {
+class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
+
+    var charges: Int = 0
+        get() {
+            field = player?.persistentDataContainer?.get(
+                Namespaces.CHARGES.namespace,
+                PersistentDataType.INTEGER
+            ) ?: MAX_CHARGES
+            return field
+        }
+        set(value) {
+            player?.persistentDataContainer?.set(
+                Namespaces.CHARGES.namespace,
+                PersistentDataType.INTEGER, value
+            )
+            field = value
+        }
+    var refill: Int = 0
+        get() {
+            field = player?.persistentDataContainer?.get(
+                Namespaces.REFILL.namespace,
+                PersistentDataType.INTEGER
+            ) ?: MAX_CHARGES
+            return field
+        }
+        set(value) {
+            player?.persistentDataContainer?.set(
+                Namespaces.REFILL.namespace,
+                PersistentDataType.INTEGER, value
+            )
+            field = value
+        }
 
     var dashTicks: Int = 0
     var damageTicks: Int = 0
@@ -34,21 +68,32 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     val alreadyHit = mutableListOf<UUID>()
 
     override fun onTick(event: ServerTickEndEvent) {
-        if (cooldown > 0) {
-            cooldown--
-            if (LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) {
-                if (cooldown == 0) player!!.sendActionBar(text(""))
-                else if (cooldown % 20 == 0 || cooldown == COOLDOWN_DURATION)
-                    player!!.sendActionBar(Component.text("${cooldown / 20}s").color(NamedTextColor.RED))
+        if (cooldown > 0) cooldown--
+
+//        if (LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) {
+//            if (refil % 20 == 1) player!!.sendMessage("• ".repeat(charges) + "○ ".repeat(MAX_CHARGES - charges) + "| ${(refil - REFIL_TIME) / 20}")
+//        }
+        if (LevsUtils.isSword(player!!.inventory.itemInMainHand.type) && refill % 20 == 0)
+            player!!.sendActionBar(text(("● ".repeat(charges) + "○ ".repeat(MAX_CHARGES - charges).removeSuffix(" "))).color(NamedTextColor.GOLD))
+
+        if (charges < MAX_CHARGES || refill == 0) {
+            refill++
+            if (refill > REFIL_TIME) {
+                refill = 0
+                charges++
             }
         }
+
         if (damageTicks > 0) {
             damageTicks--
-            val damageSource = DamageSource.builder(DamageType.PLAYER_ATTACK).withDirectEntity(player!!).withCausingEntity(player!!).build()
+            val damageSource =
+                DamageSource.builder(DamageType.PLAYER_ATTACK).withDirectEntity(player!!).withCausingEntity(player!!)
+                    .build()
             val item = player!!.inventory.itemInMainHand
             val itemMeta = item.itemMeta
 
-            val damage = (player!!.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)?.value ?: 0.0) + 3.5 + (itemMeta.enchants[Enchantment.SHARPNESS] ?: 0)
+            val damage = (player!!.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)?.value
+                ?: 0.0) + 3.5 + (itemMeta.enchants[Enchantment.SHARPNESS] ?: 0)
 
             val hitBox = player!!.boundingBox.expand(1.0)
             alreadyHit.add(player!!.uniqueId)
@@ -59,8 +104,11 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname), EvilAurable {
 
                 var flexiDamage = damage
                 if (EntityTags.UNDEADS.values.contains(entity.type)) flexiDamage += itemMeta.getEnchantLevel(Enchantment.SMITE) * 2.5
-                if (entity.type == EntityType.SPIDER || entity.type == EntityType.CAVE_SPIDER) flexiDamage += itemMeta.getEnchantLevel(Enchantment.BANE_OF_ARTHROPODS) * 2.5
-                entity.fireTicks = (entity.fireTicks + (itemMeta.enchants[Enchantment.FIRE_ASPECT] ?: 0) * 80).coerceAtMost(max(entity.fireTicks, 160))
+                if (entity.type == EntityType.SPIDER || entity.type == EntityType.CAVE_SPIDER) flexiDamage += itemMeta.getEnchantLevel(
+                    Enchantment.BANE_OF_ARTHROPODS
+                ) * 2.5
+                entity.fireTicks = (entity.fireTicks + (itemMeta.enchants[Enchantment.FIRE_ASPECT]
+                    ?: 0) * 80).coerceAtMost(max(entity.fireTicks, 160))
 
                 val boundingBox = entity.boundingBox
                 val xz = (boundingBox.maxX - boundingBox.minX) / 3
@@ -78,21 +126,32 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname), EvilAurable {
 
 
             val locy = player!!.location.add(0.0, player!!.height / 2, 0.0)
-            player!!.world.spawnParticle(Particle.DUST, locy, 5, .2, .4, .2, 0.0, Particle.DustOptions(Color.RED, 2f), true)
+            player!!.world.spawnParticle(
+                Particle.DUST,
+                locy,
+                5,
+                .2,
+                .4,
+                .2,
+                0.0,
+                Particle.DustOptions(Color.RED, 2f),
+                true
+            )
             player!!.fallDistance = 0f
         } else alreadyHit.clear()
-        if (dashTicks <= 0) return
-        dashTicks--
 
-        player!!.velocity = direction
+        if (dashTicks > 0) {
+            dashTicks--
+            player!!.velocity = direction
+        }
     }
 
     override fun onAction(event: PlayerInteractEvent) {
         if (!event.action.isRightClick) return
         if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return
         val location = player!!.location
-        if (cooldown > 0) {
-            if (cooldown > COOLDOWN_DURATION - 5) return
+        if (cooldown > 0) return
+        if (charges <= 0) {
             player!!.playSound(location, Sound.BLOCK_DECORATED_POT_INSERT_FAIL, SoundCategory.MASTER, 1f, 1f)
             return
         }
@@ -105,7 +164,8 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname), EvilAurable {
         direction = location.direction.multiply(1).add(player!!.velocity.multiply(0.33))
         if (player!!.gameMode != GameMode.CREATIVE) {
             cooldown = COOLDOWN_DURATION
-            player!!.sendActionBar(Component.text("${cooldown / 20}s").color(NamedTextColor.RED))
+            charges--
+            player!!.sendActionBar(text(("● ".repeat(charges) + "○ ".repeat(MAX_CHARGES - charges).removeSuffix(" "))).color(NamedTextColor.GOLD))
         }
     }
 
@@ -116,18 +176,23 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     override fun onDeath(event: PlayerDeathEvent) {
         dashTicks = 0
         damageTicks = 0
-        cooldown = 10
+        cooldown = 0
+        charges = MAX_CHARGES
+        refill = 0
     }
-
-    override fun getEvilAura(): Double = 6.0
 
     override fun getAboutMe(): List<Component> = listOf(
         text("Твои навыки:").color(NamedTextColor.GREEN),
         text("").color(NamedTextColor.GREEN),
-        text("- У тебя есть рывок, чтобы его активировать тебе надо нажать правой кнопкой мыши по любому мечу.").color(NamedTextColor.GREEN),
+        text("- У тебя есть рывок, чтобы его активировать тебе надо нажать правой кнопкой мыши по любому мечу.").color(
+            NamedTextColor.GREEN
+        ),
         text("  - Рывок наносит урон всем сущностям рядом, урон зависит от урона предмета в руке.").color(NamedTextColor.GREEN),
         text("  - Когда ты находишься в рывке, ты не получаешь урона от падения.").color(NamedTextColor.GREEN),
-        text("  - Рывок перезаряжается ${COOLDOWN_DURATION / 20} секунд.").color(NamedTextColor.GOLD),
-        text("  - Вектор движения влияет на расстояние рывка (прыгай перед использованием для большей эффективности).").color(NamedTextColor.DARK_GREEN),
+        text("  - У тебя $MAX_CHARGES заряда рывка.").color(NamedTextColor.GOLD),
+        text("  - Один заряд перезаряжается ${REFIL_TIME / 20} секунд.").color(NamedTextColor.GOLD),
+        text("  - Вектор движения влияет на расстояние рывка (прыгай перед использованием для большей эффективности).").color(
+            NamedTextColor.DARK_GREEN
+        ),
     )
 }

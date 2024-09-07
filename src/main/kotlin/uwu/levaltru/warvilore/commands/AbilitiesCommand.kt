@@ -24,12 +24,12 @@ class AbilitiesCommand : TabExecutor {
             return true
         }
 
-        if (sender !is Player) {
-            sender.sendMessage(Component.text("not a player").color(NamedTextColor.RED))
-            return true
-        }
-
         if (args[0].lowercase() == "give") {
+
+            if (sender !is Player) {
+                sender.sendMessage(Component.text("not a player").color(NamedTextColor.RED))
+                return true
+            }
             if (args.size < 2) {
                 sender.sendMessage(Component.text("not enough arguments").color(NamedTextColor.RED))
                 return true

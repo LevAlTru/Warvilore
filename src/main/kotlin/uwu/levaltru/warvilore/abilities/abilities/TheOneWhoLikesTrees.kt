@@ -16,6 +16,7 @@ import org.bukkit.entity.Item
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.BoundingBox
 import org.bukkit.util.Vector
@@ -209,8 +210,8 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
                             entity.pitch
                         )
                     )
-                    entity.damage(15.0, damageSource)
                     Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+                        entity.damage(15.0, damageSource)
                         entity.velocity = Vector(
                             random.nextGaussian() * 0.3,
                             random.nextDouble(1.2, 1.5),
@@ -257,6 +258,10 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
             return true
         }
         return false
+    }
+
+    override fun onEating(event: PlayerItemConsumeEvent) {
+        if (event.item.type == Material.MILK_BUCKET) evilAuraSickness = 0
     }
 
     override fun onDeath(event: PlayerDeathEvent) {

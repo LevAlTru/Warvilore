@@ -69,7 +69,8 @@ object LevsUtils {
         locy.world.playSound(locy, org.bukkit.Sound.ITEM_TRIDENT_THUNDER, 5f, 0.5f)
 
         val entities = locy.getNearbyLivingEntities(16.0)
-        val damageSource = DamageSource.builder(org.bukkit.damage.DamageType.FREEZE).withDirectEntity(p).withCausingEntity(p).build()
+        val damageSource =
+            DamageSource.builder(org.bukkit.damage.DamageType.FREEZE).withDirectEntity(p).withCausingEntity(p).build()
         for (entity in entities) {
             val location = entity.location
             if (location.distanceSquared(locy) > 16.0 * 16.0) continue
@@ -87,6 +88,51 @@ object LevsUtils {
             Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD -> true
             else -> false
         }
+    }
+
+    fun toTime(ticksLived: Int): String {
+        val seconds = (ticksLived / (20)) % 60
+        val minutes = (ticksLived / (20 * 60)) % 60
+        val hours = (ticksLived / (20 * 60 * 60))
+
+        var string = ""
+        if (hours > 0) string += "${hours}h : "
+        if (minutes > 0 || hours > 0) string += "${minutes}m : "
+        string += "${seconds}s"
+        return string
+    }
+
+    fun Material.isGreenFood() = when (this) {
+        Material.APPLE, Material.MELON_SLICE, Material.SWEET_BERRIES, Material.GLOW_BERRIES,
+        Material.CHORUS_FRUIT, Material.CARROT, Material.GOLDEN_CARROT, Material.MUSHROOM_STEW,
+        Material.SUSPICIOUS_STEW, Material.BEETROOT_SOUP -> true
+        else -> false
+    }
+
+    fun Material.isMeatOrFish() = this.isMeat() || this.isFish()
+
+    fun Material.isFish() = this.isCookedFish() || this.isRawFish()
+
+    fun Material.isRawFish() = when (this) {
+        Material.COD, Material.SALMON, Material.TROPICAL_FISH, Material.PUFFERFISH -> true
+        else -> false
+    }
+
+    fun Material.isCookedFish() = when (this) {
+        Material.COOKED_COD, Material.COOKED_SALMON -> true
+        else -> false
+    }
+
+    fun Material.isMeat() = this.isCookedMeat() || this.isRawMeat()
+
+    fun Material.isCookedMeat() = when (this) {
+        Material.BEEF, Material.PORKCHOP, Material.MUTTON, Material.CHICKEN, Material.RABBIT, Material.RABBIT_STEW -> true
+        else -> false
+    }
+
+    fun Material.isRawMeat() = when (this) {
+        Material.BEEF, Material.PORKCHOP, Material.MUTTON, Material.CHICKEN, Material.RABBIT, Material.ROTTEN_FLESH -> true
+        else -> false
     }
 
 //    fun myMod(d: Double, m: Double): Double = if (d < 0) (d % m + m) % m else d % m

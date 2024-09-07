@@ -13,11 +13,16 @@ enum class Namespaces(val namespace: NamespacedKey) {
     EVIL_AURA_SICKNESS(Warvilore.namespace("evilAuraSickness")),
     MANA(Warvilore.namespace("mana")),
     TREE_COOLDOWN(Warvilore.namespace("treeCooldown")),
+    COOLDOWN(Warvilore.namespace("cooldown")),
+    ALLOWED_NICKNAMES(Warvilore.namespace("allowedNicknames")),
     BEFORE_NEXT_STROKE(Warvilore.namespace("timeBeforeNextStroke")),
     BEFORE_NEXT_PRAY(Warvilore.namespace("timeBeforeNextPray")),
-    CAN_BLOOD_SLICE(Warvilore.namespace("canBloodSlice")),
+    BLOOD_SLICE_COOLDOWN(Warvilore.namespace("bloodSliceCooldown")),
     COLDNESS(Warvilore.namespace("coldness")),
     CHARGE(Warvilore.namespace("charge")),
+    CHARGES(Warvilore.namespace("charges")),
+    REFILL(Warvilore.namespace("refill")),
+
 
     HALO_SPEED(Warvilore.namespace("haloSpeed")),
     HALO_COLOR(Warvilore.namespace("haloColor")),

@@ -24,6 +24,7 @@ import kotlin.math.max
 private const val RIGHT_CLICK_TIMES = 6
 
 private const val PRAY_COOLDOWN = 20 * 45
+private const val BLOOD_SLICE_COOLDOWN = 15
 private const val PRAY_SCORE = 20
 
 class TheHolyOne(string: String) : AbilitiesCore(string) {
@@ -44,22 +45,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
             field = value
         }
 
-    var canBloodSlice: Boolean = false
-        get() {
-            field = player?.persistentDataContainer?.get(
-                Namespaces.CAN_BLOOD_SLICE.namespace,
-                PersistentDataType.BOOLEAN
-            ) ?: false
-            return field
-        }
-        set(value) {
-            player?.persistentDataContainer?.set(
-                Namespaces.CAN_BLOOD_SLICE.namespace,
-                PersistentDataType.BOOLEAN, value
-            )
-            field = value
-        }
-
+    var bloodSliceCooldown: Int = 0
     var burningScore = 0
     var rightClickTimes = 0
     var prevLoc: Location? = null
@@ -67,6 +53,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
     override fun onTick(event: ServerTickEndEvent) {
 
         val location = player!!.location
+        if (bloodSliceCooldown > 0) bloodSliceCooldown--
 
         if (prevLoc == null
             || ((timeBeforeNextPray > 0 && player!!.gameMode != GameMode.CREATIVE) && burningScore <= 0)
@@ -75,8 +62,8 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
         ) {
             if (timeBeforeNextPray > 1 && timeBeforeNextPray % 20 == 0)
                 player!!.sendActionBar(text("${timeBeforeNextPray / 20}s").color(NamedTextColor.RED))
-            else if (timeBeforeNextPray == 0)
-                player!!.sendActionBar(text(""))
+            else if (timeBeforeNextPray == 1) player!!.sendActionBar(text(""))
+
             prevLoc = location.clone()
             rightClickTimes = 0
             timeBeforeNextPray -= timeBeforeNextPray.coerceAtMost(1)
@@ -126,8 +113,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
                 val itemMeta = item.itemMeta
                 if (!itemMeta.hasCustomModelData() || item.isMeaCulpa()) {
                     player!!.inventory.setItemInMainHand(CustomWeapons.MEA_CULPA.replaceItem(item, player!!.name))
-                    canBloodSlice = true
-                    heartAttack(0)
+                    heartAttack(true)
                 }
             }
         }
@@ -174,11 +160,11 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
         val itemInMainHand = player!!.inventory.itemInMainHand
         if (itemInMainHand.isMeaCulpa()
             && !player!!.isSneaking &&
-            (canBloodSlice || player!!.gameMode == GameMode.CREATIVE)
+            (bloodSliceCooldown <= 0 || player!!.gameMode == GameMode.CREATIVE)
             && event.action.isRightClick
         ) {
             BloodySlice(player!!.eyeLocation, player!!.location.direction.multiply(1.5), player!!.uniqueId)
-            heartAttack(75)
+            heartAttack(false)
             player!!.world.playSound(
                 player!!.location,
                 Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM,
@@ -186,7 +172,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
                 1f,
                 0.8f
             )
-            canBloodSlice = false
+            bloodSliceCooldown = BLOOD_SLICE_COOLDOWN
         } else if (itemInMainHand.type != Material.IRON_SWORD
             || !event.action.isRightClick
             || player!!.pitch < 20.0
@@ -198,7 +184,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
     }
 
     override fun onDeath(event: PlayerDeathEvent) {
-        canBloodSlice = false
+        bloodSliceCooldown = 0
         timeBeforeNextPray = 0
     }
 
@@ -206,18 +192,19 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
     fun ItemStack.isMeaCulpa(): Boolean = CustomWeapons.MEA_CULPA.equals(this)
 
-    private fun heartAttack(i: Int) {
+    private fun heartAttack(effects: Boolean) {
         if (player!!.gameMode != GameMode.CREATIVE) {
             val damageSource = DamageSource.builder(DamageType.GENERIC).withDirectEntity(player!!).withCausingEntity(player!!).build()
             player!!.damage(0.01, damageSource)
             player!!.health -= player!!.health.coerceAtMost(6.99)
         }
-        player!!.addPotionEffects(
+        if (effects)
+            player!!.addPotionEffects(
             listOf(
-                PotionEffect(PotionEffectType.BLINDNESS, max(100 - i, 0), 0, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, max(250 - i, 0), 2, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, max(175 - i, 0), 3, true, false, true),
-                PotionEffect(PotionEffectType.SLOWNESS, max(100 - i, 0), 4, true, false, true),
+                PotionEffect(PotionEffectType.BLINDNESS, 100, 0, true, false, true),
+                PotionEffect(PotionEffectType.SLOWNESS, 250, 2, true, false, true),
+                PotionEffect(PotionEffectType.SLOWNESS, 175, 3, true, false, true),
+                PotionEffect(PotionEffectType.SLOWNESS, 100, 4, true, false, true),
             )
         )
     }

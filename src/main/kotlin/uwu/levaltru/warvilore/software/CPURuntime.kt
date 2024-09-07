@@ -4,20 +4,14 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.SoftwareBase
+import uwu.levaltru.warvilore.trashcan.LevsUtils
 
 class CPURuntime(val string: String) : SoftwareBase(string) {
     override fun tick(player: Player): Boolean {
         val ticksLived = player.ticksLived
 
         if (ticksLived % 20 == 0) {
-            val seconds = (ticksLived / (20)) % 60
-            val minutes = (ticksLived / (20 * 60)) % 60
-            val hours = (ticksLived / (20 * 60 * 60))
-
-            var string = ""
-            if (hours > 0) string += "${hours}h : "
-            if (minutes > 0 || hours > 0) string += "${minutes}m : "
-            string += "${seconds}s"
+            var string = LevsUtils.toTime(ticksLived)
 
             player.sendActionBar(Component.text(string).color(NamedTextColor.RED))
         }
