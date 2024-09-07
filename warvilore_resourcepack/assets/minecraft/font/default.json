@@ -2,7 +2,7 @@
     "providers": [
         {
             "type": "bitmap",
-            "file": "levaltru:font/halo_square.png",
+            "file": "levaltru:font/halos/halo_square.png",
             "height": 7,
             "ascent": 7,
             "chars": [
@@ -11,7 +11,7 @@
         },
         {
             "type": "bitmap",
-            "file": "levaltru:font/halo_smooth_square.png",
+            "file": "levaltru:font/halos/halo_smooth_square.png",
             "height": 7,
             "ascent": 7,
             "chars": [
@@ -20,7 +20,7 @@
         },
         {
             "type": "bitmap",
-            "file": "levaltru:font/halo_circle.png",
+            "file": "levaltru:font/halos/halo_circle.png",
             "height": 7,
             "ascent": 7,
             "chars": [
@@ -29,7 +29,7 @@
         },
         {
             "type": "bitmap",
-            "file": "levaltru:font/halo_cross.png",
+            "file": "levaltru:font/halos/halo_cross.png",
             "height": 7,
             "ascent": 7,
             "chars": [
@@ -38,7 +38,7 @@
         },
         {
             "type": "bitmap",
-            "file": "levaltru:font/halo_vortex_larger.png",
+            "file": "levaltru:font/halos/halo_vortex_larger.png",
             "height": 7,
             "ascent": 7,
             "chars": [
@@ -47,11 +47,137 @@
         },
         {
             "type": "bitmap",
-            "file": "levaltru:font/halo_vortex.png",
+            "file": "levaltru:font/halos/halo_vortex.png",
             "height": 7,
             "ascent": 7,
             "chars": [
                 "\uE555"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_01.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE560"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_02.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE561"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_03.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE562"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_04.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE563"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_05.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE564"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_06.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE565"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_07.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE566"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_08.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE567"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_09.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE568"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_10.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE569"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_11.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE56A"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_12.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE56B"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_13.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE56C"
+            ]
+        },
+        {
+            "type": "bitmap",
+            "file": "levaltru:font/spheres/sphere_progress_14.png",
+            "height": 7,
+            "ascent": 7,
+            "chars": [
+                "\uE56D"
             ]
         }
     ]

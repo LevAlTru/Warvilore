@@ -170,7 +170,7 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
 
     private fun treeStuff(location: Location): Boolean {
         val d1 = random.nextInt(3, 6)
-        val damageSource = DamageSource.builder(DamageType.FLY_INTO_WALL).withDirectEntity(player!!)
+        val damageSource = DamageSource.builder(DamageType.FALL).withDirectEntity(player!!)
             .withCausingEntity(player!!).build()
         for (iiiiii in 1..2) {
             if (!isTreeSupportive(location.add(0.0, -1.0, 0.0).block.type)) continue

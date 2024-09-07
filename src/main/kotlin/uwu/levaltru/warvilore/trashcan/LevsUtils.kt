@@ -102,13 +102,6 @@ object LevsUtils {
         return string
     }
 
-    fun Material.isGreenFood() = when (this) {
-        Material.APPLE, Material.MELON_SLICE, Material.SWEET_BERRIES, Material.GLOW_BERRIES,
-        Material.CHORUS_FRUIT, Material.CARROT, Material.GOLDEN_CARROT, Material.MUSHROOM_STEW,
-        Material.SUSPICIOUS_STEW, Material.BEETROOT_SOUP -> true
-        else -> false
-    }
-
     fun Material.isMeatOrFish() = this.isMeat() || this.isFish()
 
     fun Material.isFish() = this.isCookedFish() || this.isRawFish()

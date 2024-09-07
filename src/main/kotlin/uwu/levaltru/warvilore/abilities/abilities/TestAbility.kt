@@ -18,7 +18,7 @@ import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.ceil
 
-class TestAbility(nickname: String) : AbilitiesCore(nickname), EvilAurable {
+class TestAbility(nickname: String) : AbilitiesCore(nickname) {
     override fun completeCommand(
         sender: CommandSender,
         command: Command,
@@ -48,6 +48,4 @@ class TestAbility(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     }
 
     override fun getAboutMe(): List<Component> = listOf(text("test ability").color(NamedTextColor.DARK_PURPLE))
-
-    override fun getEvilAura(): Double = 5.0
 }

@@ -11,7 +11,7 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils
 import java.util.Random
 
 private const val MAX_AGE = 20 * 25
-private const val RADIUS = 4.5
+private const val RADIUS = 6.0
 
 class HealZone(val location: Location, allowed: List<String>) : Tickable() {
 
@@ -19,15 +19,15 @@ class HealZone(val location: Location, allowed: List<String>) : Tickable() {
     val random = Random()
 
     override fun tick(): Boolean {
-        if (age % 10 == 0) {
+        if (age % 40 == 0) {
             for (player in location.getNearbyPlayers(RADIUS + 1.0)) {
                 val locy = player.location.add(0.0, player.height / 2, 0.0)
                 if (locy.distanceSquared(location) > RADIUS * RADIUS) continue
                 if (!allowed.contains(player.name.lowercase())) continue
                 player.addPotionEffects(listOf(
-                    PotionEffect(PotionEffectType.RESISTANCE, 19, 0, true, true, true),
-                    PotionEffect(PotionEffectType.REGENERATION, 19, 1, true, true, true),
-                    PotionEffect(PotionEffectType.STRENGTH, 19, 1, true, true, true),
+                    PotionEffect(PotionEffectType.RESISTANCE, 50, 0, true, true, true),
+                    PotionEffect(PotionEffectType.REGENERATION, 50, 1, true, true, true),
+                    PotionEffect(PotionEffectType.STRENGTH, 50, 1, true, true, true),
                 ))
                 player.world.spawnParticle(Particle.WAX_ON, locy, 3, .2, .4, .2, 1.0, null, true)
             }

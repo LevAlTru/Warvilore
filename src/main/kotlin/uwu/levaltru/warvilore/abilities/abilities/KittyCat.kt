@@ -18,7 +18,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.trashcan.LevsUtils.isGreenFood
+import uwu.levaltru.warvilore.trashcan.LevsUtils.isMeatOrFish
 
 class KittyCat(nickname: String) : AbilitiesCore(nickname) {
 
@@ -77,7 +77,7 @@ class KittyCat(nickname: String) : AbilitiesCore(nickname) {
 
     override fun onEating(event: PlayerItemConsumeEvent) {
         val item = event.item
-        if (item.type.isGreenFood()) {
+        if (!item.type.isMeatOrFish()) {
             player!!.addPotionEffects(
                 listOf(
                     PotionEffect(PotionEffectType.NAUSEA, 90 * 20, 0, false, true, true),
@@ -97,6 +97,6 @@ class KittyCat(nickname: String) : AbilitiesCore(nickname) {
         text(""),
         text("- Когда у тебя нет предмета в руке, ты бьешь сильнее").color(NamedTextColor.GREEN),
         text(""),
-        text("- Ты не можешь есть фрукты или овощи. Ты можешь есть только мясо, рыбу, и золотые яблоки").color(NamedTextColor.RED),
+        text("- Ты не можешь есть фрукты или овощи. Ты можешь есть только мясо и рыбу").color(NamedTextColor.RED),
     )
 }

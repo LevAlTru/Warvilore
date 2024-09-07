@@ -25,8 +25,25 @@ import kotlin.math.max
 private const val MAX_CHARGES = 3
 private const val DASH_DURATION = 5
 private const val DAMAGE_TICKS_DURATION = 10
-private const val COOLDOWN_DURATION = 12
-private const val REFIL_TIME = 20 * 10
+private const val COOLDOWN_DURATION = 8
+private const val REFILL_TIME = 20 * 10
+
+private val SPHERE_CHARS = listOf(
+    "\uE560",
+    "\uE561",
+    "\uE562",
+    "\uE563",
+    "\uE564",
+    "\uE565",
+    "\uE566",
+    "\uE567",
+    "\uE568",
+    "\uE569",
+    "\uE56A",
+    "\uE56B",
+    "\uE56C",
+    "\uE56D",
+)
 
 class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
 
@@ -70,15 +87,16 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
     override fun onTick(event: ServerTickEndEvent) {
         if (cooldown > 0) cooldown--
 
-//        if (LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) {
-//            if (refil % 20 == 1) player!!.sendMessage("• ".repeat(charges) + "○ ".repeat(MAX_CHARGES - charges) + "| ${(refil - REFIL_TIME) / 20}")
-//        }
-        if (LevsUtils.isSword(player!!.inventory.itemInMainHand.type) && refill % 20 == 0)
-            player!!.sendActionBar(text(("● ".repeat(charges) + "○ ".repeat(MAX_CHARGES - charges).removeSuffix(" "))).color(NamedTextColor.GOLD))
+        if ((LevsUtils.isSword(player!!.inventory.itemInMainHand.type) &&
+            refill * (SPHERE_CHARS.size - 1) % REFILL_TIME <= SPHERE_CHARS.size - 1
+            && charges != MAX_CHARGES)
+            || refill == 0
+        )
+            sendActionBar()
 
         if (charges < MAX_CHARGES || refill == 0) {
             refill++
-            if (refill > REFIL_TIME) {
+            if (refill > REFILL_TIME) {
                 refill = 0
                 charges++
             }
@@ -146,6 +164,19 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
         }
     }
 
+    private fun sendActionBar() {
+        player!!.sendActionBar(
+            text(
+                if (charges != MAX_CHARGES) {
+                    ("${SPHERE_CHARS.last()} ".repeat(charges) +
+                            "${SPHERE_CHARS[refill * (SPHERE_CHARS.size - 1) / REFILL_TIME]} " +
+                            "${SPHERE_CHARS.first()} ".repeat((MAX_CHARGES - charges - 1).coerceAtLeast(0)))
+                        .removeSuffix(" ")
+                } else "${SPHERE_CHARS.last()} ${SPHERE_CHARS.last()} ${SPHERE_CHARS.last()}"
+            ).color(NamedTextColor.GOLD)
+        )
+    }
+
     override fun onAction(event: PlayerInteractEvent) {
         if (!event.action.isRightClick) return
         if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return
@@ -165,7 +196,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
         if (player!!.gameMode != GameMode.CREATIVE) {
             cooldown = COOLDOWN_DURATION
             charges--
-            player!!.sendActionBar(text(("● ".repeat(charges) + "○ ".repeat(MAX_CHARGES - charges).removeSuffix(" "))).color(NamedTextColor.GOLD))
+            sendActionBar()
         }
     }
 
@@ -190,7 +221,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
         text("  - Рывок наносит урон всем сущностям рядом, урон зависит от урона предмета в руке.").color(NamedTextColor.GREEN),
         text("  - Когда ты находишься в рывке, ты не получаешь урона от падения.").color(NamedTextColor.GREEN),
         text("  - У тебя $MAX_CHARGES заряда рывка.").color(NamedTextColor.GOLD),
-        text("  - Один заряд перезаряжается ${REFIL_TIME / 20} секунд.").color(NamedTextColor.GOLD),
+        text("  - Один заряд перезаряжается ${REFILL_TIME / 20} секунд.").color(NamedTextColor.GOLD),
         text("  - Вектор движения влияет на расстояние рывка (прыгай перед использованием для большей эффективности).").color(
             NamedTextColor.DARK_GREEN
         ),
