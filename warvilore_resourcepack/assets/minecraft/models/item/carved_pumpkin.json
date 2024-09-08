@@ -1,0 +1,35 @@
+{
+    "parent": "minecraft:block/carved_pumpkin",
+    "overrides": [
+        {
+            "predicate": {
+                "custom_model_data": 1
+            },
+            "model": "item/flower_band"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 2
+            },
+            "model": "item/mod_cap"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 3
+            },
+            "model": "item/rage"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 4
+            },
+            "model": "item/guy_fawkes"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 5
+            },
+            "model": "item/straw_hat"
+        }
+    ]
+}

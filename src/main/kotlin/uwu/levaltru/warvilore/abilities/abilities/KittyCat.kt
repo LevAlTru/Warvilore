@@ -3,6 +3,7 @@ package uwu.levaltru.warvilore.abilities.abilities
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
@@ -76,16 +77,15 @@ class KittyCat(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun onEating(event: PlayerItemConsumeEvent) {
-        val item = event.item
-        if (!item.type.isMeatOrFish()) {
-            player!!.addPotionEffects(
-                listOf(
-                    PotionEffect(PotionEffectType.NAUSEA, 90 * 20, 0, false, true, true),
-                    PotionEffect(PotionEffectType.POISON, 30 * 20, 0, false, true, true),
-                    PotionEffect(PotionEffectType.HUNGER, 45 * 20, 0, false, true, true)
-                )
+        val item = event.item.type
+        if (item.isMeatOrFish() || item == Material.MILK_BUCKET || item == Material.POTION || item == Material.OMINOUS_BOTTLE) return
+        player!!.addPotionEffects(
+            listOf(
+                PotionEffect(PotionEffectType.NAUSEA, 90 * 20, 0, false, true, true),
+                PotionEffect(PotionEffectType.POISON, 30 * 20, 0, false, true, true),
+                PotionEffect(PotionEffectType.HUNGER, 45 * 20, 0, false, true, true)
             )
-        }
+        )
     }
 
     override fun getAboutMe(): List<Component> = listOf(

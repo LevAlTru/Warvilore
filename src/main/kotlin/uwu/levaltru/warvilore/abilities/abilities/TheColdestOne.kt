@@ -19,15 +19,20 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.potion.PotionType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
+import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import java.util.*
 import kotlin.math.PI
@@ -42,6 +47,8 @@ private const val BEFORE_SWORD_TIMES = 25
 
 private const val FROZEN_TICKS_LIMIT = 500
 
+private const val OMINOUS_SOUL_BOTTLE_MANA_REGEN = MAX_COLDNESS / 10
+
 class TheColdestOne(string: String) : Undead(string), EvilAurable {
     var coldness: Int = 0
         get() {
@@ -52,11 +59,12 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
             return field
         }
         set(value) {
+            val coerceIn = value.coerceIn(0, MAX_COLDNESS)
             player?.persistentDataContainer?.set(
                 Namespaces.COLDNESS.namespace,
-                PersistentDataType.INTEGER, value
+                PersistentDataType.INTEGER, coerceIn
             )
-            field = value
+            field = coerceIn
         }
     var prevLoc: Location? = null
     var standStillTime = 0
@@ -342,6 +350,73 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
         }
     }
 
+    override fun onEating(event: PlayerItemConsumeEvent) {
+        val itemMeta = event.item.itemMeta
+        if (itemMeta.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BOTTLE) {
+            if (itemMeta.getSoulInTheBottle()?.lowercase() == player!!.name.lowercase()) return
+            coldness += OMINOUS_SOUL_BOTTLE_MANA_REGEN
+            player!!.addPotionEffects(listOf(
+                PotionEffect(PotionEffectType.POISON, 210, 1, false, true, true),
+                PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 0, false, true, true),
+                PotionEffect(PotionEffectType.SATURATION, 3, 0, false, true, true),
+            ))
+            player!!.world.spawnParticle(Particle.SCRAPE, player!!.location.add(0.0, player!!.height / 2, 0.0), 10, .2, .4, .2, 1.0, null, false)
+            player!!.world.playSound(player!!.location, Sound.ENTITY_ALLAY_ITEM_GIVEN, 1f, 0.7f)
+            player!!.sendActionBar(text((coldness * 100 / MAX_COLDNESS).toString()).color(NamedTextColor.BLUE).append {
+                text("%").color(NamedTextColor.DARK_BLUE)
+            })
+        }
+    }
+
+    override fun getEvilAura(): Double {
+        return 8.0 * coldnessFrom0To1() * if (player!!.inventory.itemInMainHand.isFrostmourne()) 2.0 else 1.0
+    }
+
+    override fun getAboutMe(): List<Component> = listOf(
+        text("Ты Король Холода Лич.").color(NamedTextColor.AQUA),
+        text("Твой файл один из самых больших (гордись этим).").color(NamedTextColor.AQUA),
+        text(""),
+        text("Твои умения:").color(NamedTextColor.GREEN),
+        text(""),
+        text("- Ты нежить. Это значит что другая нежить не будет тебя атаковать если её не провоцировать. " +
+                "Также это значит что на некоторые типы урона тебе просто все ровно, парочку даже восполняют тебе здоровье.").color(NamedTextColor.GREEN),
+        text(""),
+        text("- Снег и лед это материалы по которым ты двигаешься с увеличенной скоростью. Также это материалы которые обнуляют твой урон от падения (даже снежные ковры)."
+        ).color(NamedTextColor.GREEN),
+        text(""),
+        text("- Добыча снега или льда голой рукой ").color(NamedTextColor.GREEN)
+            .append { text("Ледяной Скорбью, ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
+            .append { text("осуществляется с эффектом шелкового касания.").color(NamedTextColor.GREEN) },
+        text(""),
+        text("- Когда ты на шифте, и у тебя в руках незеритовый меч или ").color(NamedTextColor.GREEN)
+            .append { text("Ледяная Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
+            .append { text("Ты создаешь холод вокруг себя. Если у тебя в руках незеритовый меч, то спустя какое-то время он превратится в ").color(NamedTextColor.GREEN) }
+            .append { text("Ледяную Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) },
+        text("  - Небольшая рекомендация: делай это когда у тебя много холода, так как этот процесс забирает много твоих сил. Еще ты можешь загореться.").color(NamedTextColor.GOLD),
+        text(""),
+        text("- Когда ты нажимаешь на любой меч, тебе показывается температура и шкала твоего холода").color(NamedTextColor.GREEN),
+        text("  - Стрелка вниз (↓) обозначает что тут холодно (aka тебе хорошо). Стрелка вверх (↑) обозначает что тут жарко (aka тебе плохо). " +
+                "Цвет в стрелках является как дополнительным индикатором холода / жары (aka красная стрелка вниз горячее чем синяя стрелка вниз но тебе и там и там хорошо).").color(NamedTextColor.YELLOW),
+        text(""),
+        text(""),
+        text("Твои минусы:").color(NamedTextColor.RED),
+        text(""),
+        text("- У тебя есть шкала холода.").color(NamedTextColor.RED),
+        text("  - Она накапливает холод по формуле снизу ↓").color(NamedTextColor.GOLD),
+        text("    ((t - 0.25) * 4 / 3) * ((1 - p / 32) / f) ").color(NamedTextColor.YELLOW),
+        text("    t - Температура (зависит от биома и высоты);").color(NamedTextColor.YELLOW),
+        text("    p - Огнеупорность на броне;").color(NamedTextColor.YELLOW),
+        text("    f - если есть огнестойкость = 2, если нет = 1").color(NamedTextColor.YELLOW),
+        text(""),
+        text("- Урон от огня утроен, и твоя шкала холода уменьшается когда ты получаешь урон от огня.").color(NamedTextColor.RED),
+        text(""),
+        text("- Эффективность твоих умений зависит от шкалы холода.").color(NamedTextColor.RED),
+        text(""),
+        text("- Если шкала холода будет низкой, ты получаешь негативные эффекты.").color(NamedTextColor.RED),
+        text(""),
+        text("- Ты нежить. Будь осторожен с Небесной Карой").color(NamedTextColor.RED),
+    )
+
     companion object {
         fun ItemStack.isFrostmourne(): Boolean =
             CustomWeapons.FROSTMOURNE.equals(this)
@@ -415,53 +490,4 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
             return d
         }
     }
-
-    override fun getEvilAura(): Double {
-        return 8.0 * coldnessFrom0To1() * if (player!!.inventory.itemInMainHand.isFrostmourne()) 2.0 else 1.0
-    }
-
-    override fun getAboutMe(): List<Component> = listOf(
-        text("Ты Король Холода Лич.").color(NamedTextColor.AQUA),
-        text("Твой файл один из самых больших (гордись этим).").color(NamedTextColor.AQUA),
-        text(""),
-        text("Твои умения:").color(NamedTextColor.GREEN),
-        text(""),
-        text("- Ты нежить. Это значит что другая нежить не будет тебя атаковать если её не провоцировать. " +
-                "Также это значит что на некоторые типы урона тебе просто все ровно, парочку даже восполняют тебе здоровье.").color(NamedTextColor.GREEN),
-        text(""),
-        text("- Снег и лед это материалы по которым ты двигаешься с увеличенной скоростью. Также это материалы которые обнуляют твой урон от падения (даже снежные ковры)."
-        ).color(NamedTextColor.GREEN),
-        text(""),
-        text("- Добыча снега или льда голой рукой ").color(NamedTextColor.GREEN)
-            .append { text("Ледяной Скорбью, ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
-            .append { text("осуществляется с эффектом шелкового касания.").color(NamedTextColor.GREEN) },
-        text(""),
-        text("- Когда ты на шифте, и у тебя в руках незеритовый меч или ").color(NamedTextColor.GREEN)
-            .append { text("Ледяная Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) }
-            .append { text("Ты создаешь холод вокруг себя. Если у тебя в руках незеритовый меч, то спустя какое-то время он превратится в ").color(NamedTextColor.GREEN) }
-            .append { text("Ледяную Скорбь. ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.DARK_AQUA)) },
-        text("  - Небольшая рекомендация: делай это когда у тебя много холода, так как этот процесс забирает много твоих сил. Еще ты можешь загореться.").color(NamedTextColor.GOLD),
-        text(""),
-        text("- Когда ты нажимаешь на любой меч, тебе показывается температура и шкала твоего холода").color(NamedTextColor.GREEN),
-        text("  - Стрелка вниз (↓) обозначает что тут холодно (aka тебе хорошо). Стрелка вверх (↑) обозначает что тут жарко (aka тебе плохо). " +
-                "Цвет в стрелках является как дополнительным индикатором холода / жары (aka красная стрелка вниз горячее чем синяя стрелка вниз но тебе и там и там хорошо).").color(NamedTextColor.YELLOW),
-        text(""),
-        text(""),
-        text("Твои минусы:").color(NamedTextColor.RED),
-        text(""),
-        text("- У тебя есть шкала холода.").color(NamedTextColor.RED),
-        text("  - Она накапливает холод по формуле снизу ↓").color(NamedTextColor.GOLD),
-        text("    ((t - 0.25) * 4 / 3) * ((1 - p / 32) / f) ").color(NamedTextColor.YELLOW),
-        text("    t - Температура (зависит от биома и высоты);").color(NamedTextColor.YELLOW),
-        text("    p - Огнеупорность на броне;").color(NamedTextColor.YELLOW),
-        text("    f - если есть огнестойкость = 2, если нет = 1").color(NamedTextColor.YELLOW),
-        text(""),
-        text("- Урон от огня утроен, и твоя шкала холода уменьшается когда ты получаешь урон от огня.").color(NamedTextColor.RED),
-        text(""),
-        text("- Эффективность твоих умений зависит от шкалы холода.").color(NamedTextColor.RED),
-        text(""),
-        text("- Если шкала холода будет низкой, ты получаешь негативные эффекты.").color(NamedTextColor.RED),
-        text(""),
-        text("- Ты нежить. Будь осторожен с Небесной Карой").color(NamedTextColor.RED),
-    )
 }

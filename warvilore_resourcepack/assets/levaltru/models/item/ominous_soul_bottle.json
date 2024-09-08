@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "levaltru:item/layer/ominous_soul_in_bottle",
+		"layer1": "minecraft:item/potion"
+	}
+}

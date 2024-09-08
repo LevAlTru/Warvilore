@@ -1,0 +1,46 @@
+{
+	"parent": "block/block",
+    "textures": {
+        "checkers": "item/green_flag",
+        "stick": "block/birch_log",
+        "stick_top": "block/birch_log_top"
+    },
+    "display": {
+        "thirdperson_righthand": {
+            "rotation": [ 0, 0, 0 ],
+            "translation": [ 0, 0, 0 ],
+            "scale": [ 1, 1, 1 ]
+        },
+        "firstperson_righthand": {
+			"rotation": [-35, 0, -35],
+			"translation": [5, 0, 0],
+			"scale": [ 1, 1, 1 ]
+		}
+    },
+	"elements": [
+		{
+			"from": [7, 0, 7],
+			"to": [9, 24, 9],
+			"faces": {
+				"north": {"uv": [6, 0, 8, 16], "texture": "#stick"},
+				"east":  {"uv": [6, 0, 8, 16], "texture": "#stick"},
+				"south": {"uv": [6, 0, 8, 16], "texture": "#stick"},
+				"west":  {"uv": [6, 0, 8, 16], "texture": "#stick"},
+				"up":    {"uv": [6, 6, 8,  8], "texture": "#stick_top"},
+				"down":  {"uv": [6, 6, 8,  8], "texture": "#stick_top"}
+			}
+		},
+		{
+			"from": [7.5, 12, -11],
+			"to": [8.5, 24, 7],
+			"faces": {
+				"north": {"uv": [0, 0,  1, 16], "texture": "#checkers"},
+				"east":  {"uv": [0, 0, 16, 16], "texture": "#checkers"},
+				"south": {"uv": [0, 0,  1, 16], "texture": "#checkers"},
+				"west":  {"uv": [0, 0, 16, 16], "texture": "#checkers"},
+				"up":    {"uv": [0, 0,  1, 16], "texture": "#checkers"},
+				"down":  {"uv": [0, 0,  1, 16], "texture": "#checkers"}
+			}
+		}
+	]
+}

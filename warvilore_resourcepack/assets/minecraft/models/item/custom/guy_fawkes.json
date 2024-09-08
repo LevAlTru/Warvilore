@@ -1,0 +1,28 @@
+{
+    "parent": "block/block",
+    "textures": {
+        "texture": "item/guy_fawkes"
+    },
+	"elements": [
+		{
+            "__comment": "String",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"east":  {"uv": [8, 8, 16, 16], "texture": "#texture"},
+				"south": {"uv": [8, 0, 16,  8], "texture": "#texture"},
+				"west":  {"uv": [8, 8, 16, 16], "texture": "#texture"}
+			}
+		},
+		{
+            "__comment": "Mask",
+			"from": [0, 0, 0],
+			"to": [16, 16, 0],
+			"faces": {
+				"north": {"uv": [0, 0, 8, 8], "texture": "#texture"},
+				"south": {"uv": [0, 8, 8, 16], "texture": "#texture"}
+			}
+		}
+	]
+	
+}

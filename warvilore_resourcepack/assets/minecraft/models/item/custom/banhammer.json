@@ -1,0 +1,79 @@
+{
+	"textures": {
+		"head": "item/banhammer",
+		"stick": "block/oak_log",
+		"stick_top": "block/oak_log_top"
+	},
+	"elements": [
+		{
+			"__comment": "Base",
+			"from": [5.75, 10, 4],
+			"to": [10.25, 14.5, 12],
+			"faces": {
+				"east": {"uv": [8, 0, 16, 7.2], "texture": "head"},
+				"west": {"uv": [8, 0, 16, 7.2], "texture": "head"},
+				"up": {"uv": [0, 0, 8, 7.2], "rotation": 90, "texture": "head"},
+				"down": {"uv": [0, 0, 8, 7.2], "rotation": 90, "texture": "head"}
+			}
+		},
+		{
+			"__comment": "Back plate",
+			"from": [5.25, 9.5, 12],
+			"to": [10.75, 15, 13],
+			"faces": {
+				"north": {"uv": [0, 7.2, 5.5, 16], "texture": "head"},
+				"east": {"uv": [5.5, 7.2, 6.5, 15.9], "texture": "head"},
+				"south": {"uv": [0, 7.2, 5.5, 15.9], "texture": "head"},
+				"west": {"uv": [5.5, 7.2, 6.5, 15.9], "texture": "head"},
+				"up": {"uv": [5.5, 7.2, 6.5, 15.9], "rotation": 90, "texture": "head"},
+				"down": {"uv": [5.5, 7.2, 6.5, 15.9], "rotation": 90, "texture": "head"}
+			}
+		},
+		{
+			"__comment": "Forward plate",
+			"from": [5.25, 9.5, 3],
+			"to": [10.75, 15, 4],
+			"faces": {
+				"north": {"uv": [0, 7.2, 5.5, 16], "texture": "head"},
+				"east": {"uv": [5.5, 7.2, 6.5, 15.9], "texture": "head"},
+				"south": {"uv": [0, 7.2, 5.5, 15.9], "texture": "head"},
+				"west": {"uv": [5.5, 7.2, 6.5, 15.9], "texture": "head"},
+				"up": {"uv": [5.5, 7.2, 6.5, 15.9], "rotation": 90, "texture": "head"},
+				"down": {"uv": [5.5, 7.2, 6.5, 15.9], "rotation": 90, "texture": "head"}
+			}
+		},
+		{
+			"__comment": "Handle",
+			"from": [7, 0, 7],
+			"to": [9, 10, 9],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 10], "texture": "stick"},
+				"east": {"uv": [0, 0, 2, 10], "texture": "stick"},
+				"south": {"uv": [0, 0, 2, 10], "texture": "stick"},
+				"west": {"uv": [0, 0, 2, 10], "texture": "stick"},
+				"down": {"uv": [7, 7, 9, 9], "texture": "stick_top"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 3, 0]
+		},
+		"ground": {
+			"rotation": [45, 0, 0],
+			"scale": [0.55, 0.55, 0.56]
+		},
+		"gui": {
+			"rotation": [30, 225, 0],
+			"scale": [0.9, 0.9, 0.9]
+		},
+		"head": {
+			"rotation": [-115.77, 16.49, -30.46],
+			"translation": [-2, 12.75, 4.75]
+		},
+		"fixed": {
+			"rotation": [0, 90, -10],
+			"translation": [0, 0, -2.5]
+		}
+	}
+}

@@ -1,14 +1,26 @@
 {
-	"parent": "minecraft:item/handheld",
-	"textures": {
-		"layer0": "minecraft:item/netherite_sword"
-	},
-	"overrides": [
-		{
+    "parent": "minecraft:item/handheld",
+    "textures": {
+        "layer0": "minecraft:item/netherite_sword"
+    },
+    "overrides": [
+        {
 			"predicate": {
 				"custom_model_data": 1
 			},
 			"model": "levaltru:item/frostmourne"
-		}
-	]
+        },
+        {
+            "predicate": {
+                "custom_model_data": 2
+            },
+            "model": "item/custom/sword_musarama"
+        },
+		{
+            "predicate": {
+                "custom_model_data": 3
+            },
+            "model": "item/custom/sappfire"
+        }
+    ]
 }

@@ -3,53 +3,57 @@ package uwu.levaltru.warvilore.trashcan
 import org.bukkit.NamespacedKey
 import uwu.levaltru.warvilore.Warvilore
 
-enum class Namespaces(val namespace: NamespacedKey) {
-    ABILITY_SAVE_PLACE(Warvilore.namespace("ability")),
-    SOFTWARE_SAVE_PLACE(Warvilore.namespace("activeSoftware")),
-    SOFTWARE_SAVE_ARGS_PLACE(Warvilore.namespace("activeSoftwareArgs")),
+enum class Namespaces() {
+    ABILITY_SAVE_PLACE,
+    SOFTWARE_SAVE_PLACE,
+    SOFTWARE_SAVE_ARGS_PLACE,
 
 
-    INVISIBILITY_COUNTER(Warvilore.namespace("invisibilityCounter")),
-    EVIL_AURA_SICKNESS(Warvilore.namespace("evilAuraSickness")),
-    MANA(Warvilore.namespace("mana")),
-    TREE_COOLDOWN(Warvilore.namespace("treeCooldown")),
-    COOLDOWN(Warvilore.namespace("cooldown")),
-    ALLOWED_NICKNAMES(Warvilore.namespace("allowedNicknames")),
-    BEFORE_NEXT_STROKE(Warvilore.namespace("timeBeforeNextStroke")),
-    BEFORE_NEXT_PRAY(Warvilore.namespace("timeBeforeNextPray")),
-    BLOOD_SLICE_COOLDOWN(Warvilore.namespace("bloodSliceCooldown")),
-    COLDNESS(Warvilore.namespace("coldness")),
-    CHARGE(Warvilore.namespace("charge")),
-    CHARGES(Warvilore.namespace("charges")),
-    REFILL(Warvilore.namespace("refill")),
+    INVISIBILITY_COUNTER,
+    EVIL_AURA_SICKNESS,
+    MANA,
+    TREE_COOLDOWN,
+    COOLDOWN,
+    ALLOWED_NICKNAMES,
+    DRANK_SOULS,
+    BEFORE_NEXT_STROKE,
+    BEFORE_NEXT_PRAY,
+    BLOOD_SLICE_COOLDOWN,
+    COLDNESS,
+    CHARGE,
+    CHARGES,
+    REFILL,
 
 
-    HALO_SPEED(Warvilore.namespace("haloSpeed")),
-    HALO_COLOR(Warvilore.namespace("haloColor")),
-    HALO_TYPE(Warvilore.namespace("haloType")),
-    HALO_SHOULD_WIGGLE(Warvilore.namespace("haloShouldWiggle")),
+    HALO_SPEED,
+    HALO_COLOR,
+    HALO_TYPE,
+    HALO_SHOULD_WIGGLE,
 
 
-    CUSTOM_ITEM(Warvilore.namespace("customItem")),
-    SOULBOUND(Warvilore.namespace("souldbound")),
-    TIMES_BEFORE_BREAK(Warvilore.namespace("timesBeforeBreak")),
+    CUSTOM_ITEM,
+    SOULBOUND,
+    SOUL_IN_THE_BOTTLE,
+    TIMES_BEFORE_BREAK,
 
 
-    WHO_HAVE_HIT(Warvilore.namespace("whoHaveHit")),
+    WHO_HAVE_HIT,
 
 
-    SHOULD_DESPAWN(Warvilore.namespace("shouldDespawn")),
+    SHOULD_DESPAWN,
 
 
-    WORLD_ZONE_BLUR(Warvilore.namespace("zoneBlur")),
-    WORLD_ZONE_BLUR_SPEED(Warvilore.namespace("zoneBlurSpeed")),
-    WORLD_ZONE_APPROACHING_BLUR(Warvilore.namespace("zoneApproachingBlur")),
-    WORLD_ZONE_DISTANCE(Warvilore.namespace("zoneDistance")),
-    WORLD_ZONE_APPROACHING_DISTANCE(Warvilore.namespace("zoneApproachingDistance")),
-    WORLD_ZONE_SPEED(Warvilore.namespace("zoneSpeed")),
-    WORLD_ZONE_TYPE(Warvilore.namespace("zoneType")),
+    WORLD_ZONE_BLUR,
+    WORLD_ZONE_BLUR_SPEED,
+    WORLD_ZONE_APPROACHING_BLUR,
+    WORLD_ZONE_DISTANCE,
+    WORLD_ZONE_APPROACHING_DISTANCE,
+    WORLD_ZONE_SPEED,
+    WORLD_ZONE_TYPE,
 
-    WORLD_ARE_PORTAL_ALLOWED(Warvilore.namespace("worldArePortalAllowed")),
+    WORLD_ARE_PORTAL_ALLOWED,
 
     ;
+
+    val namespace = Warvilore.namespace(this.toString())
 }

@@ -1,14 +1,18 @@
 package uwu.levaltru.warvilore.trashcan
 
+import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemRarity
+import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
+import uwu.levaltru.warvilore.trashcan.CustomItems.entries
 import java.util.*
 import kotlin.math.floor
 
@@ -44,10 +48,42 @@ object LevsUtils {
         return this.persistentDataContainer.get(Namespaces.SOULBOUND.namespace, PersistentDataType.STRING)
     }
 
-    fun getAsCustomItem(itemMeta: ItemMeta): CustomWeapons? {
+    fun getAsCustomWeapon(itemMeta: ItemMeta): CustomWeapons? {
         val s =
             itemMeta.persistentDataContainer[Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING] ?: return null
         return CustomWeapons.valueOf(s)
+    }
+
+    fun ItemMeta?.getAsCustomItem(): CustomItems? {
+        val s = this?.persistentDataContainer?.get(Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING)
+            ?: return null
+        for (entry in entries) if (entry.toString() == s) return entry
+        return null
+    }
+
+    fun ItemMeta?.getSoulInTheBottle(): String? {
+        return this?.persistentDataContainer?.get(Namespaces.SOUL_IN_THE_BOTTLE.namespace, PersistentDataType.STRING)
+    }
+
+    fun ItemStack?.setSoulInTheBottle(nick: String) {
+        val itemMeta = this?.itemMeta
+        itemMeta?.persistentDataContainer?.set(
+            Namespaces.SOUL_IN_THE_BOTTLE.namespace,
+            PersistentDataType.STRING,
+            nick
+        )
+        this?.itemMeta = itemMeta
+    }
+
+    fun soulBottleOf(ominous: Boolean, nick: String): ItemStack {
+        val itemStack = if (ominous) CustomItems.OMINOUS_SOUL_BOTTLE.getAsItem() else CustomItems.SOUL_BOTTLE.getAsItem()
+        itemStack.setSoulInTheBottle(nick)
+        val itemMeta = itemStack.itemMeta
+        itemMeta.itemName(Component.text("Склянка с Душой $nick"))
+        itemMeta.setRarity(ItemRarity.EPIC)
+
+        itemStack.itemMeta = itemMeta
+        return itemStack
     }
 
     fun frostmourneExplosion(locy: Location, p: Player, hitCaster: Boolean = true) {
@@ -119,7 +155,7 @@ object LevsUtils {
     fun Material.isMeat() = this.isCookedMeat() || this.isRawMeat()
 
     fun Material.isCookedMeat() = when (this) {
-        Material.BEEF, Material.PORKCHOP, Material.MUTTON, Material.CHICKEN, Material.RABBIT, Material.RABBIT_STEW -> true
+        Material.COOKED_BEEF, Material.COOKED_PORKCHOP, Material.COOKED_MUTTON, Material.COOKED_CHICKEN, Material.COOKED_RABBIT, Material.RABBIT_STEW -> true
         else -> false
     }
 

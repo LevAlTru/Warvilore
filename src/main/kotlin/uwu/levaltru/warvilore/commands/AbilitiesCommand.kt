@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
+import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 
 class AbilitiesCommand : TabExecutor {
@@ -25,6 +26,28 @@ class AbilitiesCommand : TabExecutor {
         }
 
         if (args[0].lowercase() == "give") {
+
+            if (sender !is Player) {
+                sender.sendMessage(Component.text("not a player").color(NamedTextColor.RED))
+                return true
+            }
+            if (args.size < 2) {
+                sender.sendMessage(Component.text("not enough arguments").color(NamedTextColor.RED))
+                return true
+            }
+            try {
+                val valueOf = CustomItems.valueOf(args[1])
+                if (sender.inventory.addItem(valueOf.getAsItem()).isEmpty())
+                    sender.sendMessage(
+                        Component.text("gave $valueOf").color(NamedTextColor.YELLOW)
+                    ) else sender.sendMessage(Component.text("not enough space").color(NamedTextColor.RED))
+            } catch (e: Exception) {
+                sender.sendMessage(Component.text("not found " + args[1]).color(NamedTextColor.RED))
+            }
+            return true
+        }
+
+        if (args[0].lowercase() == "giveWeapon") {
 
             if (sender !is Player) {
                 sender.sendMessage(Component.text("not a player").color(NamedTextColor.RED))
@@ -128,10 +151,11 @@ class AbilitiesCommand : TabExecutor {
     ): List<String>? {
         if (args == null) return emptyList()
         when (args.size) {
-            1 -> return mutableListOf("set", "get", "getAll", "give")
+            1 -> return mutableListOf("set", "get", "getAll", "giveWeapon", "give")
             2 -> when (args[0].lowercase()) {
                 "set", "get" -> return null
-                "give" -> return CustomWeapons.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
+                "giveWeapon" -> return CustomWeapons.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
+                "give" -> return CustomItems.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
             }
 
             3 -> when (args[0].lowercase()) {
@@ -141,7 +165,7 @@ class AbilitiesCommand : TabExecutor {
                 "get" -> return Warvilore.abilitiesList?.filter { it.lowercase().startsWith(args[2].lowercase()) }
                     ?: listOf("ERROR")
 
-                "give" -> return null
+                "give", "giveWeapon" -> return null
             }
 
             4 -> when (args[0].lowercase()) {

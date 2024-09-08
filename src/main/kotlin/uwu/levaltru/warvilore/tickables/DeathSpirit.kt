@@ -28,7 +28,10 @@ class DeathSpirit(val loc: Location, val isOminous: Boolean, var nickname: Strin
 
     override fun tick(): Boolean {
 
-        if (nickname == null) return remove()
+        if (nickname == null) {
+            LIST.remove(this)
+            return true
+        }
         if (age % 50  == 0) nearbyPlayers = loc.getNearbyPlayers(128.0).filter { it.getAbilities() is CanSeeSouls }
 
         if (nearbyPlayers != null) {
@@ -44,13 +47,13 @@ class DeathSpirit(val loc: Location, val isOminous: Boolean, var nickname: Strin
             }
         }
 
-        if (age > maxAge) return remove()
+        if (age > maxAge) return true
         age++
         return false
     }
 
-    private fun remove(): Boolean {
-        LIST.remove(this)
+    fun remove(): Boolean {
+        nickname = null
         return true
     }
 }

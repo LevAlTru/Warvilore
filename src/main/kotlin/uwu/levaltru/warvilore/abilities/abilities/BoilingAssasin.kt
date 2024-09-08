@@ -16,7 +16,10 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
 
     override fun onTick(event: ServerTickEndEvent) {
         if (!abilitiesWork()) return
-        player!!.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, 10, 1, true, true, true))
+        player!!.addPotionEffects(listOf(
+            PotionEffect(PotionEffectType.INVISIBILITY, 10, 1, true, true, true),
+            PotionEffect(PotionEffectType.SPEED, 10, 1, true, true, true),
+        ))
     }
 
     override fun onBowShooting(event: EntityShootBowEvent) {
@@ -54,7 +57,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
         val direction = player!!.location.direction
         ReallyFastArrow(player!!.eyeLocation.add(direction.clone().multiply(0.33)),
             direction.multiply(1.66 * event.force), player!!.uniqueId, damage, knockback, fire, effectDevided8)
-
+        bow?.damage(1, player!!)
     }
 
     fun abilitiesWork(): Boolean {

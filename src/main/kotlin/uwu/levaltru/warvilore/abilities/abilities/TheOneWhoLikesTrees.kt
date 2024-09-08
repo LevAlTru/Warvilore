@@ -170,7 +170,7 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
 
     private fun treeStuff(location: Location): Boolean {
         val d1 = random.nextInt(3, 6)
-        val damageSource = DamageSource.builder(DamageType.FALL).withDirectEntity(player!!)
+        val damageSource = DamageSource.builder(DamageType.PLAYER_ATTACK).withDirectEntity(player!!)
             .withCausingEntity(player!!).build()
         for (iiiiii in 1..2) {
             if (!isTreeSupportive(location.add(0.0, -1.0, 0.0).block.type)) continue
@@ -200,6 +200,7 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
                     )
                         .overlaps(entity.boundingBox)
                 ) {
+                    entity.damage(15.0, damageSource)
                     entity.teleport(
                         Location(
                             entity.world,
@@ -211,7 +212,6 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
                         )
                     )
                     Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
-                        entity.damage(15.0, damageSource)
                         entity.velocity = Vector(
                             random.nextGaussian() * 0.3,
                             random.nextDouble(1.2, 1.5),

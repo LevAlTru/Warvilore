@@ -4,24 +4,33 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
+import org.bukkit.block.Crafter
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.SpectralArrow
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.block.CrafterCraftEvent
 import org.bukkit.event.entity.*
+import org.bukkit.event.inventory.CraftItemEvent
+import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.PortalCreateEvent
+import org.bukkit.inventory.CrafterInventory
+import org.bukkit.inventory.InventoryHolder
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
@@ -32,6 +41,7 @@ import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
 import uwu.levaltru.warvilore.trashcan.Namespaces
@@ -75,7 +85,7 @@ class CustomEvents : Listener {
         if (itemMeta != null) {
             if (event.willAttack())
                 if (itemMeta.isSoulBound()) {
-                    val asCustomItem = LevsUtils.getAsCustomItem(itemMeta)
+                    val asCustomItem = LevsUtils.getAsCustomWeapon(itemMeta)
                     if (itemMeta.getSoulBound() != player.name) {
                         val i =
                             itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER]
@@ -226,7 +236,27 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onPortalThing(event: PortalCreateEvent) {
-        event.isCancelled = (event.world.persistentDataContainer.get(Namespaces.WORLD_ARE_PORTAL_ALLOWED.namespace, PersistentDataType.DOUBLE) ?: 0) == 0
+        event.isCancelled = (event.world.persistentDataContainer.get(
+            Namespaces.WORLD_ARE_PORTAL_ALLOWED.namespace,
+            PersistentDataType.DOUBLE
+        ) ?: 0) == 0
+    }
+
+    @EventHandler
+    fun onItemCrafting(event: PrepareItemCraftEvent) {
+        if (event.inventory.any { it?.itemMeta?.getAsCustomItem() != null }) {
+            event.inventory.setItem(0, ItemStack.empty())
+        }
+    }
+
+    @EventHandler
+    fun onItemCrafting(event: CraftItemEvent) {
+        event.isCancelled = event.inventory.any { it?.itemMeta?.getAsCustomItem() != null }
+    }
+
+    @EventHandler
+    fun onCrafterItemCrafting(event: CrafterCraftEvent) {
+        event.isCancelled = (event.block.getState(false) as Crafter).inventory.any { it?.itemMeta?.getAsCustomItem() != null }
     }
 
     @EventHandler

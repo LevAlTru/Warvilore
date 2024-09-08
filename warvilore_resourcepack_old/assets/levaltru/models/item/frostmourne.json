@@ -1,0 +1,6 @@
+{
+	"parent": "levaltru:item/big_sword",
+	"textures": {
+		"layer0": "levaltru:item/frostmourne"
+	}
+}
