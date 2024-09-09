@@ -66,7 +66,7 @@ class ReallyFastArrow(location: Location, velocity: Vector, val owner: UUID,
         return didCollide()
     }
 
-    override fun onCollision(collisionPlace: Location, entity: Entity?) {
+    override fun onCollision(collisionPlace: Location, entity: Entity?): Boolean {
         val world = location.world
 
         world.playSound(location, Sound.ENTITY_ARROW_HIT, SoundCategory.MASTER, 1f, 2f)
@@ -90,6 +90,7 @@ class ReallyFastArrow(location: Location, velocity: Vector, val owner: UUID,
             velocity.clone().normalize().multiply(Vector(0.6 * knockback, 0.0, 0.6 * knockback)).add(Vector(0.0, 0.33, 0.0))
         if (fire) entity?.let { it.fireTicks = max(100, it.fireTicks) }
         if (entity is Player) player?.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.MASTER, 0.5f, 1f)
+        return true
     }
 
     companion object {

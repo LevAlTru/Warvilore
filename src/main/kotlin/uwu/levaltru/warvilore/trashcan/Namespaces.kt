@@ -3,7 +3,7 @@ package uwu.levaltru.warvilore.trashcan
 import org.bukkit.NamespacedKey
 import uwu.levaltru.warvilore.Warvilore
 
-enum class Namespaces() {
+enum class Namespaces {
     ABILITY_SAVE_PLACE,
     SOFTWARE_SAVE_PLACE,
     SOFTWARE_SAVE_ARGS_PLACE,

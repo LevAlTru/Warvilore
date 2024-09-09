@@ -1,13 +1,13 @@
 package uwu.levaltru.warvilore.tickables
 
-import com.google.common.base.Predicate
 import org.bukkit.FluidCollisionMode
 import org.bukkit.Location
 import org.bukkit.entity.Entity
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Tickable
 
-abstract class Projectile(var location: Location, var velocity: Vector, val predicate: Predicate<in Entity>) : Tickable() {
+abstract class Projectile(var location: Location, var velocity: Vector, val predicate: (Entity) -> Boolean) :
+    Tickable() {
 
     var prevLocation: Location = location.clone()
 
@@ -28,15 +28,16 @@ abstract class Projectile(var location: Location, var velocity: Vector, val pred
 
         val hitPosition = rayTrace?.hitPosition
         if (hitPosition != null) {
-            if (rayTrace.hitEntity != null) onCollision(hitPosition.toLocation(world), rayTrace.hitEntity!!)
             location = hitPosition.toLocation(world)
-            onCollision(hitPosition.toLocation(world), null)
-            return true
+            if (rayTrace.hitEntity != null)
+                if (onCollision(location, rayTrace.hitEntity!!))
+                    return true
+            if (onCollision(location, null)) return true
         }
         return false
     }
 
-    abstract fun onCollision(collisionPlace: Location, entity: Entity?)
+    abstract fun onCollision(collisionPlace: Location, entity: Entity?): Boolean
 
     fun getInBeetweens(stepSize: Double): MutableList<Vector> {
         val toVector = location.clone().subtract(prevLocation).toVector()

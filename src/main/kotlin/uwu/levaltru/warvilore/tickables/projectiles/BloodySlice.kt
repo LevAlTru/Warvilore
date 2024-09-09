@@ -97,5 +97,5 @@ class BloodySlice(location: Location, velocity: Vector, val owner: UUID) :
         return isInBlockCollision(location)
     }
 
-    override fun onCollision(collisionPlace: Location, entity: Entity?) {}
+    override fun onCollision(collisionPlace: Location, entity: Entity?): Boolean = false
 }
