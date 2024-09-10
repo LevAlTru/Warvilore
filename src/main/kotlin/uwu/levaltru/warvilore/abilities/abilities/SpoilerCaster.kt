@@ -11,7 +11,7 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.projectiles.Meteorite
 
-class MeteorSpawner(nickname: String) : AbilitiesCore(nickname) {
+class SpoilerCaster(nickname: String) : AbilitiesCore(nickname) {
 
     var castingSpeed = 1.0
     var castingCollisionTimes = 5
@@ -20,7 +20,7 @@ class MeteorSpawner(nickname: String) : AbilitiesCore(nickname) {
         if (castingSpeed > 0 && castingCollisionTimes > 0) {
             val direction = player!!.eyeLocation.direction
             Meteorite(
-                player!!.eyeLocation.add(direction),
+                player!!.eyeLocation.add(direction.clone().multiply(3.0)),
                 direction.clone().multiply(castingSpeed),
                 castingCollisionTimes
             )

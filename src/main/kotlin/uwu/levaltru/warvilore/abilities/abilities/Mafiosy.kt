@@ -23,11 +23,9 @@ private const val REGUIRED_PLAYER_AMOUNT = 3
 private const val MAX_EFFECT_COOLDOWN = 50
 
 private val NEGATIVE_POTION_EFFECTS = listOf(
-    PotionEffect(PotionEffectType.WITHER, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
-    PotionEffect(PotionEffectType.WEAKNESS, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
-    PotionEffect(PotionEffectType.MINING_FATIGUE, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
-    PotionEffect(PotionEffectType.HUNGER, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
-    PotionEffect(PotionEffectType.DARKNESS, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
+    PotionEffect(PotionEffectType.WITHER, (MAX_EFFECT_COOLDOWN * 1.5).toInt(), 0, false, true),
+    PotionEffect(PotionEffectType.WEAKNESS, (MAX_EFFECT_COOLDOWN * 1.5).toInt(), 0, false, true),
+    PotionEffect(PotionEffectType.MINING_FATIGUE, (MAX_EFFECT_COOLDOWN * 1.5).toInt(), 0, false, true),
 )
 
 open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
@@ -96,8 +94,10 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
     override fun onAttack(event: PrePlayerAttackEntityEvent) {
         if (event.willAttack() && enoughPlayerNearby()) {
 
-            if (effectCooldown > 0)
-                    (event.attacked as? LivingEntity)?.addPotionEffect(NEGATIVE_POTION_EFFECTS.random())
+            if (effectCooldown <= 0) {
+                (event.attacked as? LivingEntity)?.addPotionEffect(NEGATIVE_POTION_EFFECTS.random())
+                effectCooldown = MAX_EFFECT_COOLDOWN
+            }
 
         }
     }
