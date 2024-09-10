@@ -18,7 +18,7 @@ import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 
-private const val EVIL_AURA_DETECTION_RADIUS = 32.0
+private const val EVIL_AURA_DETECTION_RADIUS = 16.0
 
 abstract class HatesEvilAura(nickname: String): AbilitiesCore(nickname) {
 

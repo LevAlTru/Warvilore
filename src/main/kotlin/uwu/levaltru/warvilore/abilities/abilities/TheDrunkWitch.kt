@@ -285,7 +285,7 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
         return false
     }
 
-    override fun getEvilAura(): Double = manaFrom0To1() * 12.0 + 4.0
+    override fun getEvilAura(): Double = manaFrom0To1() * 5.0
 
     override fun getAboutMe(): List<Component> {
         TODO("Not yet implemented")

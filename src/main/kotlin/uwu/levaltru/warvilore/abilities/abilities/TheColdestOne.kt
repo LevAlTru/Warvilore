@@ -368,9 +368,7 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
         }
     }
 
-    override fun getEvilAura(): Double {
-        return 8.0 * coldnessFrom0To1() * if (player!!.inventory.itemInMainHand.isFrostmourne()) 2.0 else 1.0
-    }
+    override fun getEvilAura(): Double = 5.0 * coldnessFrom0To1()
 
     override fun getAboutMe(): List<Component> = listOf(
         text("Ты Король Холода Лич.").color(NamedTextColor.AQUA),

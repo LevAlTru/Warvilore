@@ -27,9 +27,8 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
 
         val bow = event.bow
         val enchantments = bow?.enchantments
-        var damage = event.force.toDouble() * 3.4
-        damage += (enchantments?.get(Enchantment.POWER) ?: 0) * 3 * event.force.toDouble()
-        damage *= 0.6
+        var damage = 3.4 + (enchantments?.get(Enchantment.POWER) ?: 0) * 3
+        damage *= 0.3 * event.force.toDouble()
         val knockback = enchantments?.get(Enchantment.PUNCH) ?: 0
         val fire = enchantments?.keys?.contains(Enchantment.FLAME) ?: false
 

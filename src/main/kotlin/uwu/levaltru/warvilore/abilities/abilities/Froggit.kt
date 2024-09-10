@@ -17,11 +17,11 @@ import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 
-private const val SMALL_SLIME_DURATION = 20 * 60 * 2
-private const val SMALL_HUNGER_REGAIN = 2
+private const val SMALL_SLIME_DURATION = 20 * 60 * 3
+private const val SMALL_HUNGER_REGAIN = 3
 
-private const val LARGE_SLIME_DURATION = 20 * 60 * 6
-private const val LARGE_HUNGER_REGAIN = 6
+private const val LARGE_SLIME_DURATION = 20 * 60 * 8
+private const val LARGE_HUNGER_REGAIN = 8
 
 class Froggit(nickname: String) : AbilitiesCore(nickname) {
 
