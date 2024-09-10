@@ -1,11 +1,13 @@
 package uwu.levaltru.warvilore.abilities.abilities
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.*
+import org.bukkit.entity.LivingEntity
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
@@ -18,6 +20,15 @@ import uwu.levaltru.warvilore.trashcan.Namespaces
 private const val COOLDOWN: Int = 20 * 80
 private const val DURATION: Int = 20 * 20
 private const val REGUIRED_PLAYER_AMOUNT = 3
+private const val MAX_EFFECT_COOLDOWN = 50
+
+private val NEGATIVE_POTION_EFFECTS = listOf(
+    PotionEffect(PotionEffectType.WITHER, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
+    PotionEffect(PotionEffectType.WEAKNESS, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
+    PotionEffect(PotionEffectType.MINING_FATIGUE, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
+    PotionEffect(PotionEffectType.HUNGER, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
+    PotionEffect(PotionEffectType.DARKNESS, MAX_EFFECT_COOLDOWN * 2 + 20, 0, false, true),
+)
 
 open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
     //    override fun getEvilAura(): Double {
@@ -40,6 +51,7 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
             )
             field = value
         }
+    var effectCooldown = 0
 
     override fun onAction(event: PlayerInteractEvent) {
         invisibleFun(event)
@@ -72,20 +84,36 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun onTick(event: ServerTickEndEvent) {
+        if (cooldown > 0) cooldown--
+        if (effectCooldown > 0) effectCooldown--
+
         if (player!!.ticksLived % 100 == 0) {
-            var ye = 0
-            for (pla in player!!.location.getNearbyPlayers(8.0)) {
-                if (pla.location.distanceSquared(player!!.location) < 64.0) {
-                    if (pla.getAbilities() is Mafiosy) {
-                        ye++
-                        if (ye < REGUIRED_PLAYER_AMOUNT) continue
-                        player!!.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 110, 0, true, false, true))
-                        break
-                    }
+            if (enoughPlayerNearby())
+                player!!.addPotionEffect(PotionEffect(PotionEffectType.RESISTANCE, 110, 0, true, false, true))
+        }
+    }
+
+    override fun onAttack(event: PrePlayerAttackEntityEvent) {
+        if (event.willAttack() && enoughPlayerNearby()) {
+
+            if (effectCooldown > 0)
+                    (event.attacked as? LivingEntity)?.addPotionEffect(NEGATIVE_POTION_EFFECTS.random())
+
+        }
+    }
+
+    private fun enoughPlayerNearby(): Boolean {
+        var ye = 0
+        for (pla in player!!.location.getNearbyPlayers(12.0)) {
+            if (pla.location.distanceSquared(player!!.location) < 12.0 * 12.0) {
+                if (pla.getAbilities() is Mafiosy) {
+                    ye++
+                    if (pla.uniqueId == player!!.uniqueId) continue
+                    if (ye >= REGUIRED_PLAYER_AMOUNT) return true
                 }
             }
         }
-        if (cooldown > 0) cooldown--
+        return false
     }
 
     fun isMafiInvisible(): Boolean {
