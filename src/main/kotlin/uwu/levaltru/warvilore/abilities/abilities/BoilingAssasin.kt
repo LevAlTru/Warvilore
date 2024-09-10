@@ -76,6 +76,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
 
     override fun getAboutMe(): List<Component> = listOf(
         text("За твои долгие года жизни бытья наемником ты научился:").color(NamedTextColor.GREEN),
+        text("- Бежать эффективнее когда ты держишь лук.").color(NamedTextColor.GREEN),
         text("- Уходить в невидимость когда ты держишь лук.").color(NamedTextColor.GREEN),
         text("- Стрелять стрелами в разы быстрее.").color(NamedTextColor.GREEN),
         text("  - Иза этого стрелы с эффектами разносят эффекты вокруг.").color(NamedTextColor.GREEN),

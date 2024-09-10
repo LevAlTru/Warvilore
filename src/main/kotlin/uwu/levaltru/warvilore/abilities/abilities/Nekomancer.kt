@@ -133,12 +133,13 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
         for (nearbyPlayer in locy.getNearbyPlayers(RADIUS + 0.2)) {
             val location = nearbyPlayer.location.add(0.0, nearbyPlayer.height / 2, 0.0)
             if (location.distance(locy) > RADIUS + 0.2) continue
-            nearbyPlayer.addPotionEffect(
-                PotionEffect(
-                    PotionEffectType.REGENERATION, 10, 2,
-                    true, true, true
+            if (standStillTime % 40 == 0)
+                nearbyPlayer.addPotionEffect(
+                    PotionEffect(
+                        PotionEffectType.REGENERATION, 45, 2,
+                        true, true, true
+                    )
                 )
-            )
             val particle = if (nearbyPlayer.isEvil()) Particle.SCRAPE else Particle.WAX_ON
             world.spawnParticle(particle, location, 1, .2, .4, .2, 3.0, null, true)
         }
@@ -248,11 +249,28 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
         if (mana < 4500) {
             player!!.addPotionEffect(PotionEffect(PotionEffectType.NAUSEA, 30 * 20, 0, true, false, true))
             player!!.playSound(player!!.location, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_MOB, 0.33f, 0.5f)
-        }
+        } else return
+        if (mana < 3000) player!!.addPotionEffect(
+            PotionEffect(
+                PotionEffectType.DARKNESS,
+                15 * 20,
+                0,
+                true,
+                false,
+                true
+            )
+        )
         else return
-        if (mana < 3000) player!!.addPotionEffect(PotionEffect(PotionEffectType.DARKNESS, 15 * 20, 0, true, false, true))
-        else return
-        if (mana < 1500) player!!.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, 30 * 20, 0, true, false, true))
+        if (mana < 1500) player!!.addPotionEffect(
+            PotionEffect(
+                PotionEffectType.BLINDNESS,
+                30 * 20,
+                0,
+                true,
+                false,
+                true
+            )
+        )
         else return
         if (mana < 500) player!!.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 20 * 20, 0, true, false, true))
         else return
@@ -330,10 +348,13 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
         text("- Ты видишь души.").color(NamedTextColor.GREEN),
         text(
             "- Твой круг регенерации умеет заряжаться. Дуги в твоем круге задерживаются в этом мире на подольше. " +
-                    "Когда он полностью заряжен и ты бьешь рукой по полу, игроки чьи души были в твоем кругу телепортируются на точку их души.").color(NamedTextColor.GREEN),
+                    "Когда он полностью заряжен и ты бьешь рукой по полу, игроки чьи души были в твоем кругу телепортируются на точку их души."
+        ).color(NamedTextColor.GREEN),
         text("- - Но для этого нужно чтобы игрок возродился и был в сети! ").color(NamedTextColor.GOLD)
             .append { text("Иначе их душа разрушится моментально!").color(NamedTextColor.RED) },
-        text("- Также у тебя есть мана. Чтобы восстановить твою ману ты можешь ждать, или съесть золотое или золотое зачарованное яблоко").color(NamedTextColor.AQUA),
+        text("- Также у тебя есть мана. Чтобы восстановить твою ману ты можешь ждать, или съесть золотое или золотое зачарованное яблоко").color(
+            NamedTextColor.AQUA
+        ),
         text("- - Еще если ты ударишь яблоком по воздуху, ты увидишь свою ману").color(NamedTextColor.AQUA),
     )
 }
