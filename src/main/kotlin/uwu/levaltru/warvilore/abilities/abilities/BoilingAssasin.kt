@@ -12,6 +12,8 @@ import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.projectiles.ReallyFastArrow
 
+private const val BASE_DAMAGE = 10.0
+
 class BoilingAssasin(string: String) : AbilitiesCore(string) {
 
     override fun onTick(event: ServerTickEndEvent) {
@@ -27,8 +29,9 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
 
         val bow = event.bow
         val enchantments = bow?.enchantments
-        var damage = 3.4 + (enchantments?.get(Enchantment.POWER) ?: 0) * 3
-        damage *= 0.3 * event.force.toDouble()
+        var damage = BASE_DAMAGE + (.25 * ((enchantments?.get(Enchantment.POWER) ?: -1) + 1) * BASE_DAMAGE)
+        val force = event.force / 3.0
+        damage *= force
         val knockback = enchantments?.get(Enchantment.PUNCH) ?: 0
         val fire = enchantments?.keys?.contains(Enchantment.FLAME) ?: false
 
@@ -55,7 +58,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
 
         val direction = player!!.location.direction
         ReallyFastArrow(player!!.eyeLocation.add(direction.clone().multiply(0.33)),
-            direction.multiply(1.66 * event.force), player!!.uniqueId, damage, knockback, fire, effectDevided8)
+            direction.multiply(1.66 * force), player!!.uniqueId, damage, knockback, fire, effectDevided8)
         bow?.damage(1, player!!)
     }
 
