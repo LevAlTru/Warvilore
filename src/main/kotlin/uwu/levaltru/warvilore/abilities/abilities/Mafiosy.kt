@@ -91,7 +91,7 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
         }
     }
 
-    override fun onAttack(event: PrePlayerAttackEntityEvent) {
+    override fun onPreAttack(event: PrePlayerAttackEntityEvent) {
         if (event.willAttack() && enoughPlayerNearby()) {
 
             if (effectCooldown <= 0) {

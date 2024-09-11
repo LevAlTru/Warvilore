@@ -42,36 +42,23 @@ class Froggit(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun onJoin(event: PlayerJoinEvent) {
-        for (modifier in player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.modifiers) {
-            if (modifier?.name == "frogyboost") {
-                player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.removeModifier(modifier)
-                break
-            }
-        }
         player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.addModifier(
             AttributeModifier(
-                Warvilore.namespace("frogyboost"),
+                Warvilore.namespace("temp_frogyboost"),
                 0.5,
                 AttributeModifier.Operation.ADD_SCALAR
             )
         )
-
-        for (modifier in player!!.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE)!!.modifiers) {
-            if (modifier?.name == "frogyboost") {
-                player!!.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE)!!.removeModifier(modifier)
-                break
-            }
-        }
         player!!.getAttribute(Attribute.GENERIC_SAFE_FALL_DISTANCE)!!.addModifier(
             AttributeModifier(
-                Warvilore.namespace("frogyboost"),
+                Warvilore.namespace("temp_frogyboost"),
                 5.0,
                 AttributeModifier.Operation.ADD_NUMBER
             )
         )
     }
 
-    override fun onAttack(event: PrePlayerAttackEntityEvent) {
+    override fun onPreAttack(event: PrePlayerAttackEntityEvent) {
         if (!player!!.inventory.itemInMainHand.isEmpty) return
 
         val slime = event.attacked
@@ -119,6 +106,8 @@ class Froggit(nickname: String) : AbilitiesCore(nickname) {
                 )
                 else -> return
             }
+            player!!.saturation += ITEM_HUNGER_REGAIN.toFloat() / 2
+            player!!.foodLevel += ITEM_HUNGER_REGAIN
             player!!.world.playSound(player!!, Sound.ENTITY_GENERIC_EAT, 1f, 1f)
             item.subtract()
         }

@@ -297,7 +297,7 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
         }
     }
 
-    override fun onAttack(event: PrePlayerAttackEntityEvent) {
+    override fun onPreAttack(event: PrePlayerAttackEntityEvent) {
         val item = player!!.inventory.itemInMainHand
         if (event.willAttack() && (item.isFrostmourne() || item.isEmpty)) {
             val entity = event.attacked

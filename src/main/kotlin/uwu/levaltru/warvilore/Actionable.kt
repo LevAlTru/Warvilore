@@ -20,7 +20,8 @@ abstract class Actionable {
     open fun onEating(event: PlayerItemConsumeEvent) {}
     open fun onDeath(event: PlayerDeathEvent) {}
     open fun onBowShooting(event: EntityShootBowEvent) {}
-    open fun onAttack(event: PrePlayerAttackEntityEvent) {}
+    open fun onPreAttack(event: PrePlayerAttackEntityEvent) {}
+    open fun onAttack(event: EntityDamageByEntityEvent) {}
     open fun onKill(event: EntityDeathEvent) {}
     open fun onJoin(event: PlayerJoinEvent) {}
     open fun onLeave(event: PlayerQuitEvent) {}

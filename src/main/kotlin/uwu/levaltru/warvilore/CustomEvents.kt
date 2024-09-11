@@ -4,16 +4,11 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
+import org.bukkit.attribute.Attribute
 import org.bukkit.block.Crafter
-import org.bukkit.entity.AbstractArrow
-import org.bukkit.entity.Arrow
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
-import org.bukkit.entity.SpectralArrow
-import org.bukkit.event.Event
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
@@ -28,8 +23,6 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.PortalCreateEvent
-import org.bukkit.inventory.CrafterInventory
-import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
@@ -120,7 +113,12 @@ class CustomEvents : Listener {
                 }
         }
 
-        player.getAbilities()?.onAttack(event)
+        player.getAbilities()?.onPreAttack(event)
+    }
+
+    @EventHandler
+    fun onAttack(event: EntityDamageByEntityEvent) {
+        (event.damager as? Player)?.let { it.getAbilities()?.onAttack(event) }
     }
 
     @EventHandler
@@ -185,6 +183,15 @@ class CustomEvents : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
+        for (attribute in Attribute.entries) {
+            val modifiers = player.getAttribute(attribute)?.modifiers
+            if (modifiers != null) {
+                for (modifier in modifiers) {
+                    if (modifier.name.contains("temp"))
+                        player.getAttribute(attribute)!!.removeModifier(modifier.key)
+                }
+            }
+        }
         AbilitiesCore.loadAbility(player)
         val abilities = player.getAbilities()
         abilities?.player = player
@@ -256,7 +263,8 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onCrafterItemCrafting(event: CrafterCraftEvent) {
-        event.isCancelled = (event.block.getState(false) as Crafter).inventory.any { it?.itemMeta?.getAsCustomItem() != null }
+        event.isCancelled =
+            (event.block.getState(false) as Crafter).inventory.any { it?.itemMeta?.getAsCustomItem() != null }
     }
 
     @EventHandler

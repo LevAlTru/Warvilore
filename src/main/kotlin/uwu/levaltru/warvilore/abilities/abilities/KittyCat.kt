@@ -24,25 +24,19 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils.isMeatOrFish
 class KittyCat(nickname: String) : AbilitiesCore(nickname) {
 
     override fun onJoin(event: PlayerJoinEvent) {
-        for (modifier in player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.modifiers) {
-            if (modifier?.name == "kittyboost") {
-                player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.removeModifier(modifier)
-                break
-            }
-        }
         player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.addModifier(
             AttributeModifier(
-                Warvilore.namespace("kittyboost"),
+                Warvilore.namespace("temp_kittyboost"),
                 0.5,
                 AttributeModifier.Operation.ADD_SCALAR
             )
         )
     }
 
-    override fun onAttack(event: PrePlayerAttackEntityEvent) {
+    override fun onPreAttack(event: PrePlayerAttackEntityEvent) {
         if (!event.willAttack()) return
         for (modifier in player!!.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)!!.modifiers) {
-            if (modifier?.name == "kittyboost") {
+            if (modifier?.name == "temp_kittyboost") {
                 player!!.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)!!.removeModifier(modifier)
                 break
             }
@@ -63,7 +57,7 @@ class KittyCat(nickname: String) : AbilitiesCore(nickname) {
             player!!.world.playSound(add, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f)
             player!!.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)!!.addModifier(
                 AttributeModifier(
-                    Warvilore.namespace("kittyboost"),
+                    Warvilore.namespace("temp_kittyboost"),
                     5.0,
                     AttributeModifier.Operation.ADD_NUMBER
                 )
