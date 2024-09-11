@@ -124,9 +124,14 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
 
     override fun getAboutMe(): List<Component> = listOf(
         text("Твои навыки:").color(NamedTextColor.GREEN),
+        text(""),
         text("- При нажатии на любой меч, ты уходишь в ").color(NamedTextColor.GREEN)
             .append { text("true ").style(Style.style(TextDecoration.ITALIC, NamedTextColor.GREEN)) }
             .append { text("невидимость на ${DURATION / 20} секунд.").color(NamedTextColor.GREEN) },
-        text("  - Перезаряжается ${COOLDOWN / 20} секунд.").color(NamedTextColor.GOLD)
+        text("  - Перезаряжается ${COOLDOWN / 20} секунд.").color(NamedTextColor.GOLD),
+        text(""),
+        text(" - Когда вокруг тебя есть $REGUIRED_PLAYER_AMOUNT мафиози или больше, у тебя появляются следующие эффекты:").color(NamedTextColor.GREEN),
+        text("   - У тебя появляется сопротивление 1 (не получаешь 20% урона).").color(NamedTextColor.GREEN),
+        text("   - Твои удары наносят дебафы иссушения, слабости, и утомления.").color(NamedTextColor.GREEN),
     )
 }
