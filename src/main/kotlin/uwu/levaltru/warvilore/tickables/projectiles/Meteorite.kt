@@ -12,6 +12,7 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.tickables.Projectile
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import java.util.*
+import kotlin.math.ceil
 
 private val random = Random()
 
@@ -19,7 +20,7 @@ private const val MAX_AGE = 20 * 45
 
 //private const val BOOM_RADIUS = 3
 
-class Meteorite(location: Location, velocity: Vector, private var collisionsLeft: Int) :
+class Meteorite(location: Location, velocity: Vector, private var collisionsLeft: Int, private val size: Double) :
     Projectile(location, velocity, { it is LivingEntity }) {
 
     override fun tick(): Boolean {
@@ -63,18 +64,19 @@ class Meteorite(location: Location, velocity: Vector, private var collisionsLeft
         (entity as? LivingEntity)?.damage(100.0)
         if (entity is Player && entity.gameMode != GameMode.SURVIVAL) return false
         val isFinalHit = collisionsLeft-- <= 0
-        val BOOM_RADIUS = collisionsLeft / 2 + 1
+        val boomRadius = collisionsLeft / 2 + 0.8 + size
         val world = location.world
         val damageSource = DamageSource.builder(DamageType.EXPLOSION).withDamageLocation(location).build()
-        for (livingEntity in location.getNearbyLivingEntities(BOOM_RADIUS + 2.0)) {
-            if ((livingEntity.location.distanceSquared(location) > (BOOM_RADIUS * BOOM_RADIUS + 4.0 * BOOM_RADIUS + 4.0))) continue
+        for (livingEntity in location.getNearbyLivingEntities(boomRadius + 2.0)) {
+            if ((livingEntity.location.distanceSquared(location) > (boomRadius * boomRadius + 4.0 * boomRadius + 4.0))) continue
             livingEntity.damage(30.0, damageSource)
             livingEntity.fireTicks = 200
         }
-        for (x in -BOOM_RADIUS..BOOM_RADIUS) {
-            for (y in -BOOM_RADIUS..BOOM_RADIUS) {
-                for (z in -BOOM_RADIUS..BOOM_RADIUS) {
-                    if (x * x + y * y + z * z > BOOM_RADIUS * BOOM_RADIUS)
+        val int = ceil(boomRadius).toInt()
+        for (x in -int..int) {
+            for (y in -int..int) {
+                for (z in -int..int) {
+                    if (x * x + y * y + z * z > boomRadius * boomRadius)
                         continue
                     val add = location.toCenterLocation().add(
                         x.toDouble(),
@@ -83,6 +85,17 @@ class Meteorite(location: Location, velocity: Vector, private var collisionsLeft
                     )
                     val blockAt = world.getBlockAt(add)
                     if (blockAt.type.blastResistance > 10000) continue
+                    if (isFinalHit) {
+                        blockAt.breakNaturally()
+                        val nextInt = random.nextInt(0, 100)
+                        blockAt.type =
+                            if (nextInt < 3) Material.ANCIENT_DEBRIS
+                            else if (nextInt < 10) Material.LAVA
+                            else if (nextInt < 20) Material.MAGMA_BLOCK
+                            else if (nextInt < 85) Material.OBSIDIAN
+                            else Material.CRYING_OBSIDIAN
+                        continue
+                    }
                     if (blockAt.state !is InventoryHolder && random.nextDouble() < 0.33) {
                         world.spawn(add, FallingBlock::class.java) {
                             it.blockData = world.getBlockData(add)
@@ -94,15 +107,12 @@ class Meteorite(location: Location, velocity: Vector, private var collisionsLeft
             }
         }
         world.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 12f, 0.5f)
-        for (i in 1..if (isFinalHit) 50 else 15) {
-            val block = randomTrace(BOOM_RADIUS) ?: continue
+        for (i in 1.. ceil(6.0 * Math.PI * boomRadius * boomRadius).toInt()) {
+            val block = randomTrace(int) ?: continue
             if (block.type.blastResistance > 10000) continue
             block.breakNaturally()
-            val nextInt = random.nextInt(0, 100)
-            block.type =
-                if (nextInt < 5 && isFinalHit) Material.ANCIENT_DEBRIS
-                else if (nextInt < 70) Material.MAGMA_BLOCK
-                else Material.OBSIDIAN
+            val nextInt = random.nextInt(0, 10)
+            block.type = if (nextInt < 7) Material.NETHERRACK else Material.MAGMA_BLOCK
         }
         if (isFinalHit) {
             world.playSound(location, Sound.ENTITY_WARDEN_SONIC_BOOM, 32f, 0.5f)

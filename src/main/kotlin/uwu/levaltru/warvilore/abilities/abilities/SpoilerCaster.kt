@@ -13,8 +13,9 @@ import uwu.levaltru.warvilore.tickables.projectiles.Meteorite
 
 class SpoilerCaster(nickname: String) : AbilitiesCore(nickname) {
 
-    var castingSpeed = 1.0
-    var castingCollisionTimes = 5
+    var castingSpeed = -1.0
+    var castingCollisionTimes = -1
+    var size = -1.0
 
     override fun onAction(event: PlayerInteractEvent) {
         if (castingSpeed > 0 && castingCollisionTimes > 0) {
@@ -22,15 +23,17 @@ class SpoilerCaster(nickname: String) : AbilitiesCore(nickname) {
             Meteorite(
                 player!!.eyeLocation.add(direction.clone().multiply(3.0)),
                 direction.clone().multiply(castingSpeed),
-                castingCollisionTimes
+                castingCollisionTimes,
+                size
             )
         }
     }
 
     override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
-        if (args.size <= 2) {
+        if (args.size <= 3) {
             castingSpeed = args[0].toDouble()
             castingCollisionTimes = args[1].toInt()
+            size = args[2].toDouble()
             return
         }
         Meteorite(
@@ -41,7 +44,8 @@ class SpoilerCaster(nickname: String) : AbilitiesCore(nickname) {
                 args[2].toDouble(),
             ),
             Vector(args[3].toDouble(), args[4].toDouble(), args[5].toDouble()),
-            args[6].toInt()
+            args[6].toInt(),
+            args[7].toDouble()
         )
     }
 
@@ -54,11 +58,12 @@ class SpoilerCaster(nickname: String) : AbilitiesCore(nickname) {
         return when (args.size) {
             1 -> listOf("x", "speed")
             2 -> listOf("y", "collisionTimes")
-            3 -> listOf("z")
+            3 -> listOf("z", "size")
             4 -> listOf("dx")
             5 -> listOf("dy")
             6 -> listOf("dz")
             7 -> listOf("collsionTimes")
+            8 -> listOf("size")
             else -> listOf("")
         }
     }
