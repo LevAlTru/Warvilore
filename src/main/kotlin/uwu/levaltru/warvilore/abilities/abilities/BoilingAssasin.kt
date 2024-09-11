@@ -63,6 +63,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
     }
 
     fun abilitiesWork(): Boolean {
+        if (abilitiesDisabled) return false
         if (!isHeldingABow()) return false
         if (player == null) return false
         for (stack in player!!.inventory.armorContents)

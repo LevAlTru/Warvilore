@@ -76,6 +76,8 @@ class TheColdestOne(string: String) : Undead(string), EvilAurable {
 
         if (player!!.freezeTicks > 0) player!!.freezeTicks = 0
 
+        if (abilitiesDisabled) return
+
         if (random.nextInt(0, MAX_COLDNESS / 3) > coldness && random.nextInt(0, 20) == 0)
             player!!.fireTicks = (player!!.fireTicks + 50).coerceAtMost(200)
         if (random.nextInt(0, MAX_COLDNESS / 4) > coldness && random.nextInt(0, 10) == 0)

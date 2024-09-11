@@ -34,6 +34,7 @@ class KittyCat(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun onPreAttack(event: PrePlayerAttackEntityEvent) {
+        if (abilitiesDisabled) return
         if (!event.willAttack()) return
         for (modifier in player!!.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)!!.modifiers) {
             if (modifier?.name == "temp_kittyboost") {

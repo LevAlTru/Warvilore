@@ -55,13 +55,14 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
         invisibleFun(event)
     }
 
-    fun invisibleFun(event: PlayerInteractEvent): Boolean {
-        if (event.action.name != "RIGHT_CLICK_AIR") return false
-        if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return false
+    fun invisibleFun(event: PlayerInteractEvent) {
+        if (abilitiesDisabled) return
+        if (event.action.name != "RIGHT_CLICK_AIR") return
+        if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return
         if (cooldown > 0 && player!!.gameMode != GameMode.CREATIVE) {
             player!!.sendActionBar(Component.text("${cooldown / 20}s").color(NamedTextColor.RED))
             player!!.playSound(player!!.location, Sound.BLOCK_DECORATED_POT_INSERT_FAIL, SoundCategory.MASTER, 1f, 1f)
-            return false
+            return
         }
         cooldown = COOLDOWN
         effects()
@@ -69,7 +70,7 @@ open class Mafiosy(nickname: String) : AbilitiesCore(nickname) {
         Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
             effects()
         }, (DURATION - 1).toLong())
-        return true
+        return
     }
 
     private fun effects() {

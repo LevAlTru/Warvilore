@@ -40,6 +40,7 @@ abstract class HatesEvilAura(nickname: String): AbilitiesCore(nickname) {
     override fun onTick(event: ServerTickEndEvent) {
         if (evilAuraSickness > 0)
             evilAuraSickness -= evilAuraSickness / 1000 + 1
+        if (abilitiesDisabled) return
         for (nearbyPlayer in player!!.location.getNearbyPlayers(EVIL_AURA_DETECTION_RADIUS)) {
 
             val abilities = nearbyPlayer.getAbilities()

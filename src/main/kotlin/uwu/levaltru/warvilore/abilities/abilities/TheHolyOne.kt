@@ -55,6 +55,8 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
         val location = player!!.location
         if (bloodSliceCooldown > 0) bloodSliceCooldown--
 
+        if (abilitiesDisabled) return
+
         if (prevLoc == null
             || ((timeBeforeNextPray > 0 && player!!.gameMode != GameMode.CREATIVE) && burningScore <= 0)
             || location.distanceSquared(prevLoc!!) > 0.0001

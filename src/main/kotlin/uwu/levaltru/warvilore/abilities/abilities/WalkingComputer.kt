@@ -50,6 +50,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string) {
     private var activeSoftware: SoftwareBase? = null
 
     override fun onTick(event: ServerTickEndEvent) {
+        if (abilitiesDisabled) return
         val locy = player!!.location.add(0.0, player!!.height / 2, 0.0)
         if (charge > 0) {
             if (random.nextDouble() < 0.3)

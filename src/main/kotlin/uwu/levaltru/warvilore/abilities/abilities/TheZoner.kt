@@ -59,6 +59,7 @@ class TheZoner(s: String) : AbilitiesCore(s), EvilAurable {
     }
 
     override fun onAction(event: PlayerInteractEvent) {
+        if (abilitiesDisabled) return
         if (player!!.pitch < 80) return
         if (!player!!.isSneaking) return
         if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return

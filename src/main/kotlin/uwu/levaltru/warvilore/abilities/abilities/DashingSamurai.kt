@@ -85,6 +85,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
     val alreadyHit = mutableListOf<UUID>()
 
     override fun onTick(event: ServerTickEndEvent) {
+        if (abilitiesDisabled) return
         if (cooldown > 0) cooldown--
 
         if ((LevsUtils.isSword(player!!.inventory.itemInMainHand.type) &&
@@ -178,6 +179,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
     }
 
     override fun onAction(event: PlayerInteractEvent) {
+        if (abilitiesDisabled) return
         if (!event.action.isRightClick) return
         if (!LevsUtils.isSword(player!!.inventory.itemInMainHand.type)) return
         val location = player!!.location

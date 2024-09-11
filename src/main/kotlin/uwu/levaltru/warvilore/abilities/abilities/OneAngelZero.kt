@@ -40,8 +40,6 @@ private val DEFAULT_COLOR = NamedTextColor.GOLD.value()
 
 class OneAngelZero(string: String) : HatesEvilAura(string), CanSeeSouls {
 
-    // make everyone go blind when they look at the halo (on command)
-
     private val AMBIENT_SOUND
         get() = random.nextInt(20 * 15, 20 * 30)
 

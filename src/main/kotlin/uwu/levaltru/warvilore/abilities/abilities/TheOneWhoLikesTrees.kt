@@ -118,6 +118,7 @@ class TheOneWhoLikesTrees(nickname: String) : HatesEvilAura(nickname) {
     }
 
     override fun onAction(event: PlayerInteractEvent) {
+        if (abilitiesDisabled) return
         val action = event.action
         when (player!!.inventory.itemInMainHand.type) {
             Material.DANDELION,

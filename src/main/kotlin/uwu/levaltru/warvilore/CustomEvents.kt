@@ -70,7 +70,7 @@ class CustomEvents : Listener {
     }
 
     @EventHandler
-    fun onAttack(event: PrePlayerAttackEntityEvent) {
+    fun onPreAttack(event: PrePlayerAttackEntityEvent) {
         val player = event.player
         val item = player.inventory.itemInMainHand
         val itemMeta = item.itemMeta
@@ -118,7 +118,9 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onAttack(event: EntityDamageByEntityEvent) {
-        (event.damager as? Player)?.let { it.getAbilities()?.onAttack(event) }
+        var damager = event.damager
+        if (damager is Projectile) damager = Bukkit.getEntity(damager.ownerUniqueId ?: return) ?: return
+        (damager as? Player)?.getAbilities()?.onAttack(event)
     }
 
     @EventHandler

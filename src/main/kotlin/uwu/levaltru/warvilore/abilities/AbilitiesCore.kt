@@ -1,9 +1,7 @@
 package uwu.levaltru.warvilore.abilities
 
-import com.destroystokyo.paper.profile.ProfileProperty
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.OfflinePlayer
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -17,6 +15,21 @@ abstract class AbilitiesCore(val nickname: String): Actionable() {
 
     val random = java.util.Random()
     var player: Player? = null
+    var abilitiesDisabled = false
+        get() {
+            field = player?.persistentDataContainer?.get(
+                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                PersistentDataType.BOOLEAN
+            ) ?: false
+            return field
+        }
+        set(value) {
+            player?.persistentDataContainer?.set(
+                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                PersistentDataType.BOOLEAN, value
+            )
+            field = value
+        }
 
     init {
         hashMap[nickname] = this
