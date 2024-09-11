@@ -11,6 +11,8 @@ import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.MagmaCube
 import org.bukkit.entity.Slime
+import org.bukkit.event.block.Action
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -22,6 +24,9 @@ private const val SMALL_HUNGER_REGAIN = 3
 
 private const val LARGE_SLIME_DURATION = 20 * 60 * 8
 private const val LARGE_HUNGER_REGAIN = 8
+
+private const val ITEM_DURATION = 20 * 30
+private const val ITEM_HUNGER_REGAIN = 2
 
 class Froggit(nickname: String) : AbilitiesCore(nickname) {
 
@@ -101,6 +106,24 @@ class Froggit(nickname: String) : AbilitiesCore(nickname) {
         }
     }
 
+    override fun onAction(event: PlayerInteractEvent) {
+        if (event.action == Action.RIGHT_CLICK_AIR) {
+            val item = player!!.inventory.itemInMainHand
+            if (item.itemMeta.hasCustomModelData()) return
+            when (item.type) {
+                Material.SLIME_BALL -> player!!.addPotionEffect(
+                    PotionEffect(PotionEffectType.RESISTANCE, ITEM_DURATION, 0, false, false, true)
+                )
+                Material.MAGMA_CREAM -> player!!.addPotionEffect(
+                    PotionEffect(PotionEffectType.FIRE_RESISTANCE, ITEM_DURATION, 0, false, false, true)
+                )
+                else -> return
+            }
+            player!!.world.playSound(player!!, Sound.ENTITY_GENERIC_EAT, 1f, 1f)
+            item.subtract()
+        }
+    }
+
     override fun getAboutMe(): List<Component> = listOf(
         text("Ты лягушка!").color(NamedTextColor.AQUA),
         text("Твои умения:").color(NamedTextColor.GREEN),
@@ -112,5 +135,6 @@ class Froggit(nickname: String) : AbilitiesCore(nickname) {
         text(""),
         text("- Если ты ударишь по мелкому или среднему слизню, ты его съешь.").color(NamedTextColor.GREEN),
         text("  - Если ты съешь магма куба, то ты получишь огнестойкость. Если обычного, сопротивление.").color(NamedTextColor.GREEN),
+        text("  - Также ты можешь есть слизь и магмовый крем.").color(NamedTextColor.GREEN),
     )
 }
