@@ -2,6 +2,7 @@ package uwu.levaltru.warvilore.trashcan
 
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.trashcan.ItemMetaTrashcan.soul_bottle_itemMeta
@@ -10,6 +11,15 @@ enum class CustomItems(val material: Material, val model: Int, val itemMetaFunct
 
     SOUL_BOTTLE(Material.HONEY_BOTTLE, 1, soul_bottle_itemMeta),
     OMINOUS_SOUL_BOTTLE(Material.HONEY_BOTTLE,2, soul_bottle_itemMeta),
+
+    NETHERITE_BOW(Material.BOW,1, {
+        val itemMeta = ItemStack(Material.BOW).itemMeta
+
+        itemMeta.isFireResistant = true
+        (itemMeta as Damageable).setMaxDamage(1324)
+
+        itemMeta
+    }),
 
     ;
 

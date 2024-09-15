@@ -7,9 +7,12 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.projectiles.Meteorite
+import uwu.levaltru.warvilore.trashcan.Namespaces
+import uwu.levaltru.warvilore.trashcan.NbtValue
 
 class SpoilerCaster(nickname: String) : AbilitiesCore(nickname) {
 

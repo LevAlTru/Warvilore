@@ -32,14 +32,14 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
     var timeBeforeNextPray: Int = 0
         get() {
             field = player?.persistentDataContainer?.get(
-                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                Namespaces.ARE_ABILITIES_ENABLED.namespace,
                 PersistentDataType.INTEGER
             ) ?: 0
             return field
         }
         set(value) {
             player?.persistentDataContainer?.set(
-                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                Namespaces.ARE_ABILITIES_ENABLED.namespace,
                 PersistentDataType.INTEGER, value
             )
             field = value

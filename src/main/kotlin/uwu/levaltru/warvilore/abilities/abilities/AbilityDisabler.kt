@@ -20,7 +20,10 @@ class AbilityDisabler(nickname: String) : AbilitiesCore(nickname) {
                     sender.sendMessage(text("The player has not any abilities").color(NamedTextColor.RED))
                     return
                 } else player.getAbilities()!!.abilitiesDisabled =
-                    if (args[2] == "true") true else if (args[2] == "false") false else return
+                    if (args[2] == "true") true else if (args[2] == "false") false else {
+                        sender.sendMessage(text("Not true if false").color(NamedTextColor.RED))
+                        return
+                    }
             }
         }
         

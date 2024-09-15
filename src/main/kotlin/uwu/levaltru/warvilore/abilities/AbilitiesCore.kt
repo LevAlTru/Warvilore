@@ -18,14 +18,14 @@ abstract class AbilitiesCore(val nickname: String): Actionable() {
     var abilitiesDisabled = false
         get() {
             field = player?.persistentDataContainer?.get(
-                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                Namespaces.ARE_ABILITIES_ENABLED.namespace,
                 PersistentDataType.BOOLEAN
             ) ?: false
             return field
         }
         set(value) {
             player?.persistentDataContainer?.set(
-                Namespaces.BEFORE_NEXT_PRAY.namespace,
+                Namespaces.ARE_ABILITIES_ENABLED.namespace,
                 PersistentDataType.BOOLEAN, value
             )
             field = value

@@ -34,7 +34,7 @@ class Froggit(nickname: String) : AbilitiesCore(nickname) {
         if (player!!.isInWaterOrBubbleColumn) {
             player!!.addPotionEffects(
                 listOf(
-                    PotionEffect(PotionEffectType.CONDUIT_POWER, 15, 0, true, false, true),
+                    PotionEffect(PotionEffectType.WATER_BREATHING, 15, 0, true, false, true),
                     PotionEffect(PotionEffectType.DOLPHINS_GRACE, 15, 0, true, false, true),
                 )
             )

@@ -1,6 +1,5 @@
 package uwu.levaltru.warvilore.trashcan
 
-import org.bukkit.NamespacedKey
 import uwu.levaltru.warvilore.Warvilore
 
 enum class Namespaces {
@@ -25,6 +24,8 @@ enum class Namespaces {
     CHARGE,
     CHARGES,
     REFILL,
+
+    ARE_ABILITIES_ENABLED,
 
 
     HALO_SPEED,
@@ -52,6 +53,7 @@ enum class Namespaces {
     WORLD_ZONE_APPROACHING_DISTANCE,
     WORLD_ZONE_SPEED,
     WORLD_ZONE_TYPE,
+    WORLD_ZONE_HOW_CLOSE_PLAYER_SHOULD_BE,
 
     WORLD_ARE_PORTAL_ALLOWED,
 

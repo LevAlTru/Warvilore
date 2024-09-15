@@ -12,6 +12,7 @@ import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockGrowEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.block.CrafterCraftEvent
 import org.bukkit.event.entity.*
@@ -29,10 +30,12 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
 import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
+import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne.Companion.isFrostmourne
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
+import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
@@ -170,7 +173,12 @@ class CustomEvents : Listener {
     @EventHandler
     fun onBowShooting(event: EntityShootBowEvent) {
         val entity = event.entity
-        if (entity is Player) entity.getAbilities()?.onBowShooting(event)
+        if (entity is Player) {
+            entity.getAbilities()?.onBowShooting(event)
+            if (event.bow?.itemMeta?.getAsCustomItem() == CustomItems.NETHERITE_BOW) {
+                event.projectile.velocity = event.projectile.velocity.multiply(1.5)
+            }
+        }
     }
 
     @EventHandler
@@ -271,11 +279,18 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onChunkLoad(event: ChunkLoadEvent) {
-        val b = event.isNewChunk && Zone.factorOf(event.chunk.x / 16, event.chunk.z / 16, event.world) > 0.01
+        val b = event.isNewChunk && Zone.factorOf(event.chunk.x, event.chunk.z, event.world) > 0.01
         for (entity in event.chunk.entities) {
             if (b && entity is LivingEntity) entity.remove()
             if (entity.persistentDataContainer[Namespaces.SHOULD_DESPAWN.namespace, PersistentDataType.BOOLEAN] == true)
                 entity.remove()
         }
+    }
+
+    @EventHandler
+    fun onPlantGrowing(event: BlockGrowEvent) {
+        val chunk = event.block.location.chunk
+        val factorOf = Zone.factorOf(chunk.x, chunk.z, chunk.world)
+        event.isCancelled = factorOf > Math.random()
     }
 }
