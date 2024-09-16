@@ -13,6 +13,7 @@ import org.bukkit.entity.Item
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -23,6 +24,7 @@ import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
+import uwu.levaltru.warvilore.tickables.MagicCauldron
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
@@ -66,64 +68,21 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
             field = value
         }
 
-    private var cauldronLoc: Location? = null
-        set(value) {
-            field = value?.toCenterLocation()
-        }
-
     override fun onTick(event: ServerTickEndEvent) {
         tickDrankSouls()
         if (player!!.ticksLived % 20 == 0) changeHealth()
-
-        if (cauldronTick()) cauldronLoc = null
-    }
-
-    private fun cauldronTick(): Boolean {
-        val cauLoc = cauldronLoc ?: return false
-        if (mana <= 0) return true
-        if (!isValidCauldron(cauldronLoc)) return true
-        if (try {
-                cauLoc.distanceSquared(player!!.location) > 42.25
-            } catch (e: IllegalArgumentException) {
-                true
-            }
-        ) return true
-
-        val x = random.nextDouble(player!!.boundingBox.minX, player!!.boundingBox.maxX)
-        val y = random.nextDouble(player!!.boundingBox.minY, player!!.boundingBox.maxY)
-        val z = random.nextDouble(player!!.boundingBox.minZ, player!!.boundingBox.maxZ)
-
-        val vec = Vector(cauLoc.x - x, cauLoc.y - y, cauLoc.z - z).normalize()
-
-        if (player!!.ticksLived % 3 == 0) {
-            player!!.world.spawnParticle(Particle.SCULK_SOUL, x, y, z, 0, vec.x, vec.y, vec.z, 0.15, null, true)
-            mana--
-            player!!.sendActionBar(text(mana.toString()).color(NamedTextColor.GOLD))
-            sendManaBar()
-        }
-
-        cauLoc.world.spawnParticle(
-            Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
-            cauLoc,
-            1,
-            0.2,
-            0.2,
-            0.2,
-            .025,
-            null,
-            true
-        )
-
-        return false
     }
 
     override fun onAction(event: PlayerInteractEvent) {
-        if (isValidCauldron(event.clickedBlock?.location)) cauldronLoc = event.clickedBlock!!.location
 
         if (event.action.isRightClick) {
             val item = player!!.inventory.itemInMainHand
-            if (!item.itemMeta.hasCustomModelData() && item.type == Material.GLASS_BOTTLE) {
-
+            if (item.isEmpty)
+                if (MagicCauldron.isValidCauldron(event.clickedBlock?.location)) MagicCauldron(
+                    event.clickedBlock!!.location,
+                    player!!.name
+                )
+            else if (item.itemMeta?.hasCustomModelData() != true && item.type == Material.GLASS_BOTTLE) {
                 for (spirit in DeathSpirit.LIST) {
                     val spiritLoc = spirit.loc
                     val eyeLocation = player!!.eyeLocation
@@ -289,17 +248,5 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
 
     override fun getAboutMe(): List<Component> {
         TODO("Not yet implemented")
-    }
-
-    companion object {
-        fun isValidCauldron(location: Location?): Boolean {
-            if (location == null) return false
-            if (when (location.block.type) {
-                    Material.CAULDRON, Material.WATER_CAULDRON, Material.LAVA_CAULDRON, Material.POWDER_SNOW_CAULDRON -> true
-                    else -> false
-                } && location.clone().add(0.0, -1.0, 0.0).block.type == Material.SOUL_FIRE
-            ) return true
-            return false
-        }
     }
 }
