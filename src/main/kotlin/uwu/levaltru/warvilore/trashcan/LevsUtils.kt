@@ -61,6 +61,11 @@ object LevsUtils {
         return null
     }
 
+    fun CustomItems?.isSoulInTheBottle(): Boolean = when (this) {
+        CustomItems.SOUL_BOTTLE, CustomItems.OMINOUS_SOUL_BOTTLE -> true
+        else -> false
+    }
+
     fun ItemMeta?.getSoulInTheBottle(): String? {
         return this?.persistentDataContainer?.get(Namespaces.SOUL_IN_THE_BOTTLE.namespace, PersistentDataType.STRING)
     }

@@ -108,22 +108,9 @@ class Zone private constructor() {
 //                    if (nearbyPlayers.isEmpty()) continue
 
                     val factorOf = factorOf(chunki.x, chunki.z, world)
-                    if (DeveloperMode) chunki.entities.filterIsInstance<Player>().forEach { it.sendActionBar(factorOf.toString()) }
                     if (factorOf > 0) chunks[chunki] = factorOf
                     else chunks.remove(chunki)
                 }
-                if (DeveloperMode) player?.sendMessage(world.name)
-                if (DeveloperMode) world.players.forEach {
-                    it.sendMessage(
-                        Component.text(distance.toString()).color(NamedTextColor.LIGHT_PURPLE)
-                    )
-                }
-                if (DeveloperMode) world.players.forEach {
-                    it.sendMessage(
-                        Component.text(blur.toString()).color(NamedTextColor.GOLD)
-                    )
-                }
-                if (DeveloperMode) player?.sendMessage(chunks.size.toString())
             }
         }
 

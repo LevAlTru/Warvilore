@@ -13,7 +13,7 @@ import uwu.levaltru.warvilore.commands.AboutMeCommand
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import java.awt.Component
 
-const val DeveloperMode = false
+const val DeveloperMode = true
 
 class Warvilore : JavaPlugin() {
 

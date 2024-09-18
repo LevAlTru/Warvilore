@@ -10,6 +10,7 @@ import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Item
+import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
@@ -18,6 +19,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
@@ -30,6 +32,8 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
 import uwu.levaltru.warvilore.trashcan.Namespaces
+
+private const val ACTION_COOLDOWN: Int = 7
 
 private const val MAX_MANA: Int = 10000
 
@@ -67,22 +71,33 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
             )
             field = value
         }
+    var actionCooldown = 0
 
     override fun onTick(event: ServerTickEndEvent) {
         tickDrankSouls()
+        if (actionCooldown > 0 && mana > 0) actionCooldown--
         if (player!!.ticksLived % 20 == 0) changeHealth()
     }
 
     override fun onAction(event: PlayerInteractEvent) {
-
+        if (actionCooldown > 0) return
+        actionCooldown = ACTION_COOLDOWN
         if (event.action.isRightClick) {
             val item = player!!.inventory.itemInMainHand
-            if (item.isEmpty)
-                if (MagicCauldron.isValidCauldron(event.clickedBlock?.location)) MagicCauldron(
-                    event.clickedBlock!!.location,
-                    player!!.name
-                )
-            else if (item.itemMeta?.hasCustomModelData() != true && item.type == Material.GLASS_BOTTLE) {
+            val loc = event.clickedBlock?.location?.toCenterLocation() ?: return
+            if (item.isEmpty) {
+                if (MagicCauldron.isValidCauldron(loc)) MagicCauldron(loc)
+            } else if (item.type == Material.AMETHYST_SHARD) {
+                val neatestCauldron = MagicCauldron.getNeatestCauldron(loc) ?: return
+                if (loc.distanceSquared(neatestCauldron.location) < .2) {
+                    neatestCauldron.activate(player!!)?.let {
+                        player!!.world.playSound(player!!, Sound.BLOCK_AMETHYST_BLOCK_STEP, 1f, 1f)
+                        item.subtract()
+                        event.setUseItemInHand(Event.Result.ALLOW)
+                        mana -= it
+                    }
+                }
+            } else if (item.itemMeta?.hasCustomModelData() != true && item.type == Material.GLASS_BOTTLE) {
                 for (spirit in DeathSpirit.LIST) {
                     val spiritLoc = spirit.loc
                     val eyeLocation = player!!.eyeLocation

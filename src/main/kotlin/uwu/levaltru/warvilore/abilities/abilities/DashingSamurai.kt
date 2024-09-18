@@ -14,12 +14,15 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import java.util.*
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 
 private const val MAX_CHARGES = 3
@@ -89,8 +92,8 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
         if (cooldown > 0) cooldown--
 
         if ((LevsUtils.isSword(player!!.inventory.itemInMainHand.type) &&
-            refill * (SPHERE_CHARS.size - 1) % REFILL_TIME <= SPHERE_CHARS.size - 1
-            && charges != MAX_CHARGES)
+                    refill * (SPHERE_CHARS.size - 1) % REFILL_TIME <= SPHERE_CHARS.size - 1
+                    && charges != MAX_CHARGES)
             || refill == 0
         )
             sendActionBar()
@@ -115,6 +118,21 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
                 ?: 0.0) + 3.5 + (itemMeta.enchants[Enchantment.SHARPNESS] ?: 0)
 
             val hitBox = player!!.boundingBox.expand(1.0)
+
+            for (x in floor(hitBox.minX).toInt()..ceil(hitBox.maxX).toInt())
+                for (y in floor(hitBox.minY).toInt()..ceil(hitBox.maxY).toInt())
+                    for (z in floor(hitBox.minZ).toInt()..ceil(hitBox.maxZ).toInt()) {
+                        val block = player!!.world.getBlockAt(x, y, z)
+                        when (block.type) {
+                            Material.BAMBOO, Material.TALL_GRASS, Material.SHORT_GRASS, Material.SEAGRASS, Material.TALL_SEAGRASS, Material.COBWEB -> {
+                                block.breakNaturally(item, true)
+                                item.damage(1, player!!)
+                            }
+
+                            else -> {}
+                        }
+                    }
+
             alreadyHit.add(player!!.uniqueId)
             for (entity in player!!.location.getNearbyLivingEntities(16.0)) {
                 if (alreadyHit.contains(entity.uniqueId)) continue
