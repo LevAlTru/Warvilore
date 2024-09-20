@@ -16,7 +16,16 @@ enum class CustomItems(val material: Material, val model: Int, val itemMetaFunct
         val itemMeta = ItemStack(Material.BOW).itemMeta
 
         itemMeta.isFireResistant = true
+        itemMeta.displayName(net.kyori.adventure.text.Component.text("Незеритовый Лук"))
         (itemMeta as Damageable).setMaxDamage(1324)
+
+        itemMeta
+    }),
+
+    SOULLITE_INGOT(Material.NETHERITE_INGOT,1, {
+        val itemMeta = ItemStack(Material.NETHERITE_INGOT).itemMeta
+
+        itemMeta.displayName(net.kyori.adventure.text.Component.text("Соллитовый Слиток"))
 
         itemMeta
     }),

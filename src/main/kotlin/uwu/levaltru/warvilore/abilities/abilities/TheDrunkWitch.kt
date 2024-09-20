@@ -3,7 +3,6 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -14,12 +13,10 @@ import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
-import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
@@ -85,10 +82,30 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
         if (event.action.isRightClick) {
             val item = player!!.inventory.itemInMainHand
             val loc = event.clickedBlock?.location?.toCenterLocation() ?: return
+            val neatestCauldron = MagicCauldron.getNeatestCauldron(loc)
             if (item.isEmpty) {
-                if (MagicCauldron.isValidCauldron(loc)) MagicCauldron(loc)
+                if (MagicCauldron.isValidCauldron(loc)) {
+                    if (player!!.isSneaking) {
+                        neatestCauldron ?: return
+                        if (neatestCauldron.location.distance(loc) > .2) return
+                        val itemStack = neatestCauldron.items.lastOrNull() ?: return
+                        neatestCauldron.items.removeLast()
+
+                        val velocity = player!!.location.subtract(neatestCauldron.location)
+                            .toVector().multiply(Vector(1.0, 0.0, 1.0)).normalize()
+                            .multiply(.2).add(Vector(0.0, .15, 0.0))
+
+                        val add = neatestCauldron.location.clone().add(0.0, 0.7, 0.0)
+                        add.world.spawn(add, Item::class.java) {
+                            it.itemStack = itemStack
+                            it.velocity = velocity
+                        }
+                        neatestCauldron.splash()
+
+                    } else MagicCauldron(loc)
+                }
             } else if (item.type == Material.AMETHYST_SHARD) {
-                val neatestCauldron = MagicCauldron.getNeatestCauldron(loc) ?: return
+                neatestCauldron ?: return
                 if (loc.distanceSquared(neatestCauldron.location) < .2) {
                     neatestCauldron.activate(player!!)?.let {
                         player!!.world.playSound(player!!, Sound.BLOCK_AMETHYST_BLOCK_STEP, 1f, 1f)

@@ -12,6 +12,7 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.trashcan.CauldronDataObject
+import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulInTheBottle
@@ -145,6 +146,17 @@ class MagicCauldron(loc: Location) : Tickable() {
                     list[0].subtract(1)
                     CauldronDataObject(200, list)
                 }
+            ),
+            MNode({ it.type == Material.SOUL_SOIL },
+                MNode({ it.type == Material.ANCIENT_DEBRIS && it.amount >= 8 }) { l, i, p ->
+
+                    val list = i.toMutableList()
+                    list[0] = list[0].subtract()
+                    list[1] = list[1].subtract(8)
+                    list += CustomItems.SOULLITE_INGOT.getAsItem()
+
+                    CauldronDataObject(6400, list)
+                }
             )
         )
 
@@ -233,8 +245,7 @@ class MagicCauldron(loc: Location) : Tickable() {
 
     fun ejectItems() {
         if (items.isEmpty()) return
-        location.world.spawnParticle(BUBBLE_POP, location.clone().add(0.0, 0.45, 0.0), 100, .2, .0, .2, .1)
-        location.world.playSound(location, Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1f, 1.3f)
+        splash()
         val add = location.clone().add(0.0, 0.7, 0.0)
         for (item in items) {
             add.world.spawn(add, Item::class.java) {
@@ -244,5 +255,10 @@ class MagicCauldron(loc: Location) : Tickable() {
             }
         }
         items.clear()
+    }
+
+    fun splash() {
+        location.world.spawnParticle(BUBBLE_POP, location.clone().add(0.0, 0.45, 0.0), 100, .2, .0, .2, .1)
+        location.world.playSound(location, Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1f, 1.3f)
     }
 }
