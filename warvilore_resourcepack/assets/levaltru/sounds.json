@@ -1,0 +1,12 @@
+{
+  "massive_boom": {
+    "sounds": [
+      "levaltru:massive_boom"
+    ]
+  },
+  "massive_boom_louder": {
+    "sounds": [
+      "levaltru:massive_boom_louder"
+    ]
+  }
+}

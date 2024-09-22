@@ -54,5 +54,5 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
         text("- shortь.").color(NamedTextColor.GOLD),
     )
 
-    override fun getEvilAura(): Double = 4.0
+    override fun getEvilAura(): Double = 5.0
 }

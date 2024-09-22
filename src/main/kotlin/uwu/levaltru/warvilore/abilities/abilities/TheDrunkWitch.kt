@@ -3,20 +3,24 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Material
-import org.bukkit.Particle
-import org.bukkit.Sound
+import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Item
+import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import org.joml.Vector3i
+import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
@@ -24,17 +28,24 @@ import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.tickables.MagicCauldron
+import uwu.levaltru.warvilore.tickables.effect.DeathMarker
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
 import uwu.levaltru.warvilore.trashcan.Namespaces
+import javax.inject.Named
+import kotlin.math.*
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 private const val ACTION_COOLDOWN: Int = 7
 
 private const val MAX_MANA: Int = 10000
 
 private const val HOW_LONG_IS_THE_SOULS_STAYS_IN_THE_DRANK_SOULS = 20 * 60 * 10
+
+private const val HEALTH_MANA_CONVERSION_RATE = 100
 
 class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSouls, CantLeaveSouls {
     var mana: Int = 0
@@ -46,7 +57,17 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
             return field
         }
         set(value) {
-            val value1 = value.coerceIn(0, MAX_MANA)
+            val value1 = if (value < 0) {
+                player!!.damage(0.01)
+                player!!.health = (
+                        min(
+                            player!!.health,
+                            player!!.getAttribute(Attribute.GENERIC_MAX_HEALTH)?.value
+                                ?: player!!.health
+                        ) + (value.toDouble() / HEALTH_MANA_CONVERSION_RATE)
+                        ).coerceAtLeast(0.0)
+                0
+            } else value.coerceAtMost(MAX_MANA)
             player?.persistentDataContainer?.set(
                 Namespaces.MANA.namespace,
                 PersistentDataType.INTEGER, value1
@@ -72,7 +93,7 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
 
     override fun onTick(event: ServerTickEndEvent) {
         tickDrankSouls()
-        if (actionCooldown > 0 && mana > 0) actionCooldown--
+        if (actionCooldown > 0) actionCooldown--
         if (player!!.ticksLived % 20 == 0) changeHealth()
     }
 
@@ -91,15 +112,7 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
                         val itemStack = neatestCauldron.items.lastOrNull() ?: return
                         neatestCauldron.items.removeLast()
 
-                        val velocity = player!!.location.subtract(neatestCauldron.location)
-                            .toVector().multiply(Vector(1.0, 0.0, 1.0)).normalize()
-                            .multiply(.2).add(Vector(0.0, .15, 0.0))
-
-                        val add = neatestCauldron.location.clone().add(0.0, 0.7, 0.0)
-                        add.world.spawn(add, Item::class.java) {
-                            it.itemStack = itemStack
-                            it.velocity = velocity
-                        }
+                        LevsUtils.throwItemTo(neatestCauldron.location.clone().add(0.0, 0.7, 0.0), player!!.location.toVector(), itemStack)
                         neatestCauldron.splash()
 
                     } else MagicCauldron(loc)
@@ -107,12 +120,10 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
             } else if (item.type == Material.AMETHYST_SHARD) {
                 neatestCauldron ?: return
                 if (loc.distanceSquared(neatestCauldron.location) < .2) {
-                    neatestCauldron.activate(player!!)?.let {
-                        player!!.world.playSound(player!!, Sound.BLOCK_AMETHYST_BLOCK_STEP, 1f, 1f)
-                        item.subtract()
-                        event.setUseItemInHand(Event.Result.ALLOW)
-                        mana -= it
-                    }
+                    mana -= neatestCauldron.activate(player!!) ?: return
+                    player!!.world.playSound(player!!, Sound.BLOCK_AMETHYST_BLOCK_STEP, 1f, 1f)
+                    item.subtract()
+                    event.setUseItemInHand(Event.Result.ALLOW)
                 }
             } else if (item.itemMeta?.hasCustomModelData() != true && item.type == Material.GLASS_BOTTLE) {
                 for (spirit in DeathSpirit.LIST) {
@@ -149,14 +160,14 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
     private fun changeHealth() {
         val maxHealth = (manaFrom0To1() + 0.4).coerceIn(0.5, 1.0)
         for (modifier in player!!.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers) {
-            if (modifier?.name == "luckofmana") {
+            if (modifier?.name == "temp_lackofmana") {
                 player!!.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.removeModifier(modifier)
                 break
             }
         }
         player!!.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(
             AttributeModifier(
-                Warvilore.namespace("luckofmana"),
+                Warvilore.namespace("temp_lackofmana"),
                 maxHealth - 1,
                 AttributeModifier.Operation.MULTIPLY_SCALAR_1
             )
@@ -274,6 +285,15 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
             }
         }
         return false
+    }
+
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
+        if (!DeveloperMode) {
+            sender.sendMessage(Component.text("DevelopmentMode is turned off").color(NamedTextColor.RED))
+            return
+        }
+        val location = (sender as Player).location.add(sender.location.direction.multiply(10))
+        LevsUtils.createEvaExplosionWithParticles(location)
     }
 
     override fun getEvilAura(): Double = manaFrom0To1() * 5.0

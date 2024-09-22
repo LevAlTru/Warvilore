@@ -1,0 +1,53 @@
+{
+  "parent": "minecraft:block/chain_command_block",
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "levaltru:effect/null/-effect1-0-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "levaltru:effect/null/-effect1-1-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 3
+      },
+      "model": "levaltru:effect/null/-effect1-2-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4
+      },
+      "model": "levaltru:effect/null/-effect1-3-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 5
+      },
+      "model": "levaltru:effect/null/-effect1-4-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 6
+      },
+      "model": "levaltru:effect/null/-effect1-5-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 7
+      },
+      "model": "levaltru:effect/null/-effect1-6-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 8
+      },
+      "model": "levaltru:effect/null/-effect1-7-"
+    }
+  ]
+}

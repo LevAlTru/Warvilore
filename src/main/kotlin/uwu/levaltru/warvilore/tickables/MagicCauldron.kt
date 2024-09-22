@@ -1,21 +1,19 @@
 package uwu.levaltru.warvilore.tickables
 
 import org.bukkit.*
-import org.bukkit.Particle.BUBBLE_POP
-import org.bukkit.Particle.DustOptions
 import org.bukkit.block.data.Levelled
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Tickable
+import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
+import uwu.levaltru.warvilore.abilities.abilities.TestAbility
+import uwu.levaltru.warvilore.abilities.abilities.TheHolyOne
 import uwu.levaltru.warvilore.trashcan.CauldronDataObject
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
-import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
-import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulInTheBottle
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -66,101 +64,98 @@ class MagicCauldron(loc: Location) : Tickable() {
 
         fun recipeTree() = MNode(
             { true },
-            MNode({
-                when (it.type) {
-                    Material.SOUL_SAND, Material.SOUL_SOIL -> true
-                    else -> false
-                }
-            },
-                MNode({
-                    when (it.type) {
-                        Material.SAND, Material.RED_SAND -> true
-                        else -> false
-                    }
-                }) { l, _, _ ->
-                    l.world.spawnParticle(Particle.END_ROD, l.toCenterLocation(), 100, .2, .2, .2, .3, null, true)
-                    l.world.playSound(l, Sound.ENTITY_WARDEN_SONIC_BOOM, 1f, .5f)
-                    CauldronDataObject(0, null)
-                },
-                MNode({ it.itemMeta.hasEnchant(Enchantment.EFFICIENCY) },
-                    MNode({ it.type == Material.NETHERRACK }) { l, _, _ ->
-                        l.world.spawnParticle(
-                            Particle.SMALL_FLAME,
-                            l.toCenterLocation(),
-                            100,
-                            .2,
-                            .2,
-                            .2,
-                            .3,
-                            null,
-                            true
+            MNode(
+                { it.type == Material.EXPERIENCE_BOTTLE && it.amount >= 32 },
+                MNode(
+                    { it.type == Material.ANCIENT_DEBRIS && it.amount >= 8 },
+                    MNode(
+                        { it.itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS || it.itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS },
+                        MNode(
+                            { it.itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS || it.itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS },
+                            MNode(
+                                { it.type == Material.CRYING_OBSIDIAN && it.amount >= 12 },
+                                execute = {l, i, p ->
+
+                                    if (!((i[2].itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS && i[3].itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS) ||
+                                                (i[2].itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS && i[3].itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS))
+                                    ) return@MNode null
+
+                                    l.world.spawnParticle(Particle.END_ROD, l, 25, .2, .2, .2, .1, null, true)
+
+                                    LegendaryItemSpawner(l.clone().add(0.0, 2.5, 0.0), CustomItems.YOUR_REALITY_HAS_COLLAPSED.getAsItem(), 20 * 10)
+
+                                    val list = i.toMutableList()
+
+                                    list[0] = list[0].subtract(32)
+                                    list[1] = list[1].subtract(8)
+                                    list[2] = list[2].subtract()
+                                    list[3] = list[3].subtract()
+                                    list[4] = list[4].subtract(12)
+
+                                    CauldronDataObject(8000, list)
+                                }
+                            )
                         )
-                        l.world.playSound(l, Sound.ENTITY_WARDEN_SONIC_BOOM, 1f, .5f)
-                        CauldronDataObject(50, null)
-                    }
-                ) { l, _, _ ->
-                    l.world.spawnParticle(
-                        Particle.SOUL_FIRE_FLAME,
-                        l.toCenterLocation(),
-                        100,
-                        .2,
-                        .2,
-                        .2,
-                        .3,
-                        null,
-                        true
                     )
-                    l.world.playSound(l, Sound.ENTITY_WARDEN_SONIC_BOOM, 1f, .5f)
-                    CauldronDataObject(50, null)
-                }
+                )
             ),
-            MNode({ it.type == Material.BOOK }) { l, i, p ->
-                val itemInOffHand = p.inventory.itemInOffHand
-                if (itemInOffHand.type == Material.BOOK) {
-                    l.world.spawnParticle(
-                        Particle.CAMPFIRE_COSY_SMOKE,
-                        l.toCenterLocation(),
-                        100,
-                        .2,
-                        .2,
-                        .2,
-                        .02,
-                        null,
-                        true
+            MNode(
+                { it.type == Material.SOUL_SAND },
+                MNode(
+                    { it.itemMeta.getAsCustomItem() == CustomItems.SOUL_BOTTLE },
+                    MNode(
+                        { it.type == Material.GOLD_INGOT && it.amount >= 4 },
+                        execute = { l, i, p -> shardAndFragment(l, i, false) }
                     )
-                    l.world.playSound(l, Sound.ENTITY_WARDEN_SONIC_BOOM, 1f, .5f)
-                    itemInOffHand.subtract()
-                    val list = i.toMutableList()
-                    list[0] = list[0].subtract()
-                    CauldronDataObject(100, list)
-                } else null
-            },
-            MNode({ it.itemMeta.getAsCustomItem()?.isSoulInTheBottle() == true },
-                MNode({ it.type == Material.REDSTONE_BLOCK }) { l, i, p ->
-
-                    val nickname = i[0].itemMeta.getSoulInTheBottle() ?: return@MNode null
-                    val player = Bukkit.getPlayer(nickname)
-                    player?.health = 0.0
-
-                    val list = i.toMutableList()
-                    list[0].subtract(1)
-                    CauldronDataObject(200, list)
-                }
+                )
             ),
-            MNode({ it.type == Material.SOUL_SOIL },
-                MNode({ it.type == Material.ANCIENT_DEBRIS && it.amount >= 8 }) { l, i, p ->
-
-                    val list = i.toMutableList()
-                    list[0] = list[0].subtract()
-                    list[1] = list[1].subtract(8)
-                    list += CustomItems.SOULLITE_INGOT.getAsItem()
-
-                    CauldronDataObject(6400, list)
-                }
+            MNode(
+                { it.type == Material.SOUL_SOIL },
+                MNode(
+                    { it.itemMeta.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BOTTLE },
+                    MNode(
+                        { it.type == Material.ANCIENT_DEBRIS },
+                        execute = { l, i, _ -> shardAndFragment(l, i, true) }
+                    )
+                )
             )
         )
 
-        fun getNeatestCauldron(loc: Location) = LIST.maxByOrNull { it.location.distanceSquared(loc.toCenterLocation()) }
+        private fun shardAndFragment(
+            l: Location,
+            i: List<ItemStack>,
+            isShard: Boolean
+        ): CauldronDataObject? {
+            var selectedPlayer: Player? = null
+            for (player in l.getNearbyPlayers(8.0)) {
+                if (isShard) {
+                    if (player.getAbilities() is TestAbility) {
+                        selectedPlayer = player
+                        break
+                    }
+                } else {
+                    if (player.getAbilities() is TheHolyOne) {
+                        selectedPlayer = player
+                        break
+                    }
+                }
+            }
+            if (selectedPlayer == null) return null
+
+            SoulSucker(l.clone().add(0.0, 2.5, 0.0), selectedPlayer, isShard)
+            l.world.playSound(l, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM_BEGIN, 3f, .5f)
+
+            val list = i.toMutableList()
+
+            list[0] = list[0].subtract()
+            list[1] = list[1].subtract()
+            list[2] = list[2].subtract()
+
+            return CauldronDataObject(800, list)
+        }
+
+        fun getNeatestCauldron(loc: Location) =
+            LIST.maxByOrNull { it.location.distanceSquared(loc.toCenterLocation()) }
     }
 
     var markedForRemoval = false
@@ -200,8 +195,8 @@ class MagicCauldron(loc: Location) : Tickable() {
                     val random = Random(itemStack.type.ordinal)
                     val hsBtoRGB = java.awt.Color.HSBtoRGB(
                         random.nextFloat(),
-                        random.nextFloat() * .2f + .8f,
-                        random.nextFloat() * .2f + .8f
+                        random.nextFloat() * .2f + .5f,
+                        random.nextFloat() * .5f + .5f
                     )
                     it.world.spawnParticle(
                         Particle.DUST,
@@ -211,7 +206,7 @@ class MagicCauldron(loc: Location) : Tickable() {
                         .0,
                         .2,
                         .05,
-                        DustOptions(
+                        Particle.DustOptions(
                             Color.fromRGB(
                                 hsBtoRGB and 0x00FFFFFF
                             ), itemStack.amount.toFloat() / itemStack.maxStackSize + 1.25f
@@ -230,8 +225,11 @@ class MagicCauldron(loc: Location) : Tickable() {
         return false
     }
 
+    override fun collapse() {
+        ejectItems()
+    }
+
     fun activate(player: Player): Int? {
-        if (DeveloperMode) player.sendMessage("cauldron activate")
         val ye = recipeTree().getPath(*items.toTypedArray())
         val invoke = ye?.invoke(location, items, player)
         if (invoke == null) {
@@ -258,7 +256,7 @@ class MagicCauldron(loc: Location) : Tickable() {
     }
 
     fun splash() {
-        location.world.spawnParticle(BUBBLE_POP, location.clone().add(0.0, 0.45, 0.0), 100, .2, .0, .2, .1)
+        location.world.spawnParticle(Particle.BUBBLE_POP, location.clone().add(0.0, 0.45, 0.0), 100, .2, .0, .2, .1)
         location.world.playSound(location, Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1f, 1.3f)
     }
 }

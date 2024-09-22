@@ -57,6 +57,12 @@ enum class Namespaces {
 
     WORLD_ARE_PORTAL_ALLOWED,
 
+
+    TICK_TIME_OF_DEATH,
+    LAST_HIT_WITH_DEATH,
+
+    LIVES_REMAIN,
+
     ;
 
     val namespace = Warvilore.namespace(this.toString())

@@ -1,6 +1,6 @@
 {
 	"parent": "levaltru:item/big_sword",
 	"textures": {
-		"layer0": "levaltru:item/null/-1-"
+		"layer0": "levaltru:item/null/-item1-"
 	}
 }

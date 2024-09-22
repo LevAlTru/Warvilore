@@ -1,5 +1,6 @@
 package uwu.levaltru.warvilore.tickables
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -32,7 +33,10 @@ class DeathSpirit(val loc: Location, val isOminous: Boolean, var nickname: Strin
             LIST.remove(this)
             return true
         }
-        if (age % 50  == 0) nearbyPlayers = loc.getNearbyPlayers(128.0).filter { it.getAbilities() is CanSeeSouls }
+        if (age % 50  == 0) {
+            if (Bukkit.getPlayer(nickname!!) == null) return remove()
+            nearbyPlayers = loc.getNearbyPlayers(128.0).filter { it.getAbilities() is CanSeeSouls }
+        }
 
         if (nearbyPlayers != null) {
             for (player in nearbyPlayers!!) {

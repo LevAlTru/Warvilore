@@ -22,7 +22,15 @@ abstract class Tickable {
             }
             LIST.addAll(list)
         }
+
+        fun clearWithEffects() {
+            for (tickable in LIST) {
+                tickable.collapse()
+            }
+            LIST.clear()
+        }
     }
 
     abstract fun tick(): Boolean
+    open fun collapse() {}
 }

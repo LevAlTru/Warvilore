@@ -3,11 +3,12 @@ package uwu.levaltru.warvilore
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
-import org.bukkit.Bukkit
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.block.Crafter
+import org.bukkit.damage.DamageType
 import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -21,19 +22,21 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
 import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
-import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne.Companion.isFrostmourne
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
+import uwu.levaltru.warvilore.tickables.CollabsePoint
 import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
@@ -41,22 +44,56 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
 import uwu.levaltru.warvilore.trashcan.Namespaces
+import java.util.Random
+
+private const val DEATH_TICKS_MAX = 20 * 40
 
 class CustomEvents : Listener {
 
     @EventHandler
-    fun onTick(event: ServerTickEndEvent?) {
+    fun onTick(event: ServerTickEndEvent) {
         Tickable.Tick()
         Zone.getInstance().tick()
         for (player in Bukkit.getOnlinePlayers()) {
-            event?.let {
-                player.getAbilities()?.let {
-                    it.player = player
-                    try {
-                        it.onTick(event)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+            if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {
+                if (player.isOnGround || player.isInWaterOrBubbleColumn) player.removePotionEffect(PotionEffectType.SLOW_FALLING)
+                else LevsUtils.addInfiniteSlowfall(player)
+            }
+            val abilities = player.getAbilities()
+            val i = player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER]
+            if (i != null && i > 0) {
+                player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER] =
+                    i - 1
+                player.world.spawnParticle(
+                    if (abilities is EvilAurable) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION,
+                    player.location.add(0.0, player.height / 2, 0.0), 1, .2, .4, .2, .033, null, true
+                )
+                if (player.ticksLived % 8 == 0)
+                    player.world.playSound(
+                        player.location, Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS,
+                        SoundCategory.MASTER, 1f, 0.5f
+                    )
+            }
+            if (player.ticksLived % 20 == 0) {
+                val i1 = player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER]
+                if (i1 != null) {
+                    val boundingBox = player.boundingBox
+                    val random = Random()
+                    val loce = Location(
+                        player.world,
+                        random.nextDouble(boundingBox.minX, boundingBox.maxX),
+                        random.nextDouble(boundingBox.minY, boundingBox.maxY),
+                        random.nextDouble(boundingBox.minZ, boundingBox.maxZ),
+                    )
+                    loce.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, loce, 1, 0.0, 0.0, 0.0, 0.1)
+                }
+            }
+            abilities?.let {
+                it.player = player
+                try {
+                    it.onTick(event)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
@@ -122,6 +159,25 @@ class CustomEvents : Listener {
     @EventHandler
     fun onAttack(event: EntityDamageByEntityEvent) {
         var damager = event.damager
+
+        val player = (event.entity as? Player)
+        if (damager is Player) {
+            if (damager.inventory.itemInMainHand.itemMeta.getAsCustomItem() == CustomItems.YOUR_REALITY_HAS_COLLAPSED ||
+                damager.inventory.itemInOffHand.itemMeta.getAsCustomItem() == CustomItems.YOUR_REALITY_HAS_COLLAPSED
+            ) {
+                player?.persistentDataContainer?.set(
+                    Namespaces.TICK_TIME_OF_DEATH.namespace,
+                    PersistentDataType.INTEGER,
+                    DEATH_TICKS_MAX
+                )
+                player?.persistentDataContainer?.set(
+                    Namespaces.LAST_HIT_WITH_DEATH.namespace,
+                    PersistentDataType.STRING,
+                    damager.name
+                )
+            }
+        }
+
         if (damager is Projectile) damager = Bukkit.getEntity(damager.ownerUniqueId ?: return) ?: return
         (damager as? Player)?.getAbilities()?.onAttack(event)
     }
@@ -129,6 +185,27 @@ class CustomEvents : Listener {
     @EventHandler
     fun onDamage(event: EntityDamageEvent) {
         val entity = event.entity
+
+        if (event.damageSource.damageType == DamageType.OUT_OF_WORLD) {
+            if (entity.world.name == "world") {
+                event.isCancelled = true
+                if (entity.location.y < -750) {
+                    entity.teleport(
+                        Location(
+                            Bukkit.getWorld("world_nether") ?: entity.world,
+                            entity.location.x,
+                            500.0,
+                            entity.location.z
+                        )
+                    )
+                    if (entity is Player) LevsUtils.addInfiniteSlowfall(entity)
+                    Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+                        entity.world.playSound(entity.location, Sound.BLOCK_END_PORTAL_SPAWN, 16f, .5f)
+                    }, 10L)
+                }
+                return
+            }
+        }
 
         if (EntityTags.UNDEADS.values.contains(entity.type)) {
             val player = event.damageSource.causingEntity
@@ -211,6 +288,12 @@ class CustomEvents : Listener {
     @EventHandler
     fun onLeave(event: PlayerQuitEvent) {
         val player = event.player
+        if ((player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER]
+                ?: 0) > 0
+        ) {
+            player.health = 0.0
+            CollabsePoint(player.location.add(0.0, 1.5, 0.0), player.name)
+        }
         val abilities = player.getAbilities()
         abilities?.onLeave(event)
         AbilitiesCore.saveAbility(player)
@@ -220,6 +303,46 @@ class CustomEvents : Listener {
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {
         val player = event.player
+
+        val lives = player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER]
+        if (lives != null) {
+            player.world.playSound(player.location, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 4f, .7f)
+            player.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, player.location.add(0.0, player.height / 2, 0.0), 300, .3, .3, .3, .3, null, true)
+            player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, player.location.add(0.0, player.height / 2, 0.0), 100, .3, .3, .3, .3, null, true)
+
+            if (lives > 1) {
+                player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER] =
+                    lives - 1
+            } else {
+                player.persistentDataContainer.remove(Namespaces.LIVES_REMAIN.namespace)
+                LevsUtils.Deads.addDied(player.name)
+                Bukkit.getOnlinePlayers().forEach {
+                    it.sendMessage(Component.text("${player.name} потерял все свои жизни").color(NamedTextColor.RED))
+                    it.playSound(it, Sound.BLOCK_END_PORTAL_SPAWN, 128f, .7f)
+                }
+            }
+            return
+        }
+
+        if ((player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER]
+                ?: 0) > 0
+        ) {
+            val s = player.persistentDataContainer[Namespaces.LAST_HIT_WITH_DEATH.namespace, PersistentDataType.STRING]
+            if (s != null) {
+                Bukkit.getPlayer(s)?.let {
+                    for (itemStack in it.inventory) {
+                        if (itemStack?.itemMeta.getAsCustomItem() == CustomItems.YOUR_REALITY_HAS_COLLAPSED) {
+                            itemStack.subtract()
+                            CollabsePoint(player.location.add(0.0, 1.5, 0.0), player.name)
+                            event.isCancelled = true
+                            return
+                        }
+                    }
+                    player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER] =
+                        0
+                }
+            }
+        }
         val abilities = player.getAbilities()
         abilities?.onDeath(event)
         if (abilities is CantLeaveSouls) return
@@ -292,5 +415,14 @@ class CustomEvents : Listener {
         val chunk = event.block.location.chunk
         val factorOf = Zone.factorOf(chunk.x, chunk.z, chunk.world)
         event.isCancelled = factorOf > Math.random()
+    }
+
+    @EventHandler
+    fun onPlayerTriesToConnect(event: PlayerLoginEvent) {
+        if (LevsUtils.Deads.hasDied(event.player.name))
+            event.disallow(
+                PlayerLoginEvent.Result.KICK_BANNED,
+                Component.text("У вас не осталось жизней.").color(NamedTextColor.RED)
+            )
     }
 }

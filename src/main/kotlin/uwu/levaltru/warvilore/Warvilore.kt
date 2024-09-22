@@ -80,7 +80,9 @@ class Warvilore : JavaPlugin() {
         abilkaCommand.tabCompleter = abilkaCommandExecutor
     }
 
-    override fun onDisable() {}
+    override fun onDisable() {
+        Tickable.clearWithEffects()
+    }
 
     companion object {
         lateinit var instance: JavaPlugin

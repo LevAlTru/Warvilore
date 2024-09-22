@@ -85,7 +85,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
     var damageTicks: Int = 0
     var cooldown: Int = 0
     var direction: Vector = Vector()
-    val alreadyHit = mutableListOf<UUID>()
+    val alreadyHit = hashSetOf<UUID>()
 
     override fun onTick(event: ServerTickEndEvent) {
         if (abilitiesDisabled) return
@@ -124,7 +124,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
                     for (z in floor(hitBox.minZ).toInt()..ceil(hitBox.maxZ).toInt()) {
                         val block = player!!.world.getBlockAt(x, y, z)
                         when (block.type) {
-                            Material.BAMBOO, Material.TALL_GRASS, Material.SHORT_GRASS, Material.SEAGRASS, Material.TALL_SEAGRASS, Material.COBWEB -> {
+                            Material.BAMBOO, Material.COBWEB -> {
                                 block.breakNaturally(item, true)
                                 item.damage(1, player!!)
                             }
@@ -171,7 +171,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
                 .4,
                 .2,
                 0.0,
-                Particle.DustOptions(Color.RED, 2f),
+                Particle.DustOptions(if (alreadyHit.size <= 1) Color.WHITE else Color.RED, 2f),
                 true
             )
             player!!.fallDistance = 0f
@@ -210,6 +210,7 @@ class DashingSamurai(nickname: String) : AbilitiesCore(nickname) {
         location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM, SoundCategory.MASTER, 1.5f, 0.5f)
         location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, SoundCategory.MASTER, 1.5f, 2f)
 
+        alreadyHit.clear()
         dashTicks = DASH_DURATION
         damageTicks = DAMAGE_TICKS_DURATION
         direction = location.direction.multiply(1).add(player!!.velocity.multiply(0.33))

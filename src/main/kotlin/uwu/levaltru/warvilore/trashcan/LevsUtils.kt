@@ -1,20 +1,26 @@
 package uwu.levaltru.warvilore.trashcan
 
+import io.papermc.paper.entity.TeleportFlag
 import net.kyori.adventure.text.Component
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Particle
+import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.*
 import org.bukkit.damage.DamageSource
+import org.bukkit.entity.Item
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemRarity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
+import uwu.levaltru.warvilore.tickables.effect.DeathMarker
 import uwu.levaltru.warvilore.trashcan.CustomItems.entries
 import java.util.*
-import kotlin.math.floor
+import kotlin.math.*
 
 object LevsUtils {
     fun getRandomNormalizedVector(): Vector {
@@ -81,7 +87,8 @@ object LevsUtils {
     }
 
     fun soulBottleOf(ominous: Boolean, nick: String): ItemStack {
-        val itemStack = if (ominous) CustomItems.OMINOUS_SOUL_BOTTLE.getAsItem() else CustomItems.SOUL_BOTTLE.getAsItem()
+        val itemStack =
+            if (ominous) CustomItems.OMINOUS_SOUL_BOTTLE.getAsItem() else CustomItems.SOUL_BOTTLE.getAsItem()
         itemStack.setSoulInTheBottle(nick)
         val itemMeta = itemStack.itemMeta
         itemMeta.itemName(Component.text("Склянка с Душой $nick"))
@@ -107,7 +114,7 @@ object LevsUtils {
             Particle.END_ROD, locy,
             5000, .1, .1, .1, .75, null, true
         )
-        locy.world.playSound(locy, org.bukkit.Sound.ITEM_TRIDENT_THUNDER, 5f, 0.5f)
+        locy.world.playSound(locy, Sound.ITEM_TRIDENT_THUNDER, 5f, 0.5f)
 
         val entities = locy.getNearbyLivingEntities(16.0)
         val damageSource =
@@ -167,6 +174,200 @@ object LevsUtils {
     fun Material.isRawMeat() = when (this) {
         Material.BEEF, Material.PORKCHOP, Material.MUTTON, Material.CHICKEN, Material.RABBIT, Material.ROTTEN_FLESH -> true
         else -> false
+    }
+
+    fun throwItemTo(
+        from: Location,
+        to: Vector,
+        itemStack: ItemStack
+    ) {
+        val velocity = to.subtract(from.toVector())
+            .multiply(Vector(1.0, 0.0, 1.0)).normalize()
+            .multiply(.2).add(Vector(0.0, .15, 0.0))
+
+        from.world.spawn(from, Item::class.java) {
+            it.itemStack = itemStack
+            it.velocity = velocity
+        }
+    }
+
+    fun createEvaExplosionWithParticles(location: Location) {
+        createEvaExplosion(location.clone().add(0.0, -4.0, 0.0), 70.0, .11, 10.0, 7.0)
+        DeathMarker(location)
+        Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+            location.world.players.forEach { it.stopSound(SoundCategory.MASTER) }
+        }, 2L)
+        Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+            location.world.playSound(location, "levaltru:massive_boom_louder", 1000000f, 1f)
+        }, 4L)
+    }
+
+    fun createEvaExplosion(
+        location: Location,
+        size: Double,
+        minus: Double,
+        multi: Double,
+        randomThing: Double
+    ) {
+        var airBlocks = 0
+        var i = 0
+        while (airBlocks < 10) {
+            var sawNoBlocks = true
+            for (dx in 0..i) {
+                val log = evaFormula(dx.toDouble(), i.toDouble(), size, minus, multi)
+
+                val a = floor(log).toInt()
+
+                if (i > 500) return
+
+                for (r in 0..7) {
+                    val mulX = when (r) {
+                        0 -> dx
+                        1 -> dx
+                        2 -> -dx
+                        3 -> -dx
+                        4 -> i
+                        5 -> i
+                        6 -> -i
+                        7 -> -i
+                        else -> dx
+                    }
+                    val mulZ = when (r) {
+                        0 -> i
+                        1 -> -i
+                        2 -> i
+                        3 -> -i
+                        4 -> dx
+                        5 -> -dx
+                        6 -> dx
+                        7 -> -dx
+                        else -> i
+                    }
+                    val randomT = kotlin.random.Random.nextDouble(0.0, 1.0)
+                    val max = max(
+                        a + (randomT * randomT * randomT * randomThing).roundToInt(),
+                        location.world.minHeight - location.blockY
+                    )
+                    val loci = location.clone().add(mulX.toDouble(), max.toDouble(), mulZ.toDouble())
+                    var reset = 0
+                    var solidBlocksInARow = 0
+                    while (reset < 50) {
+                        if (loci.block.type.isAir) {
+                            solidBlocksInARow = 0
+                            reset++
+                        } else {
+                            solidBlocksInARow++
+                            reset = 0
+                            sawNoBlocks = false
+                            loci.block.setType(Material.AIR, solidBlocksInARow < randomThing * 1.5)
+                        }
+
+                        loci.add(0.0, 1.0, 0.0)
+                    }
+                }
+            }
+
+            if (sawNoBlocks) airBlocks++
+            else airBlocks = 0
+            i++
+        }
+        val entities = location.world.entities
+        for (entity in entities) {
+            val entityLoc = entity.location
+            val vector = entityLoc.toVector().subtract(location.toVector())
+            val evaFormula = evaFormula(vector.x, vector.z, size, minus, multi)
+            if (evaFormula - vector.y > 8.0) continue
+            vector.normalize()
+            while (vector.dot(Vector(0.0, 1.0, 0.0)) < .1) {
+                vector.y += 1.0
+                vector.normalize()
+            }
+            val bigVector = vector.clone().multiply(i)
+            val add = location.clone().add(bigVector)
+            while (!add.block.type.isAir) add.add(0.0, 25.0, 0.0)
+            add.yaw = entityLoc.yaw
+            add.pitch = entityLoc.pitch
+            entity.teleport(add)
+            val multiply = vector.clone().multiply(Vector(7.0, 4.0, 7.0))
+            multiply.y = multiply.y.coerceAtLeast(2.0)
+            Bukkit.getScheduler()
+                .runTaskLater(
+                    Warvilore.instance,
+                    Runnable {
+                        if (entity is Player) {
+                            addInfiniteSlowfall(entity)
+                        }
+                        entity.velocity = multiply
+                    },
+                    5L
+                )
+        }
+    }
+
+    private fun evaFormula(
+        dx: Double,
+        dz: Double,
+        size: Double,
+        minus: Double,
+        multi: Double
+    ): Double {
+        val xz = sqrt(dx * dx + dz * dz)
+        val xz1 = (xz / size) + 1
+        val d = log2((xz / size) - minus) * multi + (xz1 * xz1 * xz1 * xz1)
+        return if (d.isNaN()) Double.NEGATIVE_INFINITY else d
+    }
+
+    fun addInfiniteSlowfall(it: Player) {
+        it.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 50, 1, true, false, true))
+    }
+
+    object Deads {
+        fun hasDied(nickname: String): Boolean {
+            val nickname = nickname.lowercase()
+            val get = getDiedList()
+            return get?.contains(nickname) ?: false
+        }
+
+        fun removeDied(nickname: String): Boolean {
+            val nickname = nickname.lowercase()
+            val diedList = getDiedList()
+            val remove = diedList?.remove(nickname)
+            setDiedList(diedList)
+            return remove ?: false
+        }
+
+        fun addDied(nickname: String): Boolean {
+            Bukkit.getPlayer(nickname)?.let {
+                it.health = 0.0
+                it.kick(Component.text("Вы умерли.").color(NamedTextColor.RED))
+            }
+            val nickname = nickname.lowercase()
+            val diedList = getDiedList()
+            if (diedList == null) {
+                setDiedList(listOf(nickname))
+                return true
+            }
+            if (diedList.contains(nickname)) return false
+            diedList.add(nickname)
+            setDiedList(diedList)
+            return true
+        }
+
+        fun getDiedList() = Bukkit.getWorlds()[0].persistentDataContainer.get(
+            Warvilore.namespace("public-dead-people"),
+            PersistentDataType.LIST.strings()
+        )?.toMutableList()
+
+        fun setDiedList(list: List<String>?) {
+            if (list == null) {
+                Bukkit.getWorlds()[0].persistentDataContainer.remove(Warvilore.namespace("public-dead-people"))
+                return
+            }
+            Bukkit.getWorlds()[0].persistentDataContainer.set(
+                Warvilore.namespace("public-dead-people"),
+                PersistentDataType.LIST.strings(), list
+            )
+        }
     }
 
 //    fun myMod(d: Double, m: Double): Double = if (d < 0) (d % m + m) % m else d % m
