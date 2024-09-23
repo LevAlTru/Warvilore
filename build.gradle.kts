@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "uwu.levaltru"
-version = "1.8.1dev+1.21.1"
+version = "1.8-dev+1.21.1"
 
 repositories {
     mavenCentral()

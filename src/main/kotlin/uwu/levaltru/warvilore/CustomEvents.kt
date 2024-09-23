@@ -240,6 +240,29 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onAction(event: PlayerInteractEvent) {
+        if (
+        event.player.inventory.itemInMainHand.itemMeta.getAsCustomItem() == CustomItems.SOUL_BOTTLE ||
+                event.player.inventory.itemInMainHand.itemMeta.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BOTTLE
+        ) {
+            when (event.clickedBlock?.type) {
+                Material.DIRT, Material.GRASS_BLOCK -> {
+                    event.clickedBlock!!.type = Material.SOUL_SOIL
+                    event.player.inventory.itemInMainHand.subtract()
+                    event.player.inventory.addItem(ItemStack(Material.GLASS_BOTTLE))
+                    event.clickedBlock!!.world.playSound(event.clickedBlock!!.location, Sound.PARTICLE_SOUL_ESCAPE, 1f, 1f)
+                    return
+                }
+                Material.SAND, Material.RED_SAND -> {
+                    event.clickedBlock!!.type = Material.SOUL_SAND
+                    event.player.inventory.itemInMainHand.subtract()
+                    event.player.inventory.addItem(ItemStack(Material.GLASS_BOTTLE))
+                    event.clickedBlock!!.world.playSound(event.clickedBlock!!.location, Sound.PARTICLE_SOUL_ESCAPE, 1f, 1f)
+                    return
+                }
+                else -> {}
+            }
+        }
+
         event.player.getAbilities()?.onAction(event)
     }
 

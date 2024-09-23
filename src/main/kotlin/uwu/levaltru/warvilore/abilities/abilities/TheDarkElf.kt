@@ -34,7 +34,8 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     override fun onTick(event: ServerTickEndEvent) {
         if (abilitiesDisabled) return
         if (player!!.location.block.lightFromBlocks < 2 &&
-            player!!.location.block.lightFromSky < 2)
+            player!!.location.block.lightFromSky < 2 &&
+            player!!.location.block.type.isAir)
             player!!.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, 15, 1, true, false, true))
     }
 

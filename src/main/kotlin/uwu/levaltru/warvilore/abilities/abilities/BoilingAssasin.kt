@@ -3,6 +3,8 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.entity.EntityShootBowEvent
@@ -23,7 +25,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
         if (!abilitiesWork()) return
         player!!.addPotionEffects(
             listOf(
-                PotionEffect(PotionEffectType.INVISIBILITY, 10, 1, true, true, true),
+//                PotionEffect(PotionEffectType.INVISIBILITY, 10, 1, true, true, true),
                 PotionEffect(PotionEffectType.SPEED, 10, 1, true, true, true),
             )
         )
@@ -38,7 +40,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
         var damage = BASE_DAMAGE + (.25 * ((enchantments?.get(Enchantment.POWER) ?: -1) + 1) * BASE_DAMAGE)
         damage *= force
         val isNetheriteBow = bow?.itemMeta?.getAsCustomItem() == CustomItems.NETHERITE_BOW
-        if (isNetheriteBow) damage *= 3.0
+        if (isNetheriteBow) damage *= 2.0
         val knockback = enchantments?.get(Enchantment.PUNCH) ?: 0
         val fire = enchantments?.keys?.contains(Enchantment.FLAME) ?: false
 
@@ -70,7 +72,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
         val direction = player!!.location.direction
         ReallyFastArrow(
             player!!.eyeLocation.add(direction.clone().multiply(0.33)),
-            direction.multiply(2.5 * force * if (isNetheriteBow) 1.5 else 1.0),
+            direction.multiply(2.5 * force * if (isNetheriteBow) 1.25 else 1.0),
             player!!.uniqueId,
             damage,
             knockback,
@@ -98,7 +100,7 @@ class BoilingAssasin(string: String) : AbilitiesCore(string) {
     override fun getAboutMe(): List<Component> = listOf(
         text("За твои долгие года жизни бытья наемником ты научился:").color(NamedTextColor.GREEN),
         text("- Бежать эффективнее когда ты держишь лук.").color(NamedTextColor.GREEN),
-        text("- Уходить в невидимость когда ты держишь лук.").color(NamedTextColor.GREEN),
+        text("- Уходить в невидимость когда ты держишь лук.").style(Style.style(NamedTextColor.DARK_GREEN, TextDecoration.STRIKETHROUGH)),
         text("- Стрелять стрелами в разы быстрее.").color(NamedTextColor.GREEN),
         text("  - Иза этого стрелы с эффектами разносят эффекты вокруг.").color(NamedTextColor.GREEN),
         text("- Но иза того что лук требует каждую частичку твоего тела, ты не можешь себя сковывать броней, если хочешь стрелять во всю силу").color(

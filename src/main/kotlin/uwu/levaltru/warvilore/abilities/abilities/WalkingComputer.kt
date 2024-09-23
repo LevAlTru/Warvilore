@@ -25,12 +25,13 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.SoftwareBase
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.min
 
 private const val MAX_CHARGE = 6000
 
-class WalkingComputer(string: String) : AbilitiesCore(string) {
+class WalkingComputer(string: String) : AbilitiesCore(string), CantLeaveSouls {
 
     var charge: Int = 0
         get() {
