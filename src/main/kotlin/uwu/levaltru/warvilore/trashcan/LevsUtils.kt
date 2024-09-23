@@ -370,6 +370,32 @@ object LevsUtils {
         }
     }
 
+    object ItemMetas {
+
+        val soulBottle: () -> ItemMeta = {
+            val itemMeta = ItemStack(Material.GLASS_BOTTLE).itemMeta
+            val food = itemMeta.food
+            food.nutrition = 1
+            food.saturation = 3.5f
+            food.setCanAlwaysEat(true)
+            itemMeta.setFood(food)
+
+            itemMeta
+        }
+
+        val soulBeer: () -> ItemMeta = {
+            val itemMeta = soulBottle()
+            val food = itemMeta.food
+            food.nutrition = 5
+            food.saturation = 7.5f
+            food.setCanAlwaysEat(true)
+            itemMeta.setFood(food)
+
+            itemMeta
+        }
+
+    }
+
 //    fun myMod(d: Double, m: Double): Double = if (d < 0) (d % m + m) % m else d % m
 
 }

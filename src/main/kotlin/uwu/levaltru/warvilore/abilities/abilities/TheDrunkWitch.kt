@@ -287,15 +287,6 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
         return false
     }
 
-    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
-        if (!DeveloperMode) {
-            sender.sendMessage(Component.text("DevelopmentMode is turned off").color(NamedTextColor.RED))
-            return
-        }
-        val location = (sender as Player).location.add(sender.location.direction.multiply(10))
-        LevsUtils.createEvaExplosionWithParticles(location)
-    }
-
     override fun getEvilAura(): Double = manaFrom0To1() * 5.0
 
     override fun getAboutMe(): List<Component> {

@@ -8,12 +8,18 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.Warvilore
-import uwu.levaltru.warvilore.trashcan.ItemMetaTrashcan.soul_bottle_itemMeta
 
 enum class CustomItems(val material: Material, val model: Int, val itemMetaFunction: () -> ItemMeta, val itemName: String? = null, val itemRarity: ItemRarity? = null) {
 
-    SOUL_BOTTLE(Material.HONEY_BOTTLE, 1, soul_bottle_itemMeta, null, ItemRarity.UNCOMMON),
-    OMINOUS_SOUL_BOTTLE(Material.HONEY_BOTTLE, 2, soul_bottle_itemMeta, null, ItemRarity.UNCOMMON),
+    // Honey Bottle
+    SOUL_BOTTLE(Material.HONEY_BOTTLE, 1, LevsUtils.ItemMetas.soulBottle, null, ItemRarity.UNCOMMON),
+    OMINOUS_SOUL_BOTTLE(Material.HONEY_BOTTLE, 2, LevsUtils.ItemMetas.soulBottle, null, ItemRarity.UNCOMMON),
+
+    SOUL_BEER(Material.HONEY_BOTTLE, 3, LevsUtils.ItemMetas.soulBeer, "Пиво Из Душ", ItemRarity.UNCOMMON),
+    OMINOUS_SOUL_BEER(Material.HONEY_BOTTLE, 4, LevsUtils.ItemMetas.soulBeer, "Холодное Пиво Из Душ", ItemRarity.UNCOMMON),
+
+
+    // Bow
 
     NETHERITE_BOW(Material.BOW, 1, {
         val itemMeta = ItemStack(Material.BOW).itemMeta
@@ -23,6 +29,9 @@ enum class CustomItems(val material: Material, val model: Int, val itemMetaFunct
 
         itemMeta
     }, "Незеритовый Лук", ItemRarity.UNCOMMON),
+
+
+    // Repeating Command Block
 
     SHARD_OF_MORTUUS(Material.REPEATING_COMMAND_BLOCK, 1, { ItemStack(Material.AMETHYST_SHARD).itemMeta }, "Осколок Mortuus'a", ItemRarity.RARE),
     FRAGMENT_OF_VICTUS(Material.REPEATING_COMMAND_BLOCK, 2, { ItemStack(Material.AMETHYST_SHARD).itemMeta }, "Фрагмент Victus'a", ItemRarity.RARE),
@@ -42,9 +51,10 @@ enum class CustomItems(val material: Material, val model: Int, val itemMetaFunct
             )
         )
 
+        itemMeta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES)
+
         itemMeta
     }, "The Knot Of Life", ItemRarity.EPIC),
-
 
     ;
 

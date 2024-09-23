@@ -19,11 +19,7 @@ import org.bukkit.event.block.CrafterCraftEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerLoginEvent
-import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.*
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.inventory.ItemStack
@@ -44,7 +40,7 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
 import uwu.levaltru.warvilore.trashcan.Namespaces
-import java.util.Random
+import java.util.*
 
 private const val DEATH_TICKS_MAX = 20 * 40
 
@@ -61,12 +57,15 @@ class CustomEvents : Listener {
             }
             val abilities = player.getAbilities()
             val i = player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER]
+            val trialParticle =
+                if (abilities is EvilAurable) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION
             if (i != null && i > 0) {
                 player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER] =
                     i - 1
                 player.world.spawnParticle(
-                    if (abilities is EvilAurable) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION,
-                    player.location.add(0.0, player.height / 2, 0.0), 1, .2, .4, .2, .033, null, true
+                    trialParticle,
+                    player.location.add(0.0, player.height / 2, 0.0), 1,
+                    .2, .4, .2, .033, null, true
                 )
                 if (player.ticksLived % 8 == 0)
                     player.world.playSound(
@@ -85,7 +84,9 @@ class CustomEvents : Listener {
                         random.nextDouble(boundingBox.minY, boundingBox.maxY),
                         random.nextDouble(boundingBox.minZ, boundingBox.maxZ),
                     )
-                    loce.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, loce, 1, 0.0, 0.0, 0.0, 0.1)
+                    loce.world.spawnParticle(
+                        trialParticle, loce, 1, 0.0, 0.0, 0.0, 0.1
+                    )
                 }
             }
             abilities?.let {
@@ -307,8 +308,28 @@ class CustomEvents : Listener {
         val lives = player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER]
         if (lives != null) {
             player.world.playSound(player.location, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 4f, .7f)
-            player.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, player.location.add(0.0, player.height / 2, 0.0), 300, .3, .3, .3, .3, null, true)
-            player.world.spawnParticle(Particle.SOUL_FIRE_FLAME, player.location.add(0.0, player.height / 2, 0.0), 100, .3, .3, .3, .3, null, true)
+            player.world.spawnParticle(
+                Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                player.location.add(0.0, player.height / 2, 0.0),
+                300,
+                .3,
+                .3,
+                .3,
+                .3,
+                null,
+                true
+            )
+            player.world.spawnParticle(
+                Particle.SOUL_FIRE_FLAME,
+                player.location.add(0.0, player.height / 2, 0.0),
+                100,
+                .3,
+                .3,
+                .3,
+                .3,
+                null,
+                true
+            )
 
             if (lives > 1) {
                 player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER] =
