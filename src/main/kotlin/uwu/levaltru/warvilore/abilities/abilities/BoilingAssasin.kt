@@ -14,7 +14,6 @@ import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.projectiles.ReallyFastArrow
 import uwu.levaltru.warvilore.trashcan.CustomItems
-import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 
 private const val BASE_DAMAGE = 10.0

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "uwu.levaltru"
-version = "1.8-dev+1.21.1"
+version = "1.8.1+1.21.1"
 
 repositories {
     mavenCentral()
@@ -16,6 +16,7 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/") {
         name = "sonatype"
     }
+    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
@@ -23,6 +24,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
     implementation("org.reflections:reflections:0.10.2")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
 }
 
 val targetJavaVersion = 21

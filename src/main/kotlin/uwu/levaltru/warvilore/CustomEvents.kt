@@ -1,5 +1,6 @@
 package uwu.levaltru.warvilore
 
+import com.comphenix.protocol.PacketType
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
@@ -34,6 +35,8 @@ import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.CollabsePoint
 import uwu.levaltru.warvilore.tickables.DeathSpirit
+import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
+import uwu.levaltru.warvilore.tickables.untraditional.Zone
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
@@ -50,6 +53,7 @@ class CustomEvents : Listener {
     fun onTick(event: ServerTickEndEvent) {
         Tickable.Tick()
         Zone.getInstance().tick()
+        RemainsOfTheDeads.Tick()
         for (player in Bukkit.getOnlinePlayers()) {
             if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {
                 if (player.isOnGround || player.isInWaterOrBubbleColumn) player.removePotionEffect(PotionEffectType.SLOW_FALLING)
@@ -240,29 +244,6 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onAction(event: PlayerInteractEvent) {
-        if (
-        event.player.inventory.itemInMainHand.itemMeta.getAsCustomItem() == CustomItems.SOUL_BOTTLE ||
-                event.player.inventory.itemInMainHand.itemMeta.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BOTTLE
-        ) {
-            when (event.clickedBlock?.type) {
-                Material.DIRT, Material.GRASS_BLOCK -> {
-                    event.clickedBlock!!.type = Material.SOUL_SOIL
-                    event.player.inventory.itemInMainHand.subtract()
-                    event.player.inventory.addItem(ItemStack(Material.GLASS_BOTTLE))
-                    event.clickedBlock!!.world.playSound(event.clickedBlock!!.location, Sound.PARTICLE_SOUL_ESCAPE, 1f, 1f)
-                    return
-                }
-                Material.SAND, Material.RED_SAND -> {
-                    event.clickedBlock!!.type = Material.SOUL_SAND
-                    event.player.inventory.itemInMainHand.subtract()
-                    event.player.inventory.addItem(ItemStack(Material.GLASS_BOTTLE))
-                    event.clickedBlock!!.world.playSound(event.clickedBlock!!.location, Sound.PARTICLE_SOUL_ESCAPE, 1f, 1f)
-                    return
-                }
-                else -> {}
-            }
-        }
-
         event.player.getAbilities()?.onAction(event)
     }
 
@@ -294,6 +275,27 @@ class CustomEvents : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
+        if (LevsUtils.Hiddens.isHidden(player.name)) {
+            event.joinMessage(null)
+            Bukkit.getScheduler().runTask(Warvilore.instance, Runnable {
+                if (protocolManager != null) {
+                    val packetContainer = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE)
+                    packetContainer.uuidLists.write(0, listOf(player.uniqueId))
+                    for (onlinePlayer in Bukkit.getOnlinePlayers())
+                        protocolManager.sendServerPacket(onlinePlayer, packetContainer)
+                }
+            })
+        }
+        for (onlinePlayer in Bukkit.getOnlinePlayers()) {
+            if (LevsUtils.Hiddens.isHidden(onlinePlayer.name))
+                Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+                    if (protocolManager != null) {
+                        val packetContainer = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE)
+                        packetContainer.uuidLists.write(0, listOf(onlinePlayer.uniqueId))
+                        protocolManager.sendServerPacket(player, packetContainer)
+                    }
+                }, 40L)
+        }
         for (attribute in Attribute.entries) {
             val modifiers = player.getAttribute(attribute)?.modifiers
             if (modifiers != null) {
@@ -312,6 +314,7 @@ class CustomEvents : Listener {
     @EventHandler
     fun onLeave(event: PlayerQuitEvent) {
         val player = event.player
+        if (LevsUtils.Hiddens.isHidden(player.name)) event.quitMessage(null)
         if ((player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER]
                 ?: 0) > 0
         ) {
@@ -328,11 +331,15 @@ class CustomEvents : Listener {
     fun onDeath(event: PlayerDeathEvent) {
         val player = event.player
 
+        if (LevsUtils.Hiddens.isHidden(player.name))
+            event.deathMessage(null)
+
         val lives = player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER]
         if (lives != null) {
             player.world.playSound(player.location, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 4f, .7f)
+            val isEvil = player.getAbilities() is EvilAurable
             player.world.spawnParticle(
-                Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                if (isEvil) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION,
                 player.location.add(0.0, player.height / 2, 0.0),
                 300,
                 .3,
@@ -343,7 +350,7 @@ class CustomEvents : Listener {
                 true
             )
             player.world.spawnParticle(
-                Particle.SOUL_FIRE_FLAME,
+                if (isEvil) Particle.SOUL_FIRE_FLAME else Particle.FLAME,
                 player.location.add(0.0, player.height / 2, 0.0),
                 100,
                 .3,

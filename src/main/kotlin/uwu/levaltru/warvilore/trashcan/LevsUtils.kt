@@ -1,12 +1,10 @@
 package uwu.levaltru.warvilore.trashcan
 
-import io.papermc.paper.entity.TeleportFlag
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Item
-import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemRarity
 import org.bukkit.inventory.ItemStack
@@ -354,17 +352,62 @@ object LevsUtils {
         }
 
         fun getDiedList() = Bukkit.getWorlds()[0].persistentDataContainer.get(
-            Warvilore.namespace("public-dead-people"),
+            Namespaces.PUBLIC_DEAD_PEOPLE.namespace,
             PersistentDataType.LIST.strings()
         )?.toMutableList()
 
         fun setDiedList(list: List<String>?) {
             if (list == null) {
-                Bukkit.getWorlds()[0].persistentDataContainer.remove(Warvilore.namespace("public-dead-people"))
+                Bukkit.getWorlds()[0].persistentDataContainer.remove(Namespaces.PUBLIC_DEAD_PEOPLE.namespace)
                 return
             }
             Bukkit.getWorlds()[0].persistentDataContainer.set(
-                Warvilore.namespace("public-dead-people"),
+                Namespaces.PUBLIC_DEAD_PEOPLE.namespace,
+                PersistentDataType.LIST.strings(), list
+            )
+        }
+    }
+
+    object Hiddens {
+        fun isHidden(nickname: String): Boolean {
+            val nickname = nickname.lowercase()
+            val get = getHiddenList()
+            return get?.contains(nickname) ?: false
+        }
+
+        fun removeHidden(nickname: String): Boolean {
+            val nickname = nickname.lowercase()
+            val hiddenList = getHiddenList()
+            val remove = hiddenList?.remove(nickname)
+            setHiddenList(hiddenList)
+            return remove ?: false
+        }
+
+        fun addHidden(nickname: String): Boolean {
+            val nickname = nickname.lowercase()
+            val hiddenList = getHiddenList()
+            if (hiddenList == null) {
+                setHiddenList(listOf(nickname))
+                return true
+            }
+            if (hiddenList.contains(nickname)) return false
+            hiddenList.add(nickname)
+            setHiddenList(hiddenList)
+            return true
+        }
+
+        fun getHiddenList() = Bukkit.getWorlds()[0].persistentDataContainer.get(
+            Namespaces.PUBLIC_HIDDEN_PEOPLE.namespace,
+            PersistentDataType.LIST.strings()
+        )?.toMutableList()
+
+        fun setHiddenList(list: List<String>?) {
+            if (list == null) {
+                Bukkit.getWorlds()[0].persistentDataContainer.remove(Namespaces.PUBLIC_HIDDEN_PEOPLE.namespace)
+                return
+            }
+            Bukkit.getWorlds()[0].persistentDataContainer.set(
+                Namespaces.PUBLIC_HIDDEN_PEOPLE.namespace,
                 PersistentDataType.LIST.strings(), list
             )
         }
@@ -390,6 +433,14 @@ object LevsUtils {
             food.saturation = 7.5f
             food.setCanAlwaysEat(true)
             itemMeta.setFood(food)
+
+            itemMeta
+        }
+
+        val MortuusAndVictus: () -> ItemMeta = {
+            val itemMeta = ItemStack(Material.AMETHYST_SHARD).itemMeta
+
+            itemMeta.isFireResistant = true
 
             itemMeta
         }

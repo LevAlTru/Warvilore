@@ -49,6 +49,29 @@ class AbilitiesCommand : TabExecutor {
             return true
         }
 
+        if (args[0].lowercase() == "hiddens") {
+            when (args[1]) {
+                "list" -> sender.sendMessage(Component.text(LevsUtils.Hiddens.getHiddenList().toString()).color(NamedTextColor.GOLD))
+                "add" -> {
+                    if (args.size < 3) {
+                        sender.sendMessage(Component.text("not enough arguments").color(NamedTextColor.RED))
+                        return true
+                    }
+                    sender.sendMessage(Component.text(LevsUtils.Hiddens.addHidden(args[2]).toString()).color(NamedTextColor.GOLD))
+                }
+                "remove" -> {
+                    if (args.size < 3) {
+                        sender.sendMessage(Component.text("not enough arguments").color(NamedTextColor.RED))
+                        return true
+                    }
+                    sender.sendMessage(
+                        Component.text(LevsUtils.Hiddens.removeHidden(args[2]).toString()).color(NamedTextColor.GOLD)
+                    )
+                }
+            }
+            return true
+        }
+
         if (args[0].lowercase() == "give") {
 
             if (sender !is Player) {
@@ -175,18 +198,18 @@ class AbilitiesCommand : TabExecutor {
     ): List<String>? {
         if (args == null) return emptyList()
         when (args.size) {
-            1 -> return mutableListOf("set", "get", "getAll", "giveWeapon", "give", "deads")
+            1 -> return mutableListOf("set", "get", "getAll", "giveWeapon", "give", "deads", "hiddens")
             2 -> when (args[0].lowercase()) {
                 "set", "get" -> return null
                 "giveWeapon" -> return CustomWeapons.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
                 "give" -> return CustomItems.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
-                "deads" -> return listOf("add", "remove", "list")
+                "deads", "hiddens" -> return listOf("add", "remove", "list")
             }
 
             3 -> when (args[0].lowercase()) {
-                "deads" -> when (args[1]) {
+                "deads", "hiddens" -> when (args[1]) {
                     "add" -> return null
-                    "remove" -> return LevsUtils.Deads.getDiedList()
+                    "remove" -> return if (args[1].lowercase() == "deads") LevsUtils.Deads.getDiedList() else if (args[1].lowercase() == "hiddens") LevsUtils.Hiddens.getHiddenList() else listOf()
                 }
                 "set" -> return Warvilore.abilitiesList?.plus("remove")
                     ?.filter { it.lowercase().startsWith(args[2].lowercase()) } ?: listOf("ERROR")

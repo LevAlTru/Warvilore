@@ -33,8 +33,8 @@ enum class CustomItems(val material: Material, val model: Int, val itemMetaFunct
 
     // Repeating Command Block
 
-    SHARD_OF_MORTUUS(Material.REPEATING_COMMAND_BLOCK, 1, { ItemStack(Material.AMETHYST_SHARD).itemMeta }, "Осколок Mortuus'a", ItemRarity.RARE),
-    FRAGMENT_OF_VICTUS(Material.REPEATING_COMMAND_BLOCK, 2, { ItemStack(Material.AMETHYST_SHARD).itemMeta }, "Фрагмент Victus'a", ItemRarity.RARE),
+    SHARD_OF_MORTUUS(Material.REPEATING_COMMAND_BLOCK, 1, LevsUtils.ItemMetas.MortuusAndVictus, "Осколок Mortuus'a", ItemRarity.RARE),
+    FRAGMENT_OF_VICTUS(Material.REPEATING_COMMAND_BLOCK, 2, LevsUtils.ItemMetas.MortuusAndVictus, "Фрагмент Victus'a", ItemRarity.RARE),
 
     YOUR_REALITY_HAS_COLLAPSED(Material.REPEATING_COMMAND_BLOCK, 3, {
         val itemMeta = ItemStack(Material.WOODEN_SWORD).itemMeta

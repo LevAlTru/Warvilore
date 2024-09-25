@@ -1,8 +1,9 @@
 package uwu.levaltru.warvilore.tickables
 
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.*
+import org.bukkit.Location
+import org.bukkit.Particle
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
@@ -10,7 +11,7 @@ import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
-import java.util.Random
+import java.util.*
 
 private const val DISTANCE_FROM_SUCKER = 12.0
 
@@ -18,7 +19,7 @@ private const val IDLE_STATE_DURATION = 100
 
 private const val RITUAL_DURATION = 20 * 45 + IDLE_STATE_DURATION
 
-private const val REMAINING_LIVES_FOR_THE_DARK_ONE = 4
+private const val REMAINING_LIVES_MAX = 6
 
 class SoulSucker(val location: Location, val player: Player, val dark: Boolean) : Tickable() {
     override fun tick(): Boolean {
@@ -74,18 +75,15 @@ class SoulSucker(val location: Location, val player: Player, val dark: Boolean) 
                 }
 
                 if (!dark) {
-                    player.health = 0.0
-                    locy.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, locy, 200, .2, .4, .2, .3, null, true)
-                    player.kick(Component.text("Ты умер.\n\nРекомендую обратно не заходить (для драматизма) и даже может быть никому не писать. Потом разберемся как тебя реализовать").color(NamedTextColor.RED))
-                    Bukkit.getOnlinePlayers().forEach {
-                        it.sendMessage(Component.text("${player.name} не выдержал нагрузки.").color(NamedTextColor.RED))
-                        it.playSound(it, Sound.BLOCK_END_PORTAL_SPAWN, 128f, .7f)
-                    }
+                    locy.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, locy, 50, .2, .4, .2, .1, null, true)
+                    player.damage(5.0)
+                    player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, org.bukkit.persistence.PersistentDataType.INTEGER] =
+                        REMAINING_LIVES_MAX
                 } else {
                     locy.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, locy, 50, .2, .4, .2, .1, null, true)
                     player.damage(5.0)
                     player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, org.bukkit.persistence.PersistentDataType.INTEGER] =
-                        REMAINING_LIVES_FOR_THE_DARK_ONE
+                        REMAINING_LIVES_MAX
                 }
                 return true
             }

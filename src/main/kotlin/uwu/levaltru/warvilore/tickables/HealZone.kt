@@ -8,7 +8,7 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.trashcan.LevsUtils
-import java.util.Random
+import java.util.*
 
 private const val MAX_AGE = 20 * 25
 private const val RADIUS = 6.0

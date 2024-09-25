@@ -8,13 +8,10 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
-import org.bukkit.block.data.Ageable
 import org.bukkit.damage.DamageType
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.inventory.meta.components.FoodComponent
-import org.bukkit.inventory.meta.components.FoodComponent.FoodEffect
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.Warvilore

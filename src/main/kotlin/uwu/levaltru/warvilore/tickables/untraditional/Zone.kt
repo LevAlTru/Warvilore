@@ -1,20 +1,16 @@
-package uwu.levaltru.warvilore
+package uwu.levaltru.warvilore.tickables.untraditional
 
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
 import org.bukkit.entity.LightningStrike
 import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.sqrt

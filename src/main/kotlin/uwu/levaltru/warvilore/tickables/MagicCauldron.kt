@@ -9,8 +9,8 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
-import uwu.levaltru.warvilore.abilities.abilities.TestAbility
-import uwu.levaltru.warvilore.abilities.abilities.TheHolyOne
+import uwu.levaltru.warvilore.abilities.abilities.OneAngelZero
+import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
 import uwu.levaltru.warvilore.trashcan.CauldronDataObject
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
@@ -129,12 +129,12 @@ class MagicCauldron(loc: Location) : Tickable() {
             var selectedPlayer: Player? = null
             for (player in l.getNearbyPlayers(8.0)) {
                 if (isShard) {
-                    if (player.getAbilities() is TestAbility) {
+                    if (player.getAbilities() is TheColdestOne) {
                         selectedPlayer = player
                         break
                     }
                 } else {
-                    if (player.getAbilities() is TheHolyOne) {
+                    if (player.getAbilities() is OneAngelZero) {
                         selectedPlayer = player
                         break
                     }

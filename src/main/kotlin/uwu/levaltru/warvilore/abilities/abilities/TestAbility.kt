@@ -1,22 +1,14 @@
 package uwu.levaltru.warvilore.abilities.abilities
 
-import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Material
-import org.bukkit.Particle
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-import org.bukkit.damage.DamageType
 import org.bukkit.entity.Player
-import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.trashcan.Namespaces
-import kotlin.math.ceil
 
 class TestAbility(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     override fun completeCommand(

@@ -24,6 +24,7 @@ enum class Namespaces {
     CHARGE,
     CHARGES,
     REFILL,
+    PARTICLES_MODE,
 
     ARE_ABILITIES_ENABLED,
 
@@ -62,6 +63,11 @@ enum class Namespaces {
     LAST_HIT_WITH_DEATH,
 
     LIVES_REMAIN,
+
+
+    PUBLIC_DEAD_PEOPLE,
+    PUBLIC_HIDDEN_PEOPLE,
+
 
     ;
 

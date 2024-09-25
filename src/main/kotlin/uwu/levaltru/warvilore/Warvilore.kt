@@ -1,19 +1,23 @@
 package uwu.levaltru.warvilore
 
+import com.comphenix.protocol.ProtocolLibrary
+import com.comphenix.protocol.ProtocolManager
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.inventory.*
+import org.bukkit.inventory.RecipeChoice
+import org.bukkit.inventory.SmithingTransformRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.reflections.Reflections
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.commands.AbilitiesCommand
 import uwu.levaltru.warvilore.commands.AbilkaCommand
 import uwu.levaltru.warvilore.commands.AboutMeCommand
+import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.trashcan.CustomItems
-import java.awt.Component
 
-const val DeveloperMode = true
+const val DeveloperMode = false
+val protocolManager: ProtocolManager? = ProtocolLibrary.getProtocolManager()
 
 class Warvilore : JavaPlugin() {
 
@@ -62,6 +66,9 @@ class Warvilore : JavaPlugin() {
             )
         )
 
+        log("Dead Remains loading...")
+        RemainsOfTheDeads.load()
+
         log("All done!")
 
     }
@@ -82,6 +89,7 @@ class Warvilore : JavaPlugin() {
 
     override fun onDisable() {
         Tickable.clearWithEffects()
+        RemainsOfTheDeads.save()
     }
 
     companion object {
