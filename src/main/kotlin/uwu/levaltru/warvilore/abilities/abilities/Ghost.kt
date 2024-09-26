@@ -63,6 +63,8 @@ class Ghost(nickname: String) : AbilitiesCore(nickname), CantLeaveSouls {
                 if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
                 x, y, z, 1, .0, .0, .0, .02
             )
+            player!!.foodLevel = 20
+            player!!.saturation = 20f
         }
     }
 
