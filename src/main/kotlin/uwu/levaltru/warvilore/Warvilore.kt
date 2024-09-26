@@ -16,7 +16,7 @@ import uwu.levaltru.warvilore.commands.AboutMeCommand
 import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.trashcan.CustomItems
 
-const val DeveloperMode = false
+const val DeveloperMode = true
 val protocolManager: ProtocolManager? = ProtocolLibrary.getProtocolManager()
 
 class Warvilore : JavaPlugin() {

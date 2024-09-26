@@ -31,6 +31,21 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
             )
             field = value
         }
+    var isColorYellow: Boolean = false
+        get() {
+            field = player?.persistentDataContainer?.get(
+                Namespaces.ARE_PARTICLES_YELLOW.namespace,
+                PersistentDataType.BOOLEAN
+            ) ?: false
+            return field
+        }
+        set(value) {
+            player?.persistentDataContainer?.set(
+                Namespaces.ARE_PARTICLES_YELLOW.namespace,
+                PersistentDataType.BOOLEAN, value
+            )
+            field = value
+        }
 
     override fun onTick(event: ServerTickEndEvent) {
 
@@ -41,7 +56,9 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
             val x = random.nextDouble(box.minX, box.maxX)
             val y = random.nextDouble(box.minY, box.maxY)
             val z = random.nextDouble(box.minZ, box.maxZ)
-            player!!.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, x, y, z, 1, .0, .0, .0, .02)
+            player!!.world.spawnParticle(
+                if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                x, y, z, 1, .0, .0, .0, .02)
         }
     }
 
@@ -67,7 +84,7 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
     ): List<String>? {
         return when (args.size) {
             1 -> listOf("v", "p")
-            2 -> if (args[0].lowercase() == "p") ParticlesState.entries.map { it.name } else listOf()
+            2 -> if (args[0].lowercase() == "p") ParticlesState.entries.map { it.name }.plus("CHANGE_COLOR") else listOf()
             else -> listOf()
         }
     }
@@ -102,6 +119,10 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
                     return
                 }
 
+                if (args[1].lowercase() == "change_color") {
+                    isColorYellow = !isColorYellow
+                    return
+                }
                 for (entry in ParticlesState.entries) {
                     if (entry.name == args[1]) {
                         particlesMode = entry.int

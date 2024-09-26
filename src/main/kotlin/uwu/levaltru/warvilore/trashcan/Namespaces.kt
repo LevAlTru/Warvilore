@@ -25,6 +25,7 @@ enum class Namespaces {
     CHARGES,
     REFILL,
     PARTICLES_MODE,
+    ARE_PARTICLES_YELLOW,
 
     ARE_ABILITIES_ENABLED,
 

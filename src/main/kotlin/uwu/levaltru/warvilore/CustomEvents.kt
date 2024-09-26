@@ -5,6 +5,7 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextReplacementConfig
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
