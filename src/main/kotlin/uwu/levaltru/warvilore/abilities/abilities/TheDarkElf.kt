@@ -16,6 +16,7 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 
 private const val DARKNESS_TIME = 20 * 20
+private const val BLIDNESS_TIME = 20 * 4
 
 class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     override fun onJoin(event: PlayerJoinEvent) {
@@ -38,8 +39,28 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
 
     override fun onAttack(event: EntityDamageByEntityEvent) {
         if (abilitiesDisabled) return
-        if (event.damageSource.damageType == DamageType.ARROW)
-            (event.entity as? LivingEntity)?.addPotionEffect(PotionEffect(PotionEffectType.DARKNESS, DARKNESS_TIME, 0, false, true, true))
+        if (event.damageSource.damageType == DamageType.ARROW) {
+            (event.entity as? LivingEntity)?.addPotionEffect(
+                PotionEffect(
+                    PotionEffectType.DARKNESS,
+                    DARKNESS_TIME,
+                    0,
+                    false,
+                    true,
+                    true
+                )
+            )
+            (event.entity as? LivingEntity)?.addPotionEffect(
+                PotionEffect(
+                    PotionEffectType.BLINDNESS,
+                    BLIDNESS_TIME,
+                    0,
+                    false,
+                    true,
+                    true
+                )
+            )
+        }
     }
 
     override fun getAboutMe(): List<Component> = listOf(

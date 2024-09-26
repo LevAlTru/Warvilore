@@ -1,6 +1,5 @@
 package uwu.levaltru.warvilore
 
-import com.comphenix.protocol.PacketType
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
@@ -57,7 +56,13 @@ class CustomEvents : Listener {
         RemainsOfTheDeads.Tick()
         for (player in Bukkit.getOnlinePlayers()) {
             if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {
-                if (player.isOnGround || player.isInWaterOrBubbleColumn) player.removePotionEffect(PotionEffectType.SLOW_FALLING)
+                if (
+                    player.isOnGround ||
+                    player.isInWaterOrBubbleColumn ||
+                    player.isFlying
+                )
+
+                    player.removePotionEffect(PotionEffectType.SLOW_FALLING)
                 else LevsUtils.addInfiniteSlowfall(player)
             }
             val abilities = player.getAbilities()
@@ -195,7 +200,7 @@ class CustomEvents : Listener {
         if (event.damageSource.damageType == DamageType.OUT_OF_WORLD) {
             if (entity.world.name == "world") {
                 event.isCancelled = true
-                if (entity.location.y < -750) {
+                if (entity.location.y < -450) {
                     entity.teleport(
                         Location(
                             Bukkit.getWorld("world_nether") ?: entity.world,
@@ -276,27 +281,6 @@ class CustomEvents : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
-        if (LevsUtils.Hiddens.isHidden(player.name)) {
-            event.joinMessage(null)
-            Bukkit.getScheduler().runTask(Warvilore.instance, Runnable {
-                if (protocolManager != null) {
-                    val packetContainer = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE)
-                    packetContainer.uuidLists.write(0, listOf(player.uniqueId))
-                    for (onlinePlayer in Bukkit.getOnlinePlayers())
-                        protocolManager.sendServerPacket(onlinePlayer, packetContainer)
-                }
-            })
-        }
-        for (onlinePlayer in Bukkit.getOnlinePlayers()) {
-            if (LevsUtils.Hiddens.isHidden(onlinePlayer.name))
-                Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
-                    if (protocolManager != null) {
-                        val packetContainer = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE)
-                        packetContainer.uuidLists.write(0, listOf(onlinePlayer.uniqueId))
-                        protocolManager.sendServerPacket(player, packetContainer)
-                    }
-                }, 40L)
-        }
         for (attribute in Attribute.entries) {
             val modifiers = player.getAttribute(attribute)?.modifiers
             if (modifiers != null) {

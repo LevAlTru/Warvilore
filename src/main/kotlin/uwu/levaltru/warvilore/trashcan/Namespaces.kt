@@ -26,6 +26,7 @@ enum class Namespaces {
     REFILL,
     PARTICLES_MODE,
     ARE_PARTICLES_YELLOW,
+    IS_LARGE,
 
     ARE_ABILITIES_ENABLED,
 

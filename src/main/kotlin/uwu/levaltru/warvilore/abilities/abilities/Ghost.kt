@@ -6,15 +6,18 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.attribute.Attribute
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.damage.DamageType
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.trashcan.Namespaces
 
-class Ghost(nickname: String) : AbilitiesCore(nickname) {
+class Ghost(nickname: String) : AbilitiesCore(nickname), CantLeaveSouls {
 
     var particlesMode: Int = 0
         get() {
@@ -58,12 +61,23 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
             val z = random.nextDouble(box.minZ, box.maxZ)
             player!!.world.spawnParticle(
                 if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
-                x, y, z, 1, .0, .0, .0, .02)
+                x, y, z, 1, .0, .0, .0, .02
+            )
         }
     }
 
+    override fun onDeath(event: PlayerDeathEvent) {
+        event.isCancelled = true
+        effects()
+        player!!.gameMode = GameMode.SPECTATOR
+        player!!.health = player!!.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
+    }
+
     override fun onDamage(event: EntityDamageEvent) {
-        event.isCancelled = event.damageSource.damageType == DamageType.FALL
+        event.isCancelled = when (event.damageSource.damageType) {
+            DamageType.FALL, DamageType.IN_WALL -> true
+            else -> false
+        }
     }
 
     private fun particleModeConditionsMet(): Boolean {
@@ -84,7 +98,9 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
     ): List<String>? {
         return when (args.size) {
             1 -> listOf("v", "p")
-            2 -> if (args[0].lowercase() == "p") ParticlesState.entries.map { it.name }.plus("CHANGE_COLOR") else listOf()
+            2 -> if (args[0].lowercase() == "p") ParticlesState.entries.map { it.name }
+                .plus("CHANGE_COLOR") else listOf()
+
             else -> listOf()
         }
     }
@@ -96,11 +112,6 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
         }
         when (args[0]) {
             "v" -> {
-                if (particleModeConditionsMet()) {
-                    player!!.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, player!!.location.add(0.0, player!!.height / 2, 0.0),
-                        100, .2, .3, .2, .02, null, true)
-                    player!!.world.playSound(player!!.location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, 2f, .5f)
-                }
                 if (player!!.gameMode == GameMode.SURVIVAL) {
                     player!!.gameMode = GameMode.SPECTATOR
                 } else if (player!!.gameMode == GameMode.SPECTATOR) {
@@ -110,7 +121,9 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
                         text("Ошибка: вы находитесь в режиме креатива или в режиме приключений.")
                             .color(NamedTextColor.RED)
                     )
+                    return
                 }
+                effects()
             }
 
             "p" -> {
@@ -132,6 +145,21 @@ class Ghost(nickname: String) : AbilitiesCore(nickname) {
                 player!!.sendMessage(text("Ошибка: нету такого режима.").color(NamedTextColor.RED))
             }
         }
+    }
+
+    private fun effects() {
+        player!!.world.spawnParticle(
+            if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+            player!!.location.add(0.0, player!!.height / 2, 0.0),
+            100,
+            .2,
+            .3,
+            .2,
+            .02,
+            null,
+            true
+        )
+        player!!.world.playSound(player!!.location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, 2f, .5f)
     }
 
     override fun getAboutMe(): List<Component> = listOf(
