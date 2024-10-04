@@ -6,6 +6,8 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.*
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -15,7 +17,9 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.tickables.NetherInfector
 import uwu.levaltru.warvilore.tickables.projectiles.BloodySlice
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
@@ -209,6 +213,50 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
                 PotionEffect(PotionEffectType.SLOWNESS, 100, 4, true, false, true),
             )
         )
+    }
+
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
+        if (!DeveloperMode) {
+            player!!.sendMessage("Development Mode is turned off")
+            return
+        }
+        when (args[0].lowercase()) {
+            "blocks" -> {
+                var dx = 0
+                var dz = 0
+
+                for (material in Material.entries) {
+                    if (!material.isBlock) continue
+                    dx++
+                    if (dx > 50) {
+                        dx = 0
+                        dz += 5
+                    }
+                    player!!.location.add(Vector(dx, 0, dz))
+                        .block.setType(material, false)
+
+                    val block = player!!.location.add(Vector(dx, 3, dz)).block
+                    block.setType(material, false)
+
+                    NetherInfector.changeBlock(block.location)
+
+                }
+
+            }
+        }
+    }
+
+    override fun completeCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): List<String>? {
+        if (!DeveloperMode) return emptyList()
+        return when (args.size) {
+            1 -> listOf("blocks")
+            else -> listOf()
+        }
     }
 
     override fun getAboutMe(): List<Component> = listOf(

@@ -1,15 +1,11 @@
 package uwu.levaltru.warvilore
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
-import io.papermc.paper.event.player.AsyncChatEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.TextReplacementConfig
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.Style
-import net.kyori.adventure.text.format.TextDecoration
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.block.Crafter
@@ -24,12 +20,10 @@ import org.bukkit.event.block.CrafterCraftEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
-import org.bukkit.event.inventory.PrepareSmithingEvent
 import org.bukkit.event.player.*
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.SmithingTransformRecipe
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffectType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
@@ -44,15 +38,12 @@ import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.tickables.untraditional.Zone
 import uwu.levaltru.warvilore.trashcan.CustomItems
-import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
-import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomWeapon
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import java.util.*
-import kotlin.math.min
 
 private const val DEATH_TICKS_MAX = 20 * 40
 
@@ -138,7 +129,7 @@ class CustomEvents : Listener {
         if (itemMeta != null) {
             if (event.willAttack())
                 if (itemMeta.isSoulBound()) {
-                    val asCustomItem = itemMeta.getAsCustomWeapon()
+                    val asCustomItem = LevsUtils.getAsCustomWeapon(itemMeta)
                     if (itemMeta.getSoulBound() != player.name) {
                         val i =
                             itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER]
@@ -290,6 +281,9 @@ class CustomEvents : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
+        if (DeveloperMode && player.name.lowercase() == "levaltru")
+            for (i in 1..10)
+                player.sendMessage(Component.text("Development Mode is turned on").color(NamedTextColor.RED))
         if (LevsUtils.Hiddens.isHidden(player.name)) {
             event.joinMessage(null)
             LevsUtils.Hiddens.hidePlayerPacket(player.uniqueId, 2)
@@ -328,7 +322,6 @@ class CustomEvents : Listener {
         abilities?.onLeave(event)
         AbilitiesCore.saveAbility(player)
         hashMap.remove(player.name)
-        Warvilore.protocolHashmap.remove(player.name)
     }
 
     @EventHandler
@@ -438,8 +431,7 @@ class CustomEvents : Listener {
     }
 
     @EventHandler
-    fun onItemPrepareCrafting(event: PrepareItemCraftEvent) {
-        if (event.recipe?.result?.itemMeta?.getAsCustomItem() != null) return
+    fun onItemCrafting(event: PrepareItemCraftEvent) {
         if (event.inventory.any { it?.itemMeta?.getAsCustomItem() != null }) {
             event.inventory.setItem(0, ItemStack.empty())
         }
@@ -447,7 +439,6 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onItemCrafting(event: CraftItemEvent) {
-        if (event.recipe.result.itemMeta?.getAsCustomItem() != null) return
         event.isCancelled = event.inventory.any { it?.itemMeta?.getAsCustomItem() != null }
     }
 
@@ -455,38 +446,6 @@ class CustomEvents : Listener {
     fun onCrafterItemCrafting(event: CrafterCraftEvent) {
         event.isCancelled =
             (event.block.getState(false) as Crafter).inventory.any { it?.itemMeta?.getAsCustomItem() != null }
-    }
-
-    @EventHandler
-    fun onSmithingTableCraft(event: PrepareSmithingEvent) {
-        val inventory = event.inventory
-        if (DeveloperMode) {
-            for ((i, itemStack) in inventory.withIndex()) {
-                for (viewer in event.viewers) {
-                    viewer.sendMessage("$i    ${itemStack?.itemMeta.getAsCustomItem()}")
-                }
-            }
-        }
-        when (event.result?.itemMeta.getAsCustomWeapon()) {
-            CustomWeapons.MI_PENITENCIA -> {
-
-                val meaCupla = inventory.getItem(1)
-                val meaCulpaMeta = meaCupla?.itemMeta
-                if (
-                    meaCulpaMeta.getAsCustomWeapon() == CustomWeapons.MEA_CULPA &&
-                    inventory.getItem(2)?.itemMeta.getAsCustomItem() == CustomItems.THE_RED_RIBBONS
-                ) {
-                    event.result = CustomWeapons.MI_PENITENCIA.replaceItem(meaCupla!!, meaCulpaMeta?.getSoulBound())
-                }
-                else event.result = ItemStack.empty()
-
-                return
-            }
-            null -> {}
-            else -> return
-        }
-        if (inventory.any { it?.itemMeta?.getAsCustomItem() != null })
-            event.result = ItemStack.empty()
     }
 
     @EventHandler
@@ -513,48 +472,5 @@ class CustomEvents : Listener {
                 PlayerLoginEvent.Result.KICK_BANNED,
                 Component.text("У вас не осталось жизней.").color(NamedTextColor.RED)
             )
-    }
-
-    @EventHandler
-    fun onGamemodeChange(event: PlayerGameModeChangeEvent) {
-        if (LevsUtils.Hiddens.isHidden(event.player.name))
-            LevsUtils.Hiddens.hidePlayerPacket(event.player.uniqueId, 2)
-    }
-
-    @EventHandler
-    fun onChat(event: AsyncChatEvent) {
-        if (LevsUtils.Hiddens.isHidden(event.player.name)) {
-            val message = "<${event.player.name}> " + PlainTextComponentSerializer.plainText().serialize(event.message())
-            val serialize = message.chars().toArray().map { it.toChar() }
-            event.isCancelled = true
-            Bukkit.getScheduler().runTask(Warvilore.instance, Runnable {
-                var i = 0
-                var pi = 0
-                val strings = mutableListOf<String>()
-                val random = Random()
-                while (true) {
-                    random.nextInt(0, 8)
-                    var addString = ""
-
-                    for (x in pi..<min(i, serialize.lastIndex + 1))
-                        if (random.nextInt(0, 7) != 0) addString += serialize[x]
-
-                    strings += addString
-                    if (i > serialize.lastIndex) break
-                    pi = i
-                    i += random.nextInt(1, 6)
-                }
-
-                val component = Component.text()
-                var i2 = random.nextInt(0, 2)
-                for (componentString in strings) {
-                    component.append(Component.text(componentString).style(Style.style(if (i2 % 2 == 0) TextDecoration.OBFUSCATED else NamedTextColor.WHITE)))
-                    i2++
-                }
-
-                Bukkit.getOnlinePlayers().forEach { it.sendMessage(component) }
-                Warvilore.log("A hidden player message: $message")
-            })
-        }
     }
 }
