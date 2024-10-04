@@ -1,0 +1,6 @@
+{
+	"parent": "levaltru:item/handheld_upside_down",
+	"textures": {
+		"layer0": "kreatevtommy:item/mi_penitencia"
+	}
+}

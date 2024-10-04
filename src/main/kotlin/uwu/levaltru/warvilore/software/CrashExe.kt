@@ -9,15 +9,19 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.SoftwareBase
+import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
+import uwu.levaltru.warvilore.abilities.abilities.WalkingComputer
 import java.time.Duration
 
 class CrashExe(string: String) : SoftwareBase(string) {
 
-    var i1 = 55
+    var i1 = 64 * 5 + 4
 
     override fun tick(player: Player): Boolean {
         var string = ""
         val i = i1 / 5
+        if (i shr 5 and 1 == 1) string += "| " else string += ". "
+        if (i shr 4 and 1 == 1) string += "| " else string += ". "
         if (i shr 3 and 1 == 1) string += "| " else string += ". "
         if (i shr 2 and 1 == 1) string += "| " else string += ". "
         if (i shr 1 and 1 == 1) string += "| " else string += ". "
@@ -25,21 +29,22 @@ class CrashExe(string: String) : SoftwareBase(string) {
         player.showTitle(Title.title(text(if ((i1 / 2) % 2 == 0) "$i" else "").color(NamedTextColor.RED),
             text(string).style(Style.style(TextDecoration.BOLD, NamedTextColor.RED)),
             Title.Times.times(Duration.ZERO, Duration.ofSeconds(1L), Duration.ZERO)))
-        if ((i1 / 2) % 2 == 0) player.playSound(player, Sound.BLOCK_DISPENSER_FAIL, 1f, 1.5f)
-        if (i1 <= 3) {
-            player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 0.5f)
-            player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 2.0f)
+        if ((i1 / 2) % 2 == 0) player.world.playSound(player, Sound.BLOCK_DISPENSER_FAIL, 1f, 1.5f)
+        if (i1-- <= 0 || player.isDead) {
+            val abilities = player.getAbilities()
+            if (abilities is WalkingComputer) {
+                abilities.killButPretty()
+                if (player.isInWaterOrBubbleColumn) abilities.electricExplosion(30.0)
+                return true
+            }
+            player.health = 0.0
+            return true
         }
-        return i1-- <= 0
+        return false
     }
 
     override fun onShutDown(player: Player) {
-        player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 0.5f)
-        player.playSound(player.location, Sound.ENTITY_MINECART_INSIDE, 1f, 2.0f)
-        player.spawnParticle(
-            Particle.ELECTRIC_SPARK, player.location, 1000000000,
-            0.0, 0.0, 0.0, 0.0, null, true
-        )
+        player.showTitle(Title.title(text(""), text("")))
     }
 
     override fun possibleArguments(): List<String> = listOf()

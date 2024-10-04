@@ -18,6 +18,8 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.projectiles.BloodySlice
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomWeapon
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.max
 
@@ -160,7 +162,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
     override fun onAction(event: PlayerInteractEvent) {
         val itemInMainHand = player!!.inventory.itemInMainHand
-        if (itemInMainHand.isMeaCulpa()
+        if ((itemInMainHand.isMeaCulpa())
             && !player!!.isSneaking &&
             (bloodSliceCooldown <= 0 || player!!.gameMode == GameMode.CREATIVE)
             && event.action.isRightClick
@@ -175,14 +177,11 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
                 0.8f
             )
             bloodSliceCooldown = BLOOD_SLICE_COOLDOWN
-        } else if (itemInMainHand.type != Material.IRON_SWORD
-            || !event.action.isRightClick
-            || player!!.pitch < 20.0
-            || !player!!.isSneaking
-        ) {
-            return
-        }
-        rightClickTimes++
+        } else if ((itemInMainHand.type == Material.IRON_SWORD || itemInMainHand.isMiPenitencia())
+            && event.action.isRightClick
+            && player!!.pitch > 20.0
+            && player!!.isSneaking
+        ) rightClickTimes++
     }
 
     override fun onDeath(event: PlayerDeathEvent) {
@@ -192,7 +191,8 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
     private fun isBurning(): Boolean = rightClickTimes >= RIGHT_CLICK_TIMES
 
-    fun ItemStack.isMeaCulpa(): Boolean = CustomWeapons.MEA_CULPA.equals(this)
+    fun ItemStack?.isMeaCulpa(): Boolean = this?.itemMeta?.getAsCustomWeapon() == CustomWeapons.MEA_CULPA
+    fun ItemStack?.isMiPenitencia(): Boolean = this?.itemMeta?.getAsCustomWeapon() == CustomWeapons.MI_PENITENCIA
 
     private fun heartAttack(effects: Boolean) {
         if (player!!.gameMode != GameMode.CREATIVE) {

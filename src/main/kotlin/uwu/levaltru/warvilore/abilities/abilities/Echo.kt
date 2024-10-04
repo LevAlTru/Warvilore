@@ -3,15 +3,23 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
+import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
+import uwu.levaltru.warvilore.tickables.effect.ReturnTommy
 import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 
 class Echo(nickname: String) : AbilitiesCore(nickname) {
+
+    var frames = 0
+    var tommy: String? = null
+    var loce: Location? = null
 
     override fun onTick(event: ServerTickEndEvent) {
         val player = player ?: return
@@ -22,9 +30,26 @@ class Echo(nickname: String) : AbilitiesCore(nickname) {
             val y = random.nextDouble(box.minY, box.maxY)
             val z = random.nextDouble(box.minZ, box.maxZ)
 
-            player.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, x, y, z, 1, .0, .0, .0, .02)
+            player.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, x, y, z, 1, .0, .0, .0, .02, null, true)
         }
+
+        if (tommy == null) {
+            frames = 0
+            return
+        }
+
+        if (frames == 0) player.world.playSound(player.location, "levaltru:the_sun_station", 16f, 1f)
+
+        player.sendActionBar(Component.text(frames / 20 - 155).color(NamedTextColor.LIGHT_PURPLE))
+
+        if (frames == 155 * 20) {
+            ReturnTommy(loce ?: player.location.add(0.0, 5.0, 0.0), player.name, tommy!!)
+            tommy = null
+        }
+
+        frames++
     }
+
 
     override fun completeCommand(
         sender: CommandSender,
@@ -64,7 +89,12 @@ class Echo(nickname: String) : AbilitiesCore(nickname) {
                 }
                 minBy.markedForRemoval = true
             } else if (args[0].lowercase() == "start") {
-
+                if (args.size <= 1) {
+                    tommy = null
+                    return
+                }
+                tommy = Bukkit.getPlayer(args[1])?.name
+                loce = player!!.location.add(0.0, 5.0, 0.0)
             }
         } catch (e: Exception) {
             player!!.sendMessage(Component.text(e.toString()).color(NamedTextColor.RED))

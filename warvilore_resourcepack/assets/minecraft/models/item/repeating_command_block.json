@@ -18,6 +18,12 @@
 				"custom_model_data": 3
 			},
 			"model": "levaltru:item/null/-item1-"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 4
+			},
+			"model": "kreatevtommy:item/the_red_ribbons"
 		}
 	]
 }

@@ -1,0 +1,7 @@
+{
+	"parent": "levaltru:item/beer/tankard",
+	"textures": {
+		"particle": "levaltru:item/layer/soul_in_bottle",
+		"1": "levaltru:item/beer/soul_3"
+	}
+}

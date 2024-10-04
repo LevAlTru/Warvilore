@@ -15,6 +15,42 @@
 				"custom_model_data": 2
 			},
 			"model": "item/custom/food/uchpuchmak_big"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 3
+			},
+			"model": "levaltru:item/beer/tankard_with_soul_1"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 4
+			},
+			"model": "levaltru:item/beer/tankard_with_soul_2"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 5
+			},
+			"model": "levaltru:item/beer/tankard_with_soul_3"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 6
+			},
+			"model": "levaltru:item/beer/tankard_with_ominous_soul_1"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 7
+			},
+			"model": "levaltru:item/beer/tankard_with_ominous_soul_2"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 8
+			},
+			"model": "levaltru:item/beer/tankard_with_ominous_soul_3"
 		}
 	]
 }

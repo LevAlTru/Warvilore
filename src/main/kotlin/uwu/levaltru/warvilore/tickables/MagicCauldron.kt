@@ -5,15 +5,21 @@ import org.bukkit.block.data.Levelled
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.PotionMeta
+import org.bukkit.potion.PotionEffect
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.abilities.OneAngelZero
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
+import uwu.levaltru.warvilore.tickables.effect.LegendaryItemSpawner
+import uwu.levaltru.warvilore.tickables.effect.SoulSucker
 import uwu.levaltru.warvilore.trashcan.CauldronDataObject
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
+import uwu.levaltru.warvilore.trashcan.LevsUtils.setSoulInTheBottle
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -26,10 +32,12 @@ class MagicCauldron(loc: Location) : Tickable() {
     class MNode(
         val item: (ItemStack) -> Boolean,
         vararg val list: MNode,
-        val execute: ((Location, List<ItemStack>, Player) -> CauldronDataObject?)? = null
+        val manaCost: Int? = null,
+        val execute: ((Location, List<ItemStack>, Player) -> CauldronDataObject?)? = null,
+        val canMoreThenDefinedItems: Boolean = false
     ) {
-        fun getPath(vararg items: ItemStack): ((Location, List<ItemStack>, Player) -> CauldronDataObject?)? {
-            if (items.isEmpty()) return this.execute
+        fun getPath(vararg items: ItemStack): MNode? {
+            if (items.isEmpty()) return this
             for ((i, node) in list.withIndex()) {
                 val ye = node.item(items.first())
                 if (DeveloperMode) Bukkit.getOnlinePlayers()
@@ -38,7 +46,7 @@ class MagicCauldron(loc: Location) : Tickable() {
                 if (ye) return node.getPath(*items.copyOfRange(1, items.lastIndex + 1))
                     ?: continue
             }
-            return null
+            return if (this.canMoreThenDefinedItems) this else null
         }
     }
 
@@ -74,7 +82,7 @@ class MagicCauldron(loc: Location) : Tickable() {
                             { it.itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS || it.itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS },
                             MNode(
                                 { it.type == Material.CRYING_OBSIDIAN && it.amount >= 12 },
-                                execute = {l, i, p ->
+                                execute = { l, i, p ->
 
                                     if (!((i[2].itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS && i[3].itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS) ||
                                                 (i[2].itemMeta.getAsCustomItem() == CustomItems.FRAGMENT_OF_VICTUS && i[3].itemMeta.getAsCustomItem() == CustomItems.SHARD_OF_MORTUUS))
@@ -82,7 +90,11 @@ class MagicCauldron(loc: Location) : Tickable() {
 
                                     l.world.spawnParticle(Particle.END_ROD, l, 25, .2, .2, .2, .1, null, true)
 
-                                    LegendaryItemSpawner(l.clone().add(0.0, 2.5, 0.0), CustomItems.YOUR_REALITY_HAS_COLLAPSED.getAsItem(), 20 * 10)
+                                    LegendaryItemSpawner(
+                                        l.clone().add(0.0, 2.5, 0.0),
+                                        CustomItems.YOUR_REALITY_HAS_COLLAPSED.getAsItem(),
+                                        20 * 10
+                                    )
 
                                     val list = i.toMutableList()
 
@@ -93,7 +105,8 @@ class MagicCauldron(loc: Location) : Tickable() {
                                     list[4] = list[4].subtract(12)
 
                                     CauldronDataObject(8000, list)
-                                }
+                                },
+                                manaCost = 8000
                             )
                         )
                     )
@@ -105,7 +118,8 @@ class MagicCauldron(loc: Location) : Tickable() {
                     { it.itemMeta.getAsCustomItem() == CustomItems.SOUL_BOTTLE },
                     MNode(
                         { it.type == Material.GOLD_INGOT && it.amount >= 4 },
-                        execute = { l, i, p -> shardAndFragment(l, i, false) }
+                        execute = { l, i, p -> shardAndFragment(l, i, false) },
+                        manaCost = 800
                     )
                 )
             ),
@@ -115,7 +129,75 @@ class MagicCauldron(loc: Location) : Tickable() {
                     { it.itemMeta.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BOTTLE },
                     MNode(
                         { it.type == Material.ANCIENT_DEBRIS },
-                        execute = { l, i, _ -> shardAndFragment(l, i, true) }
+                        execute = { l, i, _ -> shardAndFragment(l, i, true) },
+                        manaCost = 800
+                    )
+                )
+            ),
+            MNode(
+                { it.itemMeta?.getAsCustomItem() == CustomItems.TANKARD },
+                MNode(
+                    { it.type == Material.WHEAT && it.amount >= 3 },
+                    MNode(
+                        { it.itemMeta?.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BOTTLE || it.itemMeta?.getAsCustomItem() == CustomItems.SOUL_BOTTLE },
+                        execute = { l, i, _ ->
+
+                            var manaCost = 300
+
+                            val list = i.toMutableList()
+                            val potionEffects = mutableListOf<PotionEffect>()
+
+                            if (list.size > 3) {
+                                for (potionIndex in 3..list.lastIndex) {
+                                    val potion = list[potionIndex].clone()
+                                    val potionMeta = potion.itemMeta
+                                    if (potionMeta !is PotionMeta) {
+                                        if (
+                                            potionMeta.getAsCustomItem() == CustomItems.SOUL_BEER ||
+                                            potionMeta.getAsCustomItem() == CustomItems.OMINOUS_SOUL_BEER
+                                        ) continue
+                                        return@MNode null
+                                    }
+                                    list[potionIndex] = list[potionIndex].subtract()
+                                    manaCost += 150
+                                    potionMeta.basePotionType?.potionEffects?.map { it.withDuration(it.duration / 2) }
+                                        ?.let { potionEffects.addAll(it) }
+                                    if (potionMeta.hasCustomEffects())
+                                        potionEffects.addAll(potionMeta.customEffects.map { it.withDuration(it.duration / 2) })
+                                }
+                            }
+
+                            val soulBottle = list[2]
+                            val soulIsNotOminous = soulBottle.itemMeta.getAsCustomItem() == CustomItems.SOUL_BOTTLE
+
+                            l.world.playSound(l, Sound.BLOCK_SOUL_SAND_HIT, 1f, .5f)
+                            l.world.spawnParticle(
+                                if (soulIsNotOminous) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                                l, 100, .2, .2, .2, .1, null, true
+                            )
+
+
+                            val soulInTheBottle = soulBottle.itemMeta.getSoulInTheBottle()
+                            list += (if (soulIsNotOminous) CustomItems.SOUL_BEER else CustomItems.OMINOUS_SOUL_BEER)
+                                .getAsItem(ItemStack(Material.AMETHYST_SHARD).also {
+                                    it.setSoulInTheBottle(soulInTheBottle)
+                                }.itemMeta).also {
+                                    val itemMeta = it.itemMeta
+                                    val food = itemMeta.food
+                                    for (potionEffect in potionEffects) food.addEffect(potionEffect, 1f)
+                                    itemMeta.setFood(food)
+
+                                    it.itemMeta = itemMeta
+                                }
+
+                            list[0] = list[0].subtract()
+                            list[1] = list[1].subtract(3)
+                            list[2] = soulBottle.subtract()
+
+                            CauldronDataObject(manaCost, list)
+                        },
+                        canMoreThenDefinedItems = true,
+                        manaCost = 300
                     )
                 )
             )
@@ -230,8 +312,7 @@ class MagicCauldron(loc: Location) : Tickable() {
     }
 
     fun activate(player: Player): Int? {
-        val ye = recipeTree().getPath(*items.toTypedArray())
-        val invoke = ye?.invoke(location, items, player)
+        val invoke = findRecipeNode()?.execute?.invoke(location, items, player)
         if (invoke == null) {
             ejectItems()
             return null
@@ -240,6 +321,8 @@ class MagicCauldron(loc: Location) : Tickable() {
         invoke.itemList?.let { items.addAll(it) }
         return invoke.int
     }
+
+    fun findRecipeNode() = recipeTree().getPath(*items.toTypedArray())
 
     fun ejectItems() {
         if (items.isEmpty()) return

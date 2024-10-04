@@ -1,4 +1,4 @@
-package uwu.levaltru.warvilore.tickables
+package uwu.levaltru.warvilore.tickables.effect
 
 import org.bukkit.Location
 import org.bukkit.Particle
@@ -14,20 +14,22 @@ class LegendaryItemSpawner(val location: Location, val itemStack: ItemStack, val
 
     override fun tick(): Boolean {
 
-        if (age % 20 == 0)
-            location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_ABOUT_TO_SPAWN_ITEM, 4f, .5f)
+        val prosent = age.toDouble() / maxAge
 
-        if (age + 10 == maxAge)
+        if (age % 20 == 0)
+            location.world.playSound(location, Sound.BLOCK_TRIAL_SPAWNER_ABOUT_TO_SPAWN_ITEM, (4 * prosent).toFloat(), .5f)
+
+        if (age + 8 == maxAge)
             location.world.spawn(location, LightningStrike::class.java)
         if (age + 8 < maxAge) {
             location.world.spawnParticle(
                 Particle.OMINOUS_SPAWNING,
                 location,
-                LevsUtils.roundToRandomInt(age.toDouble() / maxAge * 5),
+                LevsUtils.roundToRandomInt(prosent * 5),
                 .1,
                 .1,
                 .1,
-                .25 + age.toDouble() / maxAge * 1.25,
+                .25 + prosent * 1.25,
                 null,
                 true
             )
@@ -38,6 +40,7 @@ class LegendaryItemSpawner(val location: Location, val itemStack: ItemStack, val
     }
 
     fun spawnItem(): Boolean {
+        location.getNearbyEntitiesByType(LightningStrike::class.java, 4.0).forEach { it.remove() }
         location.world.spawn(location, Item::class.java) {
             it.itemStack = itemStack
             it.velocity = Vector()

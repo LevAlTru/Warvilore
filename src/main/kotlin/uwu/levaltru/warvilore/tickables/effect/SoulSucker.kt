@@ -1,5 +1,7 @@
-package uwu.levaltru.warvilore.tickables
+package uwu.levaltru.warvilore.tickables.effect
 
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -51,11 +53,11 @@ class SoulSucker(val location: Location, val player: Player, val dark: Boolean) 
 
             val box = player.boundingBox
             val locyClone = Location(
-                    locy.world,
-                    Random().nextDouble(box.minX, box.maxX),
-                    Random().nextDouble(box.minY, box.maxY),
-                    Random().nextDouble(box.minZ, box.maxZ)
-                )
+                locy.world,
+                Random().nextDouble(box.minX, box.maxX),
+                Random().nextDouble(box.minY, box.maxY),
+                Random().nextDouble(box.minZ, box.maxZ)
+            )
             locy.world.spawnParticle(
                 particle, locyClone, 0,
                 toVec.x, toVec.y, toVec.z, .05
@@ -74,17 +76,21 @@ class SoulSucker(val location: Location, val player: Player, val dark: Boolean) 
                     it.velocity = Vector()
                 }
 
-                if (!dark) {
-                    locy.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION, locy, 50, .2, .4, .2, .1, null, true)
-                    player.damage(5.0)
-                    player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, org.bukkit.persistence.PersistentDataType.INTEGER] =
-                        REMAINING_LIVES_MAX
-                } else {
-                    locy.world.spawnParticle(Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, locy, 50, .2, .4, .2, .1, null, true)
-                    player.damage(5.0)
-                    player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, org.bukkit.persistence.PersistentDataType.INTEGER] =
-                        REMAINING_LIVES_MAX
-                }
+                locy.world.spawnParticle(
+                    if (dark) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION,
+                    locy,
+                    50,
+                    .2,
+                    .4,
+                    .2,
+                    .1,
+                    null,
+                    true
+                )
+                player.damage(5.0)
+                player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, org.bukkit.persistence.PersistentDataType.INTEGER] =
+                    REMAINING_LIVES_MAX
+                player.sendMessage(Component.text("Ты чуствуешь как твоя душа не выдержит больше ${REMAINING_LIVES_MAX - 1} смертей").color(NamedTextColor.RED))
                 return true
             }
         }

@@ -11,14 +11,20 @@
 			"model": "levaltru:item/frostmourne"
         },
         {
+			"predicate": {
+				"custom_model_data": 2
+			},
+			"model": "kreatevtommy:item/mi_penitencia"
+        },
+        {
             "predicate": {
-                "custom_model_data": 2
+                "custom_model_data": 100
             },
             "model": "item/custom/sword_musarama"
         },
 		{
             "predicate": {
-                "custom_model_data": 3
+                "custom_model_data": 101
             },
             "model": "item/custom/sappfire"
         }

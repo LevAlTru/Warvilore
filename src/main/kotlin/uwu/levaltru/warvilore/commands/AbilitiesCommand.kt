@@ -94,7 +94,7 @@ class AbilitiesCommand : TabExecutor {
             return true
         }
 
-        if (args[0].lowercase() == "giveWeapon") {
+        if (args[0].lowercase() == "giveweapon") {
 
             if (sender !is Player) {
                 sender.sendMessage(Component.text("not a player").color(NamedTextColor.RED))
@@ -198,10 +198,10 @@ class AbilitiesCommand : TabExecutor {
     ): List<String>? {
         if (args == null) return emptyList()
         when (args.size) {
-            1 -> return mutableListOf("set", "get", "getAll", "giveWeapon", "give", "deads", "hiddens")
+            1 -> return mutableListOf("set", "get", "getAll", "giveweapon", "give", "deads", "hiddens")
             2 -> when (args[0].lowercase()) {
                 "set", "get" -> return null
-                "giveWeapon" -> return CustomWeapons.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
+                "giveweapon" -> return CustomWeapons.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
                 "give" -> return CustomItems.entries.map { it.toString() }.filter { it.lowercase().startsWith(args[1].lowercase()) }
                 "deads", "hiddens" -> return listOf("add", "remove", "list")
             }

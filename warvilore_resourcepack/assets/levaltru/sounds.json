@@ -8,5 +8,15 @@
     "sounds": [
       "levaltru:massive_boom_louder"
     ]
+  },
+  "the_revival": {
+    "sounds": [
+      "levaltru:the_revival"
+    ]
+  },
+  "the_sun_station": {
+    "sounds": [
+      "levaltru:the_sun_station"
+    ]
   }
 }

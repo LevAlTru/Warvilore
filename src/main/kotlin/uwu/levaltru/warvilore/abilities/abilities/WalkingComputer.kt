@@ -3,10 +3,7 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.GameMode
-import org.bukkit.Particle
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
+import org.bukkit.*
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.damage.DamageSource
@@ -87,50 +84,57 @@ class WalkingComputer(string: String) : AbilitiesCore(string), CantLeaveSouls {
                     15, .2, .3, .2, .3, null, false
                 )
             } else {
-                player!!.world.spawnParticle(
-                    Particle.ELECTRIC_SPARK, locy, 150,
-                    .2, .3, .2, 2.0, null, true
-                )
-                player!!.world.spawnParticle(
-                    Particle.END_ROD, locy, 100,
-                    .2, .3, .2, .7, null, true
-                )
-                player!!.world.playSound(
-                    player!!.location,
-                    Sound.BLOCK_BEACON_DEACTIVATE,
-                    SoundCategory.MASTER,
-                    5f,
-                    0.5f
-                )
-                player!!.world.playSound(
-                    player!!.location,
-                    Sound.BLOCK_TRIAL_SPAWNER_BREAK,
-                    SoundCategory.MASTER,
-                    3f,
-                    0.5f
-                )
-                for (itemStack in player!!.inventory) {
-                    if (itemStack == null || itemStack.isEmpty) continue
-                    player!!.world.spawn(locy, Item::class.java) {
-                        it.itemStack = itemStack
-                        it.velocity = Vector(
-                            random.nextGaussian() * .3,
-                            random.nextGaussian() * .3 + .3,
-                            random.nextGaussian() * .3
-                        )
-                    }
-                }
-                player!!.inventory.clear()
-                val source = DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).withCausingEntity(player!!).build()
-                player!!.damage(100.0, source)
-                player!!.health = 0.0
+                killButPretty()
                 charge = 0
                 electricExplosion(50.0)
             }
         }
     }
 
-    private fun electricExplosion(power: Double) {
+    fun killButPretty() {
+        val locy = player!!.location.add(0.0, player!!.height / 2, 0.0)
+        player!!.world.spawnParticle(
+            Particle.ELECTRIC_SPARK, locy, 150,
+            .2, .3, .2, 2.0, null, true
+        )
+        player!!.world.spawnParticle(
+            Particle.END_ROD, locy, 100,
+            .2, .3, .2, .7, null, true
+        )
+        player!!.world.playSound(
+            player!!.location,
+            Sound.BLOCK_BEACON_DEACTIVATE,
+            SoundCategory.MASTER,
+            5f,
+            0.5f
+        )
+        player!!.world.playSound(
+            player!!.location,
+            Sound.BLOCK_TRIAL_SPAWNER_BREAK,
+            SoundCategory.MASTER,
+            3f,
+            0.5f
+        )
+        for (itemStack in player!!.inventory) {
+            if (itemStack == null || itemStack.isEmpty) continue
+            player!!.world.spawn(locy, Item::class.java) {
+                it.itemStack = itemStack
+                it.velocity = Vector(
+                    random.nextGaussian() * .3,
+                    random.nextGaussian() * .3 + .3,
+                    random.nextGaussian() * .3
+                )
+            }
+        }
+        player!!.inventory.clear()
+        val source =
+            DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).withCausingEntity(player!!)
+                .build()
+        player!!.damage(100.0, source)
+        player!!.health = 0.0
+    }
+
+    fun electricExplosion(power: Double) {
         val entities = player!!.location.getNearbyLivingEntities(power)
         val source = DamageSource.builder(DamageType.LIGHTNING_BOLT).withDirectEntity(player!!).withCausingEntity(player!!).build()
         val size = entities.size

@@ -14,13 +14,15 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.Warvilore
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 
 enum class CustomWeapons(
     val timesBeforeBreak: Int? = null,
     val customModel: Int,
     val material: Material,
     val whenGive: (ItemMeta) -> Unit = {_ -> },
-    val onBreak: (Player, Entity) -> Unit = {_, _ -> }
+    val onBreak: (Player, Entity) -> Unit = {_, _ -> },
+    val displayName: Component,
 ) {
     FROSTMOURNE(
         2, 1, Material.NETHERITE_SWORD,
@@ -41,8 +43,6 @@ enum class CustomWeapons(
                     AttributeModifier(Warvilore.namespace("theColdestOneSword"), 1.5, AttributeModifier.Operation.ADD_NUMBER, org.bukkit.inventory.EquipmentSlotGroup.HAND)
                 )
                 itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                if (itemMeta.hasItemName()) itemMeta.itemName(itemMeta.itemName().color(NamedTextColor.DARK_AQUA))
-                else itemMeta.itemName(Component.text("Ледяная Скорбь").color(NamedTextColor.DARK_AQUA))
                 (itemMeta as? Damageable)?.damage = 0
             }
         },
@@ -61,12 +61,13 @@ enum class CustomWeapons(
             val locy = p.location.add(0.0, p.height / 2, 0.0).add(pLoc.direction.multiply(pLoc.distance(e.location) / 2))
             LevsUtils.frostmourneExplosion(locy, p)
         },
+        Component.text("Ледяная Скорбь").color(NamedTextColor.DARK_AQUA),
     ),
     MEA_CULPA(
         2, 1, Material.IRON_SWORD,
         { itemMeta ->
             run {
-                if (!itemMeta.hasItemName()) itemMeta.itemName(Component.text("Mea Culpa").color(NamedTextColor.DARK_AQUA))
+                if (!itemMeta.hasItemName()) itemMeta.itemName()
                 else itemMeta.itemName(itemMeta.itemName().color(NamedTextColor.DARK_AQUA))
                 (itemMeta as Damageable).damage = 0
                 itemMeta.setMaxDamage(250)
@@ -81,6 +82,25 @@ enum class CustomWeapons(
                 .1, .1, .1, .2, null, true)
             p.inventory.setItemInMainHand(ItemStack.empty())
         },
+        Component.text("Mea Culpa").color(NamedTextColor.DARK_AQUA),
+    ),
+    MI_PENITENCIA(
+        7, 2, Material.NETHERITE_SWORD,
+        { itemMeta ->
+            run {
+                (itemMeta as Damageable).damage = 0
+            }
+        },
+        { p, _ ->
+            val locy = p.location.add(0.0, p.height / 2, 0.0).add(p.location.direction)
+            locy.world.playSound(locy, org.bukkit.Sound.BLOCK_TRIAL_SPAWNER_SPAWN_ITEM, 3f, 0.5f)
+            locy.world.spawnParticle(org.bukkit.Particle.TRIAL_SPAWNER_DETECTION_OMINOUS, locy, 200,
+                .1, .1, .1, .1, null, true)
+            locy.world.spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, locy, 200,
+                .1, .1, .1, .2, null, true)
+            p.inventory.setItemInMainHand(MEA_CULPA.replaceItem(p.inventory.itemInMainHand, p.inventory.itemInMainHand.itemMeta.getSoulBound()))
+        },
+        Component.text("Mi Penitencia").color(NamedTextColor.DARK_RED),
     ),
 
     ;
@@ -94,6 +114,7 @@ enum class CustomWeapons(
         val item = item2.withType(this.material)
         val itemMeta = item.itemMeta.apply {
             setCustomModelData(customModel)
+            itemName(this@CustomWeapons.displayName)
             persistentDataContainer[Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING] =
                 this@CustomWeapons.toString()
             timesBeforeBreak?.let {

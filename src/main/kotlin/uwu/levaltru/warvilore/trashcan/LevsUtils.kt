@@ -1,5 +1,6 @@
 package uwu.levaltru.warvilore.trashcan
 
+import com.comphenix.protocol.PacketType
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
@@ -15,8 +16,8 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
+import uwu.levaltru.warvilore.protocolManager
 import uwu.levaltru.warvilore.tickables.effect.DeathMarker
-import uwu.levaltru.warvilore.trashcan.CustomItems.entries
 import java.util.*
 import kotlin.math.*
 
@@ -52,16 +53,17 @@ object LevsUtils {
         return this.persistentDataContainer.get(Namespaces.SOULBOUND.namespace, PersistentDataType.STRING)
     }
 
-    fun getAsCustomWeapon(itemMeta: ItemMeta): CustomWeapons? {
-        val s =
-            itemMeta.persistentDataContainer[Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING] ?: return null
-        return CustomWeapons.valueOf(s)
+    fun ItemMeta?.getAsCustomWeapon(): CustomWeapons? {
+        val s = this?.persistentDataContainer?.get(Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING)
+            ?: return null
+        for (entry in CustomWeapons.entries) if (entry.toString() == s) return entry
+        return null
     }
 
     fun ItemMeta?.getAsCustomItem(): CustomItems? {
         val s = this?.persistentDataContainer?.get(Namespaces.CUSTOM_ITEM.namespace, PersistentDataType.STRING)
             ?: return null
-        for (entry in entries) if (entry.toString() == s) return entry
+        for (entry in CustomItems.entries) if (entry.toString() == s) return entry
         return null
     }
 
@@ -74,7 +76,17 @@ object LevsUtils {
         return this?.persistentDataContainer?.get(Namespaces.SOUL_IN_THE_BOTTLE.namespace, PersistentDataType.STRING)
     }
 
-    fun ItemStack?.setSoulInTheBottle(nick: String) {
+    fun ItemMeta?.setSoulInTheBottle(nick: String?) {
+        if (nick == null) return
+        this?.persistentDataContainer?.set(
+            Namespaces.SOUL_IN_THE_BOTTLE.namespace,
+            PersistentDataType.STRING,
+            nick
+        )
+    }
+
+    fun ItemStack?.setSoulInTheBottle(nick: String?) {
+        if (nick == null) return
         val itemMeta = this?.itemMeta
         itemMeta?.persistentDataContainer?.set(
             Namespaces.SOUL_IN_THE_BOTTLE.namespace,
@@ -369,7 +381,8 @@ object LevsUtils {
     }
 
     object Hiddens {
-        fun isHidden(nickname: String): Boolean {
+        fun isHidden(nickname: String?): Boolean {
+            if (nickname == null) return false
             val nickname = nickname.lowercase()
             val get = getHiddenList()
             return get?.contains(nickname) ?: false
@@ -384,6 +397,7 @@ object LevsUtils {
         }
 
         fun addHidden(nickname: String): Boolean {
+            Bukkit.getPlayer(nickname)?.let { hidePlayerPacket(it.uniqueId, 2) }
             val nickname = nickname.lowercase()
             val hiddenList = getHiddenList()
             if (hiddenList == null) {
@@ -411,38 +425,49 @@ object LevsUtils {
                 PersistentDataType.LIST.strings(), list
             )
         }
+
+        fun hidePlayerPacket(uuid: UUID, afterTicks: Long) {
+            hidePlayerPacket(listOf(uuid), afterTicks)
+        }
+
+        fun hidePlayerPacket(uuids: List<UUID>, afterTicks: Long) {
+            if (protocolManager == null) return
+            Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+                val packet = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE)
+                packet.uuidLists.write(0, uuids)
+                for (player in Bukkit.getOnlinePlayers()) {
+                    if (uuids.contains(player.uniqueId)) continue
+                    protocolManager.sendServerPacket(player, packet)
+                }
+            }, afterTicks)
+        }
     }
 
     object ItemMetas {
 
-        val soulBottle: () -> ItemMeta = {
-            val itemMeta = ItemStack(Material.GLASS_BOTTLE).itemMeta
+        fun soulBottle(itemMeta: ItemMeta) {
             val food = itemMeta.food
             food.nutrition = 1
             food.saturation = 3.5f
             food.setCanAlwaysEat(true)
             itemMeta.setFood(food)
-
-            itemMeta
         }
 
-        val soulBeer: () -> ItemMeta = {
-            val itemMeta = soulBottle()
+        fun soulBeer(itemMeta: ItemMeta, usingConvertsTo: ItemStack) {
             val food = itemMeta.food
             food.nutrition = 5
-            food.saturation = 7.5f
+            food.saturation = 6.5f
             food.setCanAlwaysEat(true)
+            val soul = itemMeta.getSoulInTheBottle()
+            food.usingConvertsTo = usingConvertsTo.also { it.setSoulInTheBottle(soul) }
             itemMeta.setFood(food)
 
-            itemMeta
+            itemMeta.itemName(itemMeta.itemName().append(Component.text(" $soul")))
+            itemMeta.setMaxStackSize(1)
         }
 
-        val MortuusAndVictus: () -> ItemMeta = {
-            val itemMeta = ItemStack(Material.AMETHYST_SHARD).itemMeta
-
+        fun MortuusAndVictus(itemMeta: ItemMeta) {
             itemMeta.isFireResistant = true
-
-            itemMeta
         }
 
     }

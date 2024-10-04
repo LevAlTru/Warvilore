@@ -61,7 +61,7 @@ class Ghost(nickname: String) : AbilitiesCore(nickname), CantLeaveSouls {
             val z = random.nextDouble(box.minZ, box.maxZ)
             player!!.world.spawnParticle(
                 if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
-                x, y, z, 1, .0, .0, .0, .02
+                x, y, z, 1, .0, .0, .0, .02, null, true
             )
             player!!.foodLevel = 20
             player!!.saturation = 20f
@@ -70,7 +70,7 @@ class Ghost(nickname: String) : AbilitiesCore(nickname), CantLeaveSouls {
 
     override fun onDeath(event: PlayerDeathEvent) {
         event.isCancelled = true
-        effects()
+        effects(true)
         player!!.gameMode = GameMode.SPECTATOR
         player!!.health = player!!.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
     }
@@ -125,7 +125,7 @@ class Ghost(nickname: String) : AbilitiesCore(nickname), CantLeaveSouls {
                     )
                     return
                 }
-                effects()
+                effects(false)
             }
 
             "p" -> {
@@ -149,19 +149,21 @@ class Ghost(nickname: String) : AbilitiesCore(nickname), CantLeaveSouls {
         }
     }
 
-    private fun effects() {
+    private fun effects(deathParticles: Boolean) {
         player!!.world.spawnParticle(
-            if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+            if (deathParticles) Particle.SCULK_SOUL else { if (isColorYellow) Particle.TRIAL_SPAWNER_DETECTION else Particle.TRIAL_SPAWNER_DETECTION_OMINOUS },
             player!!.location.add(0.0, player!!.height / 2, 0.0),
             100,
             .2,
             .3,
             .2,
-            .02,
+            .1,
             null,
             true
         )
         player!!.world.playSound(player!!.location, Sound.BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE, 2f, .5f)
+        if (deathParticles)
+            player!!.world.playSound(player!!.location, Sound.ENTITY_WARDEN_ATTACK_IMPACT, 2f, .5f)
     }
 
     override fun getAboutMe(): List<Component> = listOf(
