@@ -281,6 +281,9 @@ class CustomEvents : Listener {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
+        if (DeveloperMode && player.name.lowercase() == "levaltru")
+            for (i in 1..10)
+                player.sendMessage(Component.text("Development Mode is turned on").color(NamedTextColor.RED))
         for (attribute in Attribute.entries) {
             val modifiers = player.getAttribute(attribute)?.modifiers
             if (modifiers != null) {
