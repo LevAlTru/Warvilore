@@ -22,12 +22,13 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.commands.AbilitiesCommand
 import uwu.levaltru.warvilore.commands.AbilkaCommand
 import uwu.levaltru.warvilore.commands.AboutMeCommand
+import uwu.levaltru.warvilore.tickables.untraditional.NetherEmitter
 import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 
-const val DeveloperMode = true
+const val DeveloperMode = false
 val protocolManager: ProtocolManager? = ProtocolLibrary.getProtocolManager()
 
 class Warvilore : JavaPlugin() {
@@ -106,6 +107,7 @@ class Warvilore : JavaPlugin() {
 
         log("Dead Remains loading...")
         RemainsOfTheDeads.load()
+        NetherEmitter.load()
 
         log("Adding Protocol Lib events")
         if (protocolManager != null) {
@@ -180,6 +182,7 @@ class Warvilore : JavaPlugin() {
     override fun onDisable() {
         Tickable.clearWithEffects()
         RemainsOfTheDeads.save()
+        NetherEmitter.save()
     }
 
     companion object {

@@ -35,11 +35,14 @@ import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.CollabsePoint
 import uwu.levaltru.warvilore.tickables.DeathSpirit
+import uwu.levaltru.warvilore.tickables.NetherInfector
+import uwu.levaltru.warvilore.tickables.untraditional.NetherEmitter
 import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.tickables.untraditional.Zone
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
+import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomWeapon
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
 import uwu.levaltru.warvilore.trashcan.Namespaces
@@ -54,6 +57,7 @@ class CustomEvents : Listener {
         Tickable.Tick()
         Zone.getInstance().tick()
         RemainsOfTheDeads.Tick()
+        NetherEmitter.Tick()
         for (player in Bukkit.getOnlinePlayers()) {
             if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {
                 if (
@@ -129,7 +133,7 @@ class CustomEvents : Listener {
         if (itemMeta != null) {
             if (event.willAttack())
                 if (itemMeta.isSoulBound()) {
-                    val asCustomItem = LevsUtils.getAsCustomWeapon(itemMeta)
+                    val asCustomItem = itemMeta.getAsCustomWeapon()
                     if (itemMeta.getSoulBound() != player.name) {
                         val i =
                             itemMeta.persistentDataContainer[Namespaces.TIMES_BEFORE_BREAK.namespace, PersistentDataType.INTEGER]
@@ -201,6 +205,7 @@ class CustomEvents : Listener {
             if (entity.world.name == "world") {
                 event.isCancelled = true
                 if (entity.location.y < -450) {
+                    entity.world.playSound(entity.location, Sound.BLOCK_END_PORTAL_SPAWN, 28f, .5f)
                     entity.teleport(
                         Location(
                             Bukkit.getWorld("world_nether") ?: entity.world,
@@ -211,7 +216,7 @@ class CustomEvents : Listener {
                     )
                     if (entity is Player) LevsUtils.addInfiniteSlowfall(entity)
                     Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
-                        entity.world.playSound(entity.location, Sound.BLOCK_END_PORTAL_SPAWN, 16f, .5f)
+                        entity.world.playSound(entity.location, Sound.BLOCK_END_PORTAL_SPAWN, 28f, .5f)
                     }, 10L)
                 }
                 return

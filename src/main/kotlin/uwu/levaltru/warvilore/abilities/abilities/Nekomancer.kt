@@ -81,7 +81,7 @@ class Nekomancer(string: String) : AbilitiesCore(string), EvilAurable, CanSeeSou
 
         if (prevLoc != null
             && prevLoc!!.world == player!!.location.world
-            && player!!.location.distanceSquared(prevLoc!!) < .0001
+            && (player!!.location.world == prevLoc?.world && player!!.location.distanceSquared(prevLoc!!) < .0001)
             && player!!.isSneaking
             && (mana > REVIVAL_COST || standStillTime > 10)
             && mana > 0

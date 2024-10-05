@@ -65,7 +65,7 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
 
         if (prevLoc == null
             || ((timeBeforeNextPray > 0 && player!!.gameMode != GameMode.CREATIVE) && burningScore <= 0)
-            || location.distanceSquared(prevLoc!!) > 0.0001
+            || (location.world == prevLoc?.world && location.distanceSquared(prevLoc!!) > 0.0001)
             || !player!!.isSneaking
         ) {
             if (timeBeforeNextPray > 1 && timeBeforeNextPray % 20 == 0)
@@ -213,50 +213,6 @@ class TheHolyOne(string: String) : AbilitiesCore(string) {
                 PotionEffect(PotionEffectType.SLOWNESS, 100, 4, true, false, true),
             )
         )
-    }
-
-    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
-        if (!DeveloperMode) {
-            player!!.sendMessage("Development Mode is turned off")
-            return
-        }
-        when (args[0].lowercase()) {
-            "blocks" -> {
-                var dx = 0
-                var dz = 0
-
-                for (material in Material.entries) {
-                    if (!material.isBlock) continue
-                    dx++
-                    if (dx > 50) {
-                        dx = 0
-                        dz += 5
-                    }
-                    player!!.location.add(Vector(dx, 0, dz))
-                        .block.setType(material, false)
-
-                    val block = player!!.location.add(Vector(dx, 3, dz)).block
-                    block.setType(material, false)
-
-                    NetherInfector.changeBlock(block.location)
-
-                }
-
-            }
-        }
-    }
-
-    override fun completeCommand(
-        sender: CommandSender,
-        command: Command,
-        label: String,
-        args: Array<out String>
-    ): List<String>? {
-        if (!DeveloperMode) return emptyList()
-        return when (args.size) {
-            1 -> listOf("blocks")
-            else -> listOf()
-        }
     }
 
     override fun getAboutMe(): List<Component> = listOf(

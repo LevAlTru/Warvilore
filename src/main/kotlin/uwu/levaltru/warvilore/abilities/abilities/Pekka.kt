@@ -120,7 +120,7 @@ class Pekka(nickname: String) : AbilitiesCore(nickname) {
 
         if (isLarge) {
             attackSpeed.addModifier(AttributeModifier(namespace, -0.66, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
-            attackDamage.addModifier(AttributeModifier(namespace, 1.7, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
+            attackDamage.addModifier(AttributeModifier(namespace, 0.7, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
             mining.addModifier(AttributeModifier(namespace, 1.0, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
             stepHeight.addModifier(AttributeModifier(namespace, 0.85, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
             jumpStrength.addModifier(AttributeModifier(namespace, 0.4, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
