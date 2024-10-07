@@ -25,4 +25,5 @@ abstract class Actionable {
     open fun onKill(event: EntityDeathEvent) {}
     open fun onJoin(event: PlayerJoinEvent) {}
     open fun onLeave(event: PlayerQuitEvent) {}
+    open fun onPotionGain(event: EntityPotionEffectEvent) {}
 }

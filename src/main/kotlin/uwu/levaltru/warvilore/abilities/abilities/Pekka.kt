@@ -8,10 +8,18 @@ import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.damage.DamageType
+import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
@@ -20,7 +28,7 @@ import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.ceil
 import kotlin.math.floor
 
-private const val MAX_COOLDOWN = 30
+private const val MAX_COOLDOWN = 15
 
 class Pekka(nickname: String) : AbilitiesCore(nickname) {
 
@@ -43,47 +51,6 @@ class Pekka(nickname: String) : AbilitiesCore(nickname) {
 
     override fun onDeath(event: PlayerDeathEvent) {
         isLarge = false
-    }
-
-    override fun onAction(event: PlayerInteractEvent) {
-        if (event.isBlockInHand) return
-        if (event.action.isRightClick && player!!.isSneaking && player!!.pitch > 80 && actionCooldown <= 0) {
-            val location = player!!.location
-            player!!.world.playSound(
-                player!!.location,
-                if (isLarge) {
-                    isLarge = false
-                    Sound.BLOCK_BEACON_DEACTIVATE
-                } else {
-                    isLarge = true
-                    Sound.BLOCK_BEACON_ACTIVATE
-                }, 2f, .7f
-            )
-            player!!.world.spawnParticle(Particle.WITCH, player!!.location.add(0.0, player!!.height / 2, 0.0),
-                300, .4, .7, .4, 1.0, null, true)
-            actionCooldown = MAX_COOLDOWN
-            updateAttributes()
-
-            Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
-                val boundingBox = player!!.boundingBox
-
-                for (x in floor(boundingBox.minX).toInt()..ceil(boundingBox.maxX).toInt())
-                    for (y in floor(boundingBox.minY).toInt()..ceil(boundingBox.maxY).toInt())
-                        for (z in floor(boundingBox.minZ).toInt()..ceil(boundingBox.maxZ).toInt()) {
-                            val shift = boundingBox.clone().shift(Vector(-x, -y, -z))
-                            if (DeveloperMode) player!!.sendMessage(shift.toString())
-                            val collisionShape = player!!.world.getBlockAt(x, y, z).collisionShape
-                            if (DeveloperMode) player!!.sendMessage(collisionShape.boundingBoxes.toString())
-                            if (collisionShape.overlaps(shift)) {
-                                if (DeveloperMode) player!!.sendMessage("ye")
-                                isLarge = !isLarge
-                                updateAttributes()
-                                player!!.teleport(location)
-                                return@Runnable
-                            }
-                        }
-            }, 2L)
-        }
     }
 
     override fun onTick(event: ServerTickEndEvent) {
@@ -150,8 +117,41 @@ class Pekka(nickname: String) : AbilitiesCore(nickname) {
         Bukkit.getScheduler().runTask(Warvilore.instance, Runnable { updateAttributes() })
     }
 
+    override fun onDamage(event: EntityDamageEvent) {
+        when (event.damageSource.damageType) {
+            DamageType.MAGIC, DamageType.INDIRECT_MAGIC, DamageType.WITHER, DamageType.DROWN -> event.isCancelled =
+                true
+        }
+    }
+
+    override fun onPotionGain(event: EntityPotionEffectEvent) {
+        if (event.action == EntityPotionEffectEvent.Action.ADDED) {
+            when (event.cause) {
+                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH -> when (event.newEffect?.type) {
+                    PotionEffectType.WITHER, PotionEffectType.POISON, PotionEffectType.REGENERATION,
+                    PotionEffectType.INSTANT_HEALTH, PotionEffectType.INSTANT_DAMAGE,
+                    PotionEffectType.HUNGER, PotionEffectType.NAUSEA
+                        -> event.isCancelled = true
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    override fun onHeal(event: EntityRegainHealthEvent) {
+        when (event.regainReason) {
+            EntityRegainHealthEvent.RegainReason.MAGIC, EntityRegainHealthEvent.RegainReason.MAGIC_REGEN -> event.isCancelled =
+                true
+
+            else -> {}
+        }
+    }
+
     override fun getAboutMe(): List<Component> = listOf(
-        text("- Когда ты на шифте, в присяди, смотришь в низ, и нажимаешь правую кнопку мыши, ты переключаешься между большим и мелким состоянием.").color(NamedTextColor.GOLD),
+        text("- Когда ты прописываешь /abilka toggle, ты переключаешься между большим и мелким состоянием.").color(
+            NamedTextColor.GOLD
+        ),
         text(""),
         text("  - Когда ты мелкий:").color(NamedTextColor.GOLD),
         text("    - Ты быстрее.").color(NamedTextColor.GREEN),
@@ -170,5 +170,61 @@ class Pekka(nickname: String) : AbilitiesCore(nickname) {
         text("    - Но ты большой.").color(NamedTextColor.RED),
         text("    - Атака еще медленней.").color(NamedTextColor.RED),
         text("    - Ты медленный.").color(NamedTextColor.RED),
+        text(""),
+        text("Ты ходячие доспехи, поэтому:").color(NamedTextColor.GOLD),
+        text("  - Еще ты не восприимчив к типам урона органических существ (отравление, моментальный урон и иссушение).").color(
+            NamedTextColor.GREEN
+        ),
+        text("  - Еще ты не восприимчив к типам регенерации органических существ (регенерация и исцеление).").color(
+            NamedTextColor.RED
+        ),
     )
+
+    override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
+        if (actionCooldown > 0) return
+        val location = player!!.location
+        player!!.world.playSound(
+            player!!.location,
+            if (isLarge) {
+                isLarge = false
+                Sound.BLOCK_BEACON_DEACTIVATE
+            } else {
+                isLarge = true
+                Sound.BLOCK_BEACON_ACTIVATE
+            }, 2f, .7f
+        )
+        player!!.world.spawnParticle(
+            Particle.WITCH, player!!.location.add(0.0, player!!.height / 2, 0.0),
+            300, .4, .7, .4, 1.0, null, true
+        )
+        actionCooldown = MAX_COOLDOWN
+        updateAttributes()
+
+        Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
+            val boundingBox = player!!.boundingBox
+
+            for (x in floor(boundingBox.minX).toInt()..ceil(boundingBox.maxX).toInt())
+                for (y in floor(boundingBox.minY).toInt()..ceil(boundingBox.maxY).toInt())
+                    for (z in floor(boundingBox.minZ).toInt()..ceil(boundingBox.maxZ).toInt()) {
+                        val shift = boundingBox.clone().shift(Vector(-x, -y, -z))
+                        if (DeveloperMode) player!!.sendMessage(shift.toString())
+                        val collisionShape = player!!.world.getBlockAt(x, y, z).collisionShape
+                        if (DeveloperMode) player!!.sendMessage(collisionShape.boundingBoxes.toString())
+                        if (collisionShape.overlaps(shift)) {
+                            if (DeveloperMode) player!!.sendMessage("ye")
+                            isLarge = !isLarge
+                            updateAttributes()
+                            player!!.teleport(location)
+                            return@Runnable
+                        }
+                    }
+        }, 2L)
+    }
+
+    override fun completeCommand(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): List<String>? = if (args.size == 1) listOf("toggle") else listOf()
 }

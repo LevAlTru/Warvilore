@@ -24,6 +24,12 @@
 				"custom_model_data": 4
 			},
 			"model": "kreatevtommy:item/the_red_ribbons"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 5
+			},
+			"model": "levaltru:item/raw_briquette"
 		}
 	]
 }

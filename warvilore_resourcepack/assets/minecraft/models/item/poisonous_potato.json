@@ -51,6 +51,12 @@
 				"custom_model_data": 8
 			},
 			"model": "levaltru:item/beer/tankard_with_ominous_soul_3"
+		},
+		{
+			"predicate": {
+				"custom_model_data": 9
+			},
+			"model": "levaltru:item/cooked_briquette"
 		}
 	]
 }

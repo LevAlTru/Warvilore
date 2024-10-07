@@ -103,8 +103,8 @@ class NetherEmitter(val x: Int, val z: Int, val world: World, var maxPower: Int,
                 50.0,
                 FluidCollisionMode.NEVER,
                 true
-            ) { it.type == Material.BEDROCK }?.hitBlock?.let { block ->
-                NetherInfector(block.location.add(0.0, 1.0, 0.0), Vector(0, 1, 0), LevsUtils.roundToRandomInt(random.nextDouble() * maxPower))
+            ) { it.type == Material.BEDROCK }?.hitBlock?.let {
+                NetherInfector(it.location.add(0.0, 1.0, 0.0), Vector(0, 1, 0), LevsUtils.roundToRandomInt(random.nextDouble(.5, 1.0) * maxPower))
             }
         }
 

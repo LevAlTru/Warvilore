@@ -1,21 +1,20 @@
 package uwu.levaltru.warvilore.tickables
 
-import org.bukkit.Axis
-import org.bukkit.Location
+import org.bukkit.*
 import org.bukkit.Material.*
-import org.bukkit.Particle
-import org.bukkit.Sound
 import org.bukkit.block.Block
 import org.bukkit.block.data.*
+import org.bukkit.block.data.type.CopperBulb
 import org.bukkit.block.data.type.Door
 import org.bukkit.block.data.type.Gate
 import org.bukkit.block.data.type.Lantern
-import org.bukkit.block.data.type.Sign
 import org.bukkit.block.data.type.Slab
 import org.bukkit.block.data.type.Stairs
 import org.bukkit.block.data.type.Switch
 import org.bukkit.block.data.type.TrapDoor
-import org.bukkit.material.Attachable
+import org.bukkit.damage.DamageSource
+import org.bukkit.damage.DamageType
+import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
@@ -25,66 +24,72 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils
 import kotlin.random.Random
 
 private val random by lazy { Random }
-private const val MAX_TRIES = 8
+private const val MAX_TRIES = 10
 
 class NetherInfector(location: Location, direction: Vector, var energy: Int) : Tickable() {
 
     val location = location.toCenterLocation()
-    var direction = direction.normalize().multiply(.15)
+    var direction = direction.normalize().multiply(.20)
 
     override fun tick(): Boolean {
 
         if (age++ % 2 != 0) return false
-        if (random.nextInt(10 * 20) == 0) direction = LevsUtils.getRandomNormalizedVector().multiply(.15)
+        if (random.nextInt(10 * 20) == 0) direction = LevsUtils.getRandomNormalizedVector().multiply(.20)
 
         location.world.spawnParticle(Particle.CRIMSON_SPORE, location, 1, .2, .2, .2, .2)
+
+        for (player in playerWhiWillSeBetter) {
+            if (player.location.distanceSquared(location) < 128.0 * 128.0)
+                player.spawnParticle(Particle.CRIMSON_SPORE, location, 1, .0, .0, .0, .0, null, true)
+        }
+
+        val damageSource = DamageSource.builder(DamageType.WITHER).build()
         for (livingEntity in location.getNearbyLivingEntities(1.5)) {
-            livingEntity.damage(7.5)
+            if ((livingEntity as? Player)?.gameMode == GameMode.CREATIVE || (livingEntity as? Player)?.gameMode == GameMode.SPECTATOR) continue
+            livingEntity.damage(20.0, damageSource)
             livingEntity.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 115, 4, false, true, true))
         }
 
-        if (location.block.type.isAir) energy -= 100
+        if (location.block.type.isAir) energy -= 300
+        if (amethystFun(location)) energy -= 250
 
-        var moveVector = Vector()
-        for (tries in 1..MAX_TRIES) {
-            moveVector = LevsUtils.getRandomNormalizedVector().add(direction).toBlockVector()
+        a@ for (tries in 1..MAX_TRIES) {
+            val moveVector = LevsUtils.getRandomNormalizedVector().add(direction).toBlockVector()
 
             val add = location.clone().add(moveVector)
             val type = add.block.type
 
-            if (type.isAir) continue
-            for (offset in listOf(
-                Vector(0, 0, 1),
-                Vector(0, 0, -1),
-                Vector(0, 1, 0),
-                Vector(0, -1, 0),
-                Vector(1, 0, 0),
-                Vector(-1, 0, 0),
-            )) {
-                if ((add.clone().add(offset).block.type.isAir) || tries == 1) {
-                    if (changeBlockWithEffects(location.add(moveVector))) energy -= 5
-                    break
+            if (type.isAir) {
+                if (random.nextInt(200) == 0) add.block.type = OBSIDIAN
+                continue
+            }
+            for (offset in LevsUtils.neighboringBlocksLocs()) {
+                if (add.clone().add(offset).block.type.isOccluding || tries == 1) {
+                    if (changeBlockWithEffects(location.add(moveVector))) {
+                        energy -= 15
+                        if (random.nextInt(20 * 3) == 0) {
+                            energy -= energy / 3
+                            NetherInfector(
+                                location, moveVector.clone().add(
+                                    Vector(
+                                        random.nextDouble(-.05, .05),
+                                        random.nextDouble(-.05, .05),
+                                        random.nextDouble(-.05, .05)
+                                    )
+                                ), energy
+                            )
+                        }
+                        if (random.nextInt(10) == 0) {
+                            NetherInfector(location, LevsUtils.getRandomNormalizedVector(), energy / 10)
+                        }
+                    }
+                    break@a
                 }
             }
         }
 
-        if (random.nextInt(20 * 4) == 0) {
-            energy -= energy / 3
-            NetherInfector(
-                location, moveVector.clone().add(
-                    Vector(
-                        random.nextDouble(-.05, .05),
-                        random.nextDouble(-.05, .05),
-                        random.nextDouble(-.05, .05)
-                    )
-                ), energy
-            )
-        }
-        if (random.nextInt(10) == 0) {
-            NetherInfector(location, LevsUtils.getRandomNormalizedVector(), energy / 10)
-        }
-
-        return energy-- <= 0 || location.y <= location.world.minHeight + 1
+        if (location.y <= location.world.minHeight + 1) location.add(0.0, 2.0, 0.0)
+        return energy-- <= 0
     }
 
     companion object {
@@ -101,6 +106,15 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
             val b = location.block
             val blockData = b.blockData
             when (b.type) {
+                RED_CONCRETE, ORANGE_CONCRETE, YELLOW_CONCRETE, GREEN_CONCRETE, LIME_CONCRETE, BLUE_CONCRETE, CYAN_CONCRETE, LIGHT_BLUE_CONCRETE,
+                BROWN_CONCRETE, BLACK_CONCRETE, GRAY_CONCRETE, LIGHT_GRAY_CONCRETE, WHITE_CONCRETE, PURPLE_CONCRETE, MAGENTA_CONCRETE, PINK_CONCRETE,
+
+                RED_TERRACOTTA, ORANGE_TERRACOTTA, YELLOW_TERRACOTTA, GREEN_TERRACOTTA, LIME_TERRACOTTA, BLUE_TERRACOTTA, CYAN_TERRACOTTA, LIGHT_BLUE_TERRACOTTA,
+                BROWN_TERRACOTTA, BLACK_TERRACOTTA, GRAY_TERRACOTTA, LIGHT_GRAY_TERRACOTTA, WHITE_TERRACOTTA, PURPLE_TERRACOTTA, MAGENTA_TERRACOTTA, PINK_TERRACOTTA,
+
+                RED_GLAZED_TERRACOTTA, ORANGE_GLAZED_TERRACOTTA, YELLOW_GLAZED_TERRACOTTA, GREEN_GLAZED_TERRACOTTA, LIME_GLAZED_TERRACOTTA, BLUE_GLAZED_TERRACOTTA, CYAN_GLAZED_TERRACOTTA, LIGHT_BLUE_GLAZED_TERRACOTTA,
+                BROWN_GLAZED_TERRACOTTA, BLACK_GLAZED_TERRACOTTA, GRAY_GLAZED_TERRACOTTA, LIGHT_GRAY_GLAZED_TERRACOTTA, WHITE_GLAZED_TERRACOTTA, PURPLE_GLAZED_TERRACOTTA, MAGENTA_GLAZED_TERRACOTTA, PINK_GLAZED_TERRACOTTA,
+
                 STONE_SWORD, INFESTED_STONE, GRANITE, DIORITE, ANDESITE, STONE,
                     -> b.type = SMOOTH_BASALT
 
@@ -109,7 +123,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 MUD_BRICKS, PACKED_MUD,
                     -> b.type = BLACKSTONE
 
-                SANDSTONE_SLAB, SMOOTH_SANDSTONE_SLAB, CUT_SANDSTONE_SLAB, BRICK_SLAB -> {
+                SANDSTONE_SLAB, SMOOTH_SANDSTONE_SLAB, CUT_SANDSTONE_SLAB, BRICK_SLAB, DEEPSLATE_TILE_SLAB -> {
                     b.type = NETHER_BRICK_SLAB
                     applySlabbing(b, blockData)
                 }
@@ -132,7 +146,6 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 SMOOTH_STONE,
                     -> b.type = CHISELED_POLISHED_BLACKSTONE
 
-                MUD_BRICKS,
                 DEEPSLATE_BRICKS,
                 CRACKED_DEEPSLATE_BRICKS,
                 TUFF_BRICKS,
@@ -203,10 +216,19 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     }
                 }
 
+                HAY_BLOCK, SCAFFOLDING,
+                BRAIN_CORAL_BLOCK, BUBBLE_CORAL_BLOCK, FIRE_CORAL_BLOCK, TUBE_CORAL_BLOCK, HORN_CORAL_BLOCK,
+                DEAD_BRAIN_CORAL_BLOCK, DEAD_BUBBLE_CORAL_BLOCK, DEAD_FIRE_CORAL_BLOCK, DEAD_TUBE_CORAL_BLOCK, DEAD_HORN_CORAL_BLOCK,
+                RED_WOOL, WHITE_WOOL, BLUE_WOOL, YELLOW_WOOL, PURPLE_WOOL, PINK_WOOL, ORANGE_WOOL, MAGENTA_WOOL, LIME_WOOL, LIGHT_GRAY_WOOL, LIGHT_BLUE_WOOL, GREEN_WOOL, GRAY_WOOL, CYAN_WOOL, BROWN_WOOL, BLACK_WOOL,
                 MUD, GRAVEL, SUSPICIOUS_GRAVEL, RED_SAND, COARSE_DIRT, CLAY, MUDDY_MANGROVE_ROOTS,
-                SCULK, SCULK_SENSOR, SCULK_CATALYST, SCULK_SHRIEKER
+                SCULK, SCULK_SENSOR, CALIBRATED_SCULK_SENSOR, SCULK_CATALYST, SCULK_SHRIEKER,
                     -> b.type = SOUL_SOIL
 
+
+                RED_STAINED_GLASS, ORANGE_STAINED_GLASS, YELLOW_STAINED_GLASS, GREEN_STAINED_GLASS, LIME_STAINED_GLASS, BLUE_STAINED_GLASS, CYAN_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS,
+                BROWN_STAINED_GLASS, BLACK_STAINED_GLASS, GRAY_STAINED_GLASS, LIGHT_GRAY_STAINED_GLASS, WHITE_STAINED_GLASS, PURPLE_STAINED_GLASS, MAGENTA_STAINED_GLASS, PINK_STAINED_GLASS, GLASS,
+                RED_STAINED_GLASS_PANE, ORANGE_STAINED_GLASS_PANE, YELLOW_STAINED_GLASS_PANE, GREEN_STAINED_GLASS_PANE, LIME_STAINED_GLASS_PANE, BLUE_STAINED_GLASS_PANE, CYAN_STAINED_GLASS_PANE, LIGHT_BLUE_STAINED_GLASS_PANE,
+                BROWN_STAINED_GLASS_PANE, BLACK_STAINED_GLASS_PANE, GRAY_STAINED_GLASS_PANE, LIGHT_GRAY_STAINED_GLASS_PANE, WHITE_STAINED_GLASS_PANE, PURPLE_STAINED_GLASS_PANE, MAGENTA_STAINED_GLASS_PANE, PINK_STAINED_GLASS_PANE, GLASS_PANE,
                 SAND, SUSPICIOUS_SAND, DIRT_PATH,
                     -> b.type = SOUL_SAND
 
@@ -273,6 +295,11 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     b.blockData = (b.blockData as Powerable).apply { isPowered = (blockData as Powerable).isPowered }
                 }
 
+                STONE_PRESSURE_PLATE -> {
+                    b.type = POLISHED_BLACKSTONE_PRESSURE_PLATE
+                    b.blockData = (b.blockData as Powerable).apply { isPowered = (blockData as Powerable).isPowered }
+                }
+
                 OAK_STAIRS, JUNGLE_STAIRS, ACACIA_STAIRS, DARK_OAK_STAIRS, MANGROVE_STAIRS -> {
                     b.type = CRIMSON_STAIRS
                     applyStairring(b, blockData)
@@ -301,57 +328,21 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     -> b.blockData = b.state.apply { type = WARPED_HANGING_SIGN }.blockData
 
                 OAK_DOOR, JUNGLE_DOOR, ACACIA_DOOR, DARK_OAK_DOOR, MANGROVE_DOOR -> {
-                    applyToSameBlockAboveAndBelow(b.location, {
-                        it.setType(CRIMSON_DOOR, false)
-                        it.blockData = (it.blockData as Door).apply {
-                            (blockData as Door).let { it2 ->
-                                this.isOpen = it2.isOpen
-                                this.facing = it2.facing
-                                this.isPowered = it2.isPowered
-                                this.hinge = it2.hinge
-                                this.half = it2.half
-                            }
-                        }
-                    })
+                    applyDooring(b, blockData, CRIMSON_DOOR)
                 }
 
                 BIRCH_DOOR, CHERRY_DOOR, SPRUCE_DOOR, BAMBOO_DOOR -> {
-                    applyToSameBlockAboveAndBelow(b.location, {
-                        it.setType(WARPED_DOOR, false)
-                        it.blockData = (it.blockData as Door).apply {
-                            (blockData as Door).let { it2 ->
-                                this.isOpen = it2.isOpen
-                                this.facing = it2.facing
-                                this.isPowered = it2.isPowered
-                                this.hinge = it2.hinge
-                                this.half = it2.half
-                            }
-                        }
-                    })
+                    applyDooring(b, blockData, WARPED_DOOR)
                 }
 
                 OAK_TRAPDOOR, JUNGLE_TRAPDOOR, ACACIA_TRAPDOOR, DARK_OAK_TRAPDOOR, MANGROVE_TRAPDOOR -> {
                     b.type = CRIMSON_TRAPDOOR
-                    b.blockData = (b.blockData as TrapDoor).apply {
-                        (blockData as TrapDoor).let { it2 ->
-                            this.isOpen = it2.isOpen
-                            this.facing = it2.facing
-                            this.isPowered = it2.isPowered
-                            this.half = it2.half
-                        }
-                    }
+                    applyTrapdooring(b, blockData)
                 }
 
                 BIRCH_TRAPDOOR, CHERRY_TRAPDOOR, SPRUCE_TRAPDOOR, BAMBOO_TRAPDOOR -> {
                     b.type = WARPED_TRAPDOOR
-                    b.blockData = (b.blockData as TrapDoor).apply {
-                        (blockData as TrapDoor).let { it2 ->
-                            this.isOpen = it2.isOpen
-                            this.facing = it2.facing
-                            this.isPowered = it2.isPowered
-                            this.half = it2.half
-                        }
-                    }
+                    applyTrapdooring(b, blockData)
                 }
 
                 OAK_SLAB, JUNGLE_SLAB, ACACIA_SLAB, DARK_OAK_SLAB, MANGROVE_SLAB -> {
@@ -460,6 +451,8 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     applyOrientation(b, blockData)
                 }
 
+                RED_CONCRETE_POWDER, ORANGE_CONCRETE_POWDER, YELLOW_CONCRETE_POWDER, GREEN_CONCRETE_POWDER, LIME_CONCRETE_POWDER, BLUE_CONCRETE_POWDER, CYAN_CONCRETE_POWDER, LIGHT_BLUE_CONCRETE_POWDER,
+                BROWN_CONCRETE_POWDER, BLACK_CONCRETE_POWDER, GRAY_CONCRETE_POWDER, LIGHT_GRAY_CONCRETE_POWDER, WHITE_CONCRETE_POWDER, PURPLE_CONCRETE_POWDER, MAGENTA_CONCRETE_POWDER, PINK_CONCRETE_POWDER,
                 BAMBOO_PLANKS, BAMBOO_MOSAIC -> {
                     b.type = BASALT
                     b.blockData =
@@ -481,7 +474,8 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 WET_SPONGE -> b.type = SPONGE
 
                 OBSIDIAN -> b.type = CRYING_OBSIDIAN
-                CRYING_OBSIDIAN -> {
+                CRYING_OBSIDIAN -> b.type = MAGMA_BLOCK
+                MAGMA_BLOCK -> {
 
                     val things = listOf(
                         Vector3i(0, 0, 1),
@@ -495,7 +489,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     for (thing in things) {
                         val block = location.clone().add(Vector(thing.x, thing.y, thing.z)).block
                         when (block.type) {
-                            WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP,
+                            WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP
                                 -> block.type = OBSIDIAN
 
                             else -> {
@@ -580,11 +574,123 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 //                RED_MUSHROOM -> b.type = CRIMSON_FUNGUS
 //                BROWN_MUSHROOM -> b.type = WARPED_FUNGUS
 
-                WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP,
+                WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP, LADDER
                     -> b.type = OBSIDIAN
 
                 VINE -> applyToSameBlockAboveAndBelow(b.location, { it.setType(WARPED_FENCE, false) })
 
+                COPPER_BLOCK, WAXED_COPPER_BLOCK -> b.type = EXPOSED_COPPER
+                EXPOSED_COPPER, WAXED_EXPOSED_COPPER -> b.type = WEATHERED_COPPER
+                WEATHERED_COPPER, WAXED_WEATHERED_COPPER, WAXED_OXIDIZED_COPPER -> b.type = OXIDIZED_COPPER
+
+                COPPER_BULB, WAXED_COPPER_BULB -> {
+                    b.type = EXPOSED_COPPER_BULB
+                    b.blockData = (b.blockData as CopperBulb).apply {
+                        isPowered = (blockData as CopperBulb).isPowered
+                        isLit = blockData.isLit
+                    }
+                }
+
+                EXPOSED_COPPER_BULB, WAXED_EXPOSED_COPPER_BULB -> {
+                    b.type = WEATHERED_COPPER_BULB
+                    b.blockData = (b.blockData as CopperBulb).apply {
+                        isPowered = (blockData as CopperBulb).isPowered
+                        isLit = blockData.isLit
+                    }
+                }
+
+                WEATHERED_COPPER_BULB, WAXED_WEATHERED_COPPER_BULB, WAXED_OXIDIZED_COPPER_BULB -> {
+                    b.type = OXIDIZED_COPPER_BULB
+                    b.blockData = (b.blockData as CopperBulb).apply {
+                        isPowered = (blockData as CopperBulb).isPowered
+                        isLit = blockData.isLit
+                    }
+                }
+
+                COPPER_DOOR, WAXED_COPPER_DOOR -> applyDooring(b, blockData, EXPOSED_COPPER_DOOR)
+
+                EXPOSED_COPPER_DOOR, WAXED_EXPOSED_COPPER_DOOR -> applyDooring(b, blockData, WEATHERED_COPPER_DOOR)
+
+                WEATHERED_COPPER_DOOR, WAXED_WEATHERED_COPPER_DOOR, WAXED_OXIDIZED_COPPER_DOOR -> applyDooring(
+                    b,
+                    blockData,
+                    OXIDIZED_COPPER_DOOR
+                )
+
+
+                COPPER_TRAPDOOR, WAXED_COPPER_TRAPDOOR -> {
+                    b.type = EXPOSED_COPPER_TRAPDOOR
+                    applyTrapdooring(b, blockData)
+                }
+
+                EXPOSED_COPPER_TRAPDOOR, WAXED_EXPOSED_COPPER_TRAPDOOR -> {
+                    b.type = WEATHERED_COPPER_TRAPDOOR
+                    applyTrapdooring(b, blockData)
+                }
+
+                WEATHERED_COPPER_TRAPDOOR, WAXED_WEATHERED_COPPER_TRAPDOOR, WAXED_OXIDIZED_COPPER_TRAPDOOR -> {
+                    b.type = OXIDIZED_COPPER_TRAPDOOR
+                    applyTrapdooring(b, blockData)
+                }
+
+                CUT_COPPER_SLAB, WAXED_CUT_COPPER_SLAB -> {
+                    b.type = EXPOSED_CUT_COPPER_SLAB
+                    applySlabbing(b, blockData)
+                }
+
+                EXPOSED_CUT_COPPER_SLAB, WAXED_EXPOSED_CUT_COPPER_SLAB -> {
+                    b.type = WEATHERED_CUT_COPPER_SLAB
+                    applySlabbing(b, blockData)
+                }
+
+                WEATHERED_CUT_COPPER_SLAB, WAXED_WEATHERED_CUT_COPPER_SLAB, WAXED_OXIDIZED_CUT_COPPER_SLAB -> {
+                    b.type = OXIDIZED_CUT_COPPER_SLAB
+                    applySlabbing(b, blockData)
+                }
+
+                CUT_COPPER_STAIRS, WAXED_CUT_COPPER_STAIRS -> {
+                    b.type = EXPOSED_CUT_COPPER_STAIRS
+                    applyStairring(b, blockData)
+                }
+
+                EXPOSED_CUT_COPPER_STAIRS, WAXED_EXPOSED_CUT_COPPER_STAIRS -> {
+                    b.type = WEATHERED_CUT_COPPER_STAIRS
+                    applyStairring(b, blockData)
+                }
+
+                WEATHERED_CUT_COPPER_STAIRS, WAXED_WEATHERED_CUT_COPPER_STAIRS, WAXED_OXIDIZED_CUT_COPPER_STAIRS -> {
+                    b.type = OXIDIZED_CUT_COPPER_STAIRS
+                    applyStairring(b, blockData)
+                }
+
+                CUT_COPPER, WAXED_CUT_COPPER -> b.type = EXPOSED_CUT_COPPER
+                EXPOSED_CUT_COPPER, WAXED_EXPOSED_CUT_COPPER -> b.type = WEATHERED_CUT_COPPER
+                WEATHERED_CUT_COPPER, WAXED_WEATHERED_CUT_COPPER, WAXED_OXIDIZED_CUT_COPPER -> b.type =
+                    OXIDIZED_CUT_COPPER
+
+                COPPER_GRATE, WAXED_COPPER_GRATE -> b.type = EXPOSED_COPPER_GRATE
+                EXPOSED_COPPER_GRATE, WAXED_EXPOSED_COPPER_GRATE -> b.type = WEATHERED_COPPER_GRATE
+                WEATHERED_COPPER_GRATE, WAXED_WEATHERED_COPPER_GRATE, WAXED_OXIDIZED_COPPER_GRATE -> b.type =
+                    OXIDIZED_COPPER_GRATE
+
+                CHISELED_COPPER, WAXED_CHISELED_COPPER -> b.type = EXPOSED_CHISELED_COPPER
+                EXPOSED_CHISELED_COPPER, WAXED_EXPOSED_CHISELED_COPPER -> b.type = WEATHERED_CHISELED_COPPER
+                WEATHERED_CHISELED_COPPER, WAXED_WEATHERED_CHISELED_COPPER, WAXED_OXIDIZED_CHISELED_COPPER -> b.type =
+                    OXIDIZED_CHISELED_COPPER
+
+                TNT -> {
+                    b.type = AIR
+                    b.world.createExplosion(b.location.toCenterLocation(), 6f, true)
+                }
+
+
+                BRAIN_CORAL, BUBBLE_CORAL, FIRE_CORAL, TUBE_CORAL, HORN_CORAL,
+                BRAIN_CORAL_FAN, BUBBLE_CORAL_FAN, FIRE_CORAL_FAN, TUBE_CORAL_FAN, HORN_CORAL_FAN,
+                BRAIN_CORAL_WALL_FAN, BUBBLE_CORAL_WALL_FAN, FIRE_CORAL_WALL_FAN, TUBE_CORAL_WALL_FAN, HORN_CORAL_WALL_FAN,
+
+                DEAD_BRAIN_CORAL, DEAD_BUBBLE_CORAL, DEAD_FIRE_CORAL, DEAD_TUBE_CORAL, DEAD_HORN_CORAL,
+                DEAD_BRAIN_CORAL_FAN, DEAD_BUBBLE_CORAL_FAN, DEAD_FIRE_CORAL_FAN, DEAD_TUBE_CORAL_FAN, DEAD_HORN_CORAL_FAN,
+                DEAD_BRAIN_CORAL_WALL_FAN, DEAD_BUBBLE_CORAL_WALL_FAN, DEAD_FIRE_CORAL_WALL_FAN, DEAD_TUBE_CORAL_WALL_FAN, DEAD_HORN_CORAL_WALL_FAN,
 
                 SCULK_VEIN,
 
@@ -593,8 +699,6 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 ICE, SNOW, SNOW_BLOCK, POWDER_SNOW,
 
                 COBWEB, TALL_GRASS, SHORT_GRASS, DEAD_BUSH, LARGE_FERN, FERN, PEONY, ROSE_BUSH, LILAC, SUNFLOWER,
-
-                RED_WOOL, WHITE_WOOL, BLUE_WOOL, YELLOW_WOOL, PURPLE_WOOL, PINK_WOOL, ORANGE_WOOL, MAGENTA_WOOL, LIME_WOOL, LIGHT_GRAY_WOOL, LIGHT_BLUE_WOOL, GREEN_WOOL, GRAY_WOOL, CYAN_WOOL, BROWN_WOOL, BLACK_WOOL,
 
                 RED_CARPET, WHITE_CARPET, BLUE_CARPET, YELLOW_CARPET, PURPLE_CARPET, PINK_CARPET, ORANGE_CARPET, MAGENTA_CARPET,
                 LIME_CARPET, LIGHT_GRAY_CARPET, LIGHT_BLUE_CARPET, GREEN_CARPET, GRAY_CARPET, CYAN_CARPET, BROWN_CARPET, BLACK_CARPET,
@@ -605,6 +709,32 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
             if ((b.blockData as? Waterlogged)?.isWaterlogged == true) b.blockData =
                 (b.blockData as Waterlogged).apply { isWaterlogged = false }
             return bool
+        }
+
+        private fun applyDooring(b: Block, blockData: BlockData, material: Material) {
+            applyToSameBlockAboveAndBelow(b.location, {
+                it.setType(material, false)
+                it.blockData = (it.blockData as Door).apply {
+                    (blockData as Door).let { it2 ->
+                        this.isOpen = it2.isOpen
+                        this.facing = it2.facing
+                        this.isPowered = it2.isPowered
+                        this.hinge = it2.hinge
+                        this.half = it2.half
+                    }
+                }
+            })
+        }
+
+        private fun applyTrapdooring(b: Block, blockData: BlockData) {
+            b.blockData = (b.blockData as TrapDoor).apply {
+                (blockData as TrapDoor).let { it2 ->
+                    this.isOpen = it2.isOpen
+                    this.facing = it2.facing
+                    this.isPowered = it2.isPowered
+                    this.half = it2.half
+                }
+            }
         }
 
         private fun applyOrientation(b: Block, blockData: BlockData) {
@@ -639,5 +769,26 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 loci.add(0.0, -1.0, 0.0)
             }
         }
+
+        private fun amethystFun(location: Location): Boolean {
+            when (location.block.type) {
+                AMETHYST_BLOCK, AMETHYST_CLUSTER, BUDDING_AMETHYST, SMALL_AMETHYST_BUD, MEDIUM_AMETHYST_BUD, LARGE_AMETHYST_BUD -> {
+                    val centerLoc = location.toCenterLocation()
+                    val world = location.world
+                    if (random.nextInt(250) == 0) {
+                        location.block.type = OBSIDIAN
+                        world.playSound(centerLoc, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, .5f)
+                        return false
+                    } else {
+                        world.spawnParticle(Particle.END_ROD, centerLoc, 7, .2, .2, .2, .05)
+                        world.playSound(centerLoc, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, .5f)
+                    }
+                    return true
+                }
+                else -> return false
+            }
+        }
+
+        val playerWhiWillSeBetter = mutableListOf<Player>()
     }
 }

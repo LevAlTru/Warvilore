@@ -30,6 +30,7 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
 import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
+import uwu.levaltru.warvilore.abilities.abilities.TheBringer
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
@@ -58,6 +59,10 @@ class CustomEvents : Listener {
         Zone.getInstance().tick()
         RemainsOfTheDeads.Tick()
         NetherEmitter.Tick()
+        if (event.tickNumber % 200 == 0) {
+            NetherInfector.playerWhiWillSeBetter.clear()
+            NetherInfector.playerWhiWillSeBetter.addAll(Bukkit.getOnlinePlayers().filter { it.getAbilities() is TheBringer })
+        }
         for (player in Bukkit.getOnlinePlayers()) {
             if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {
                 if (
@@ -404,6 +409,11 @@ class CustomEvents : Listener {
             (abilities is EvilAurable),
             player.name
         )
+    }
+
+    @EventHandler
+    fun onPotionGain(event: EntityPotionEffectEvent) {
+        (event.entity as? Player)?.getAbilities()?.onPotionGain(event)
     }
 
     @EventHandler

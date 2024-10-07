@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
+import org.bukkit.Material.*
 import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
@@ -329,6 +330,31 @@ object LevsUtils {
 
     fun addInfiniteSlowfall(it: Player) {
         it.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, 50, 1, true, false, true))
+    }
+
+    fun neighboringBlocksLocs() = listOf(
+        Vector(0, 0, 1),
+        Vector(0, 0, -1),
+        Vector(0, 1, 0),
+        Vector(0, -1, 0),
+        Vector(1, 0, 0),
+        Vector(-1, 0, 0),
+    )
+
+    fun isGlass(material: Material?): Boolean {
+        return when (material) {
+            GLASS -> true
+            else -> isColoredGlass(material)
+        }
+    }
+
+    fun isColoredGlass(material: Material?): Boolean {
+        return when (material) {
+            RED_STAINED_GLASS, ORANGE_STAINED_GLASS, YELLOW_STAINED_GLASS, GREEN_STAINED_GLASS, LIME_STAINED_GLASS, BLUE_STAINED_GLASS, CYAN_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS,
+            BROWN_STAINED_GLASS, BLACK_STAINED_GLASS, GRAY_STAINED_GLASS, LIGHT_GRAY_STAINED_GLASS, WHITE_STAINED_GLASS, PURPLE_STAINED_GLASS, MAGENTA_STAINED_GLASS, PINK_STAINED_GLASS
+                -> true
+            else -> false
+        }
     }
 
     object Deads {

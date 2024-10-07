@@ -11,6 +11,7 @@ import org.bukkit.damage.DamageType
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -181,6 +182,20 @@ class WalkingComputer(string: String) : AbilitiesCore(string), CantLeaveSouls {
         }
     }
 
+    override fun onPotionGain(event: EntityPotionEffectEvent) {
+        if (event.action == EntityPotionEffectEvent.Action.ADDED) {
+            when (event.cause) {
+                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH -> when (event.newEffect?.type) {
+                    PotionEffectType.WITHER, PotionEffectType.POISON, PotionEffectType.REGENERATION,
+                    PotionEffectType.INSTANT_HEALTH, PotionEffectType.INSTANT_DAMAGE,
+                    PotionEffectType.HUNGER, PotionEffectType.NAUSEA
+                        -> event.isCancelled = true
+                }
+                else -> {}
+            }
+        }
+    }
+
     override fun onJoin(event: PlayerJoinEvent) {
         loadSoftware()
     }
@@ -311,7 +326,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string), CantLeaveSouls {
         text("Твои умения:").color(NamedTextColor.GREEN),
         text(""),
         text("- Ты компьютер. У тебя есть возможность использовать различный софт через команду /abilka.").color(NamedTextColor.GREEN),
-        text("  - Еще ты не восприимчив к типам урона органических существ (отравление, моментальный урон и иссушение)."),
+        text("  - Еще ты не восприимчив к типам урона органических существ (отравление, моментальный урон и иссушение).").color(NamedTextColor.GREEN),
         text(""),
         text("- Когда по тебе бьет молния ты перезаряжаешься. У тебя появляются дополнительные эффекты на 5 минут.").color(NamedTextColor.GREEN),
         text(""),
