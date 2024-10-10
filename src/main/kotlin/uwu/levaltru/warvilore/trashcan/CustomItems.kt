@@ -38,6 +38,7 @@ enum class CustomItems(
                 it,
                 DRANK_SOUL_BEER.getAsItem(ItemStack(Material.AMETHYST_SHARD).itemMeta.also { it2 ->
                     it2.setSoulInTheBottle(it.getSoulInTheBottle())
+                    it2.setFood(it2.food.apply { effects = it.food.effects })
                 })
             )
         },
@@ -51,6 +52,7 @@ enum class CustomItems(
                 it,
                 LIT_SOUL_BEER.getAsItem(ItemStack(Material.AMETHYST_SHARD).itemMeta.also { it2 ->
                     it2.setSoulInTheBottle(it.getSoulInTheBottle())
+                    it2.setFood(it2.food.apply { effects = it.food.effects })
                 })
             )
         }, "Пиво Из Душы", ItemRarity.UNCOMMON
@@ -71,6 +73,7 @@ enum class CustomItems(
                 it,
                 DRANK_OMINOUS_SOUL_BEER.getAsItem(ItemStack(Material.AMETHYST_SHARD).itemMeta.also { it2 ->
                     it2.setSoulInTheBottle(it.getSoulInTheBottle())
+                    it2.setFood(it2.food.apply { effects = it.food.effects })
                 })
             )
         },
@@ -85,6 +88,7 @@ enum class CustomItems(
                 it,
                 LIT_OMINOUS_SOUL_BEER.getAsItem(ItemStack(Material.AMETHYST_SHARD).itemMeta.also { it2 ->
                     it2.setSoulInTheBottle(it.getSoulInTheBottle())
+                    it2.setFood(it2.food.apply { effects = it.food.effects })
                 })
             )
         },
@@ -95,7 +99,7 @@ enum class CustomItems(
 
     // Bow
     NETHERITE_BOW(Material.BOW, 1, {
-        ItemStack(Material.BOW).itemMeta.also {
+        {
             it.isFireResistant = true
             (it as Damageable).setMaxDamage(1324)
         }

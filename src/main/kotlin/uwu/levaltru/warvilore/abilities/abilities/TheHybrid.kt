@@ -21,8 +21,8 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.trashcan.LevsUtils
+import uwu.levaltru.warvilore.trashcan.LevsUtils.damageBypassArmor
 import uwu.levaltru.warvilore.trashcan.Namespaces
-import java.util.UUID
 import kotlin.math.roundToInt
 
 private const val MAX_HEAR_DISTANCE = 16.0
@@ -32,12 +32,12 @@ private const val DISTANCE_PER_ITERATION = 10.0
 private const val DISTANCE_BEETWEEN_PARTICLES = 0.2
 
 private const val ACTION_COOLDOWN = 10
-private const val BLAST_COOLDOWN_SMOLL = 20 * 3
-private const val BLAST_COOLDOWN = 20 * 60
+private const val BLAST_COOLDOWN_SMOLL = 50
+private const val BLAST_COOLDOWN = 20 * 30
 private const val REGEN_BOOST_COOLDOWN = 20 * 60 * 15
 private const val REQUIRED_STANDING_TIME = 20 * 8
 
-private const val DAMAGE_TO_FOOD_CONVERSION = 0.33
+private const val DAMAGE_TO_FOOD_CONVERSION = 0.2
 
 private val SPHERE_CHARS = listOf(
     "\uE560",
@@ -91,8 +91,7 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
 
     var heartLocation: Location? = null
     var actionCooldown = 0
-    var standStillTime = 0
-    var standLoc: Location? = null
+    var blastChargeTime = 0
 
     override fun onTick(event: ServerTickEndEvent) {
 
@@ -105,10 +104,18 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
         val locy = player.location.add(0.0, player.height / 2, 0.0)
 
 
-        if (standLoc != null && standLoc!!.world == player.world && player.location.distanceSquared(standLoc!!) < 0.01) {
-            standStillTime++
+        if (blastChargeTime > 0) {
 
-            val progress = (standStillTime.toDouble() / REQUIRED_STANDING_TIME).coerceAtMost(1.0)
+            player.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, 30, 3, true, false, true))
+
+            blastChargeTime++
+
+            if (blastChargeTime % 30 == 0) {
+                player.foodLevel = (player.foodLevel - 1).coerceAtLeast(0)
+                player.saturation = (player.saturation - 1.5f).coerceAtLeast(0f)
+            }
+
+            val progress = (blastChargeTime.toDouble() / REQUIRED_STANDING_TIME).coerceAtMost(1.0)
             val d = random.nextDouble() * 3 * progress
             for (_i_ in 0..<LevsUtils.roundToRandomInt(d)) {
                 val dVec = LevsUtils.getRandomNormalizedVector().multiply(random.nextDouble(.7, 1.0))
@@ -129,25 +136,23 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
                 )
             }
 
-            if (standStillTime % 8 == 0)
+            if (blastChargeTime % 8 == 0)
                 player.world.playSound(player, Sound.BLOCK_CONDUIT_AMBIENT_SHORT, (3.0 * progress).toFloat(), .7f)
 
-            if (standStillTime < REQUIRED_STANDING_TIME)
+            if (blastChargeTime < REQUIRED_STANDING_TIME)
                 player.sendActionBar(
                     text(
                         SPHERE_CHARS[(progress * SPHERE_CHARS.size).toInt().coerceIn(0, SPHERE_CHARS.lastIndex)]
                     ).color(NamedTextColor.RED)
                 )
-            else if (standStillTime == REQUIRED_STANDING_TIME) player.sendActionBar(
+            else if (blastChargeTime == REQUIRED_STANDING_TIME) player.sendActionBar(
                 text(SPHERE_CHARS.last()).color(
                     NamedTextColor.GREEN
                 )
             )
 
-        } else {
-            standStillTime = 0
-            standLoc = null
-        }
+        } else blastChargeTime = 0
+
 
         if (abilitiesDisabled) {
             collapseHeart()
@@ -215,7 +220,7 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
             }
             if (nnHeartLoc.world != player.world) collapseHeart()
             if (distance > MAX_HEAR_DISTANCE) collapseHeart()
-            if (standStillTime > 0) collapseHeart()
+            if (blastChargeTime > 0) collapseHeart()
         }
     }
 
@@ -223,7 +228,7 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
         if (actionCooldown > 0) return
         actionCooldown = ACTION_COOLDOWN
 
-        if (player!!.isSneaking && player!!.inventory.itemInOffHand.isEmpty && player!!.inventory.itemInMainHand.isEmpty) {
+        if (player!!.isSneaking && player!!.inventory.itemInMainHand.isEmpty) {
             val clickedBlock = event.clickedBlock
             if (event.action.isRightClick && LevsUtils.isColoredGlass(clickedBlock?.type)) {
                 for (offset in LevsUtils.neighboringBlocksLocs()) {
@@ -247,12 +252,14 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
                         heartLocation = add.toCenterLocation()
                     }
                 }
-            } else if (event.action.isLeftClick && standStillTime >= REQUIRED_STANDING_TIME) {
+            } else if (event.action.isLeftClick && blastChargeTime >= REQUIRED_STANDING_TIME) {
                 player!!.world.playSound(player!!, Sound.BLOCK_CONDUIT_DEACTIVATE, 4f, .5f)
                 player!!.velocity = player!!.location.direction.multiply(-.8)
                 blastCooldown = BLAST_COOLDOWN
-                standStillTime = 0
-                standLoc = null
+                blastChargeTime = 0
+
+                player!!.foodLevel = (player!!.foodLevel - 8).coerceAtLeast(0)
+                player!!.saturation = (player!!.saturation - 12.5f).coerceAtLeast(0f)
 
                 val collidedEntity = hashSetOf(player!!.uniqueId)
                 for (i in 1..BLAST_ITERATIONS) {
@@ -273,7 +280,8 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
                         val damageSource = DamageSource.builder(DamageType.EXPLOSION)
                             .withCausingEntity(player!!)
                             .withDirectEntity(player!!).build()
-                        hitEntity.damage(5.0, damageSource)
+                        hitEntity.noDamageTicks = 0
+                        hitEntity.damageBypassArmor(8.0, 5.0, damageSource)
                         collidedEntity.add(hitEntity.uniqueId)
                     }
 
@@ -319,7 +327,8 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
             when (event.damageSource.damageType) {
                 DamageType.FALL,
                 DamageType.OUT_OF_WORLD, DamageType.OUTSIDE_BORDER,
-                DamageType.MAGIC, DamageType.WITHER -> {
+                DamageType.MAGIC, DamageType.WITHER,
+                DamageType.DROWN-> {
                 }
 
                 else -> {
@@ -341,16 +350,20 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
                         return
                     }
 
-                    player!!.world.playSound(player!!, Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1f, 1.5f)
-                    player!!.world.spawnParticle(
-                        Particle.FALLING_OBSIDIAN_TEAR, player!!.location.add(0.0, player!!.height / 2, 0.0),
-                        15, .3, .4, .3, 0.0
-                    )
+                    blockEffects()
                     player!!.noDamageTicks = player!!.maximumNoDamageTicks / 3 * 2
                     event.isCancelled = true
                 }
             }
         }
+    }
+
+    private fun blockEffects() {
+        player!!.world.playSound(player!!, Sound.BLOCK_CONDUIT_ATTACK_TARGET, 1f, 1.5f)
+        player!!.world.spawnParticle(
+            Particle.FALLING_OBSIDIAN_TEAR, player!!.location.add(0.0, player!!.height / 2, 0.0),
+            15, .3, .4, .3, 0.0
+        )
     }
 
     override fun onDeath(event: PlayerDeathEvent) {
@@ -383,8 +396,10 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
         if (heartLocation == null) return
         if (event.action == EntityPotionEffectEvent.Action.ADDED) {
             when (event.cause) {
-                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH -> event.isCancelled =
-                    true
+                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH, EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD -> {
+                    blockEffects()
+                    event.isCancelled = true
+                }
 
                 else -> {}
             }
@@ -423,15 +438,17 @@ class TheHybrid(n: String) : AbilitiesCore(n) {
         when (args[0].lowercase()) {
             "boom" -> {
                 if (abilitiesDisabled) sender.sendMessage(text("Abilities are disabled"))
-                if (standStillTime > 0) return
+                if (blastChargeTime > 0) {
+                    blastChargeTime = 0
+                    return
+                }
                 if (blastCooldown > 0 && player!!.gameMode != GameMode.CREATIVE) {
                     sender.sendActionBar(text("${blastCooldown / 20}s").color(NamedTextColor.RED))
                     player!!.playSound(player!!, Sound.BLOCK_DECORATED_POT_INSERT_FAIL, 1f, 1f)
                     return
                 }
+                blastChargeTime = 1
                 blastCooldown = BLAST_COOLDOWN_SMOLL
-
-                standLoc = player!!.location.clone()
             }
 
             "regen_boost_cooldown" -> {

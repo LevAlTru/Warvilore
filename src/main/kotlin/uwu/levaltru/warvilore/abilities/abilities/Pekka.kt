@@ -28,7 +28,7 @@ import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.ceil
 import kotlin.math.floor
 
-private const val MAX_COOLDOWN = 15
+private const val MAX_COOLDOWN = 70
 
 class Pekka(nickname: String) : AbilitiesCore(nickname) {
 
@@ -127,7 +127,7 @@ class Pekka(nickname: String) : AbilitiesCore(nickname) {
     override fun onPotionGain(event: EntityPotionEffectEvent) {
         if (event.action == EntityPotionEffectEvent.Action.ADDED) {
             when (event.cause) {
-                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH -> when (event.newEffect?.type) {
+                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH, EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD -> when (event.newEffect?.type) {
                     PotionEffectType.WITHER, PotionEffectType.POISON, PotionEffectType.REGENERATION,
                     PotionEffectType.INSTANT_HEALTH, PotionEffectType.INSTANT_DAMAGE,
                     PotionEffectType.HUNGER, PotionEffectType.NAUSEA
@@ -207,14 +207,11 @@ class Pekka(nickname: String) : AbilitiesCore(nickname) {
                 for (y in floor(boundingBox.minY).toInt()..ceil(boundingBox.maxY).toInt())
                     for (z in floor(boundingBox.minZ).toInt()..ceil(boundingBox.maxZ).toInt()) {
                         val shift = boundingBox.clone().shift(Vector(-x, -y, -z))
-                        if (DeveloperMode) player!!.sendMessage(shift.toString())
                         val collisionShape = player!!.world.getBlockAt(x, y, z).collisionShape
-                        if (DeveloperMode) player!!.sendMessage(collisionShape.boundingBoxes.toString())
                         if (collisionShape.overlaps(shift)) {
-                            if (DeveloperMode) player!!.sendMessage("ye")
-                            isLarge = !isLarge
-                            updateAttributes()
-                            player!!.teleport(location)
+//                            isLarge = !isLarge
+//                            updateAttributes()
+                            player!!.teleport(location.toBlockLocation().add(.5, .01, .5))
                             return@Runnable
                         }
                     }

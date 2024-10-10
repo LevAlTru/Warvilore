@@ -14,6 +14,8 @@ import kotlin.math.floor
 
 class TheBringer(n: String) : AbilitiesCore(n) {
 
+    var seeTheThings = false
+
     override fun executeCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>) {
         when (args[0].lowercase()) {
             "blocks" -> {
@@ -45,6 +47,11 @@ class TheBringer(n: String) : AbilitiesCore(n) {
 
             "spawn" -> {
                 NetherInfector(player!!.location, player!!.location.direction, args[1].toInt())
+            }
+
+            "toggle" -> {
+                seeTheThings = !seeTheThings
+                sender.sendMessage(text(seeTheThings.toString()).color(NamedTextColor.GOLD))
             }
 
             "emitter" -> {
@@ -92,7 +99,7 @@ class TheBringer(n: String) : AbilitiesCore(n) {
         args: Array<out String>
     ): List<String>? {
         return when (args.size) {
-            1 -> listOf("blocks", "spawn", "emitter")
+            1 -> listOf("blocks", "spawn", "emitter", "toggle")
 
             2 -> if (args[0].lowercase() == "spawn")
                 listOf("energy")

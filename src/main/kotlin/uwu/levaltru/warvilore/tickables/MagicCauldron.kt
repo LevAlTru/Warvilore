@@ -2,6 +2,8 @@ package uwu.levaltru.warvilore.tickables
 
 import org.bukkit.*
 import org.bukkit.block.data.Levelled
+import org.bukkit.damage.DamageSource
+import org.bukkit.damage.DamageType
 import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -13,10 +15,12 @@ import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.abilities.OneAngelZero
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
+import uwu.levaltru.warvilore.abilities.abilities.TheDarkElf
 import uwu.levaltru.warvilore.tickables.effect.LegendaryItemSpawner
 import uwu.levaltru.warvilore.tickables.effect.SoulSucker
 import uwu.levaltru.warvilore.trashcan.CauldronDataObject
 import uwu.levaltru.warvilore.trashcan.CustomItems
+import uwu.levaltru.warvilore.trashcan.LevsUtils.damageBypassArmor
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulInTheBottle
 import uwu.levaltru.warvilore.trashcan.LevsUtils.setSoulInTheBottle
@@ -179,16 +183,12 @@ class MagicCauldron(loc: Location) : Tickable() {
 
                             val soulInTheBottle = soulBottle.itemMeta.getSoulInTheBottle()
                             list += (if (soulIsNotOminous) CustomItems.SOUL_BEER else CustomItems.OMINOUS_SOUL_BEER)
-                                .getAsItem(ItemStack(Material.AMETHYST_SHARD).also {
-                                    it.setSoulInTheBottle(soulInTheBottle)
-                                }.itemMeta).also {
-                                    val itemMeta = it.itemMeta
-                                    val food = itemMeta.food
+                                .getAsItem(ItemStack(Material.AMETHYST_SHARD).itemMeta.apply {
+                                    setSoulInTheBottle(soulInTheBottle)
+                                    val food = this.food
                                     for (potionEffect in potionEffects) food.addEffect(potionEffect, 1f)
-                                    itemMeta.setFood(food)
-
-                                    it.itemMeta = itemMeta
-                                }
+                                    setFood(food)
+                                })
 
                             list[0] = list[0].subtract()
                             list[1] = list[1].subtract(3)
@@ -211,7 +211,7 @@ class MagicCauldron(loc: Location) : Tickable() {
             var selectedPlayer: Player? = null
             for (player in l.getNearbyPlayers(8.0)) {
                 if (isShard) {
-                    if (player.getAbilities() is TheColdestOne) {
+                    if (player.getAbilities() is TheDarkElf) {
                         selectedPlayer = player
                         break
                     }
@@ -255,6 +255,15 @@ class MagicCauldron(loc: Location) : Tickable() {
             ejectItems()
             LIST.remove(this)
             return true
+        }
+
+        if (age % 20 == 0) {
+            val damageSource = DamageSource.builder(DamageType.WITHER).build()
+            for (livingEntity in location.getNearbyLivingEntities(2.0)) {
+                if (!livingEntity.boundingBox.contains(location.toVector())) continue
+
+                livingEntity.damageBypassArmor(3.0, damageSource)
+            }
         }
 
         if (age % 7 == 0) {

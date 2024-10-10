@@ -21,46 +21,50 @@ import org.bukkit.util.Vector
 import org.joml.Vector3i
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.trashcan.LevsUtils
+import uwu.levaltru.warvilore.trashcan.LevsUtils.damageBypassArmor
 import kotlin.random.Random
 
 private val random by lazy { Random }
-private const val MAX_TRIES = 10
+private const val MAX_TRIES = 16
+private const val CHANCE_TO_MAKE_OBSIDIAN_MUL_MAX_TRIES = 12 * MAX_TRIES
 
 class NetherInfector(location: Location, direction: Vector, var energy: Int) : Tickable() {
 
     val location = location.toCenterLocation()
-    var direction = direction.normalize().multiply(.20)
+    var direction = direction.normalize().multiply(.2)
 
     override fun tick(): Boolean {
 
         if (age++ % 2 != 0) return false
-        if (random.nextInt(10 * 20) == 0) direction = LevsUtils.getRandomNormalizedVector().multiply(.20)
+        if (random.nextInt(10 * 30) == 0) direction = LevsUtils.getRandomNormalizedVector().multiply(.2)
 
-        location.world.spawnParticle(Particle.CRIMSON_SPORE, location, 1, .2, .2, .2, .2)
+        location.world.spawnParticle(Particle.CRIMSON_SPORE, location, 1, .2, .2, .2, .2, null, false)
 
-        for (player in playerWhiWillSeBetter) {
-            if (player.location.distanceSquared(location) < 128.0 * 128.0)
-                player.spawnParticle(Particle.CRIMSON_SPORE, location, 1, .0, .0, .0, .0, null, true)
-        }
+        for (player in playerWhoWillSeeBetter)
+            if (player.world == location.world && player.location.distanceSquared(location) < 96.0 * 96.0)
+                player.spawnParticle(Particle.END_ROD, location, 1, .0, .0, .0, .0, null, true)
 
-        val damageSource = DamageSource.builder(DamageType.WITHER).build()
+        val damageSource = DamageSource.builder(DamageType.HOT_FLOOR).build()
         for (livingEntity in location.getNearbyLivingEntities(1.5)) {
             if ((livingEntity as? Player)?.gameMode == GameMode.CREATIVE || (livingEntity as? Player)?.gameMode == GameMode.SPECTATOR) continue
-            livingEntity.damage(20.0, damageSource)
+            livingEntity.damageBypassArmor(6.0, 8.0, damageSource)
             livingEntity.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 115, 4, false, true, true))
         }
 
-        if (location.block.type.isAir) energy -= 300
-        if (amethystFun(location)) energy -= 250
+        if (location.block.type.isAir) energy /= 2
+        if (amethystFun(location)) energy = 0
 
         a@ for (tries in 1..MAX_TRIES) {
-            val moveVector = LevsUtils.getRandomNormalizedVector().add(direction).toBlockVector()
+            val moveVector = LevsUtils.getRandomNormalizedVector().add(direction)
 
             val add = location.clone().add(moveVector)
             val type = add.block.type
 
             if (type.isAir) {
-                if (random.nextInt(200) == 0) add.block.type = OBSIDIAN
+                if (random.nextInt(CHANCE_TO_MAKE_OBSIDIAN_MUL_MAX_TRIES) == 0) {
+                    add.block.type = OBSIDIAN
+                    break@a
+                }
                 continue
             }
             for (offset in LevsUtils.neighboringBlocksLocs()) {
@@ -88,7 +92,10 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
             }
         }
 
-        if (location.y <= location.world.minHeight + 1) location.add(0.0, 2.0, 0.0)
+        if (location.y <= location.world.minHeight) {
+            location.add(0.0, 1.0, 0.0)
+            direction = Vector(0.0, 0.3, 0.0)
+        }
         return energy-- <= 0
     }
 
@@ -108,9 +115,6 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
             when (b.type) {
                 RED_CONCRETE, ORANGE_CONCRETE, YELLOW_CONCRETE, GREEN_CONCRETE, LIME_CONCRETE, BLUE_CONCRETE, CYAN_CONCRETE, LIGHT_BLUE_CONCRETE,
                 BROWN_CONCRETE, BLACK_CONCRETE, GRAY_CONCRETE, LIGHT_GRAY_CONCRETE, WHITE_CONCRETE, PURPLE_CONCRETE, MAGENTA_CONCRETE, PINK_CONCRETE,
-
-                RED_TERRACOTTA, ORANGE_TERRACOTTA, YELLOW_TERRACOTTA, GREEN_TERRACOTTA, LIME_TERRACOTTA, BLUE_TERRACOTTA, CYAN_TERRACOTTA, LIGHT_BLUE_TERRACOTTA,
-                BROWN_TERRACOTTA, BLACK_TERRACOTTA, GRAY_TERRACOTTA, LIGHT_GRAY_TERRACOTTA, WHITE_TERRACOTTA, PURPLE_TERRACOTTA, MAGENTA_TERRACOTTA, PINK_TERRACOTTA,
 
                 RED_GLAZED_TERRACOTTA, ORANGE_GLAZED_TERRACOTTA, YELLOW_GLAZED_TERRACOTTA, GREEN_GLAZED_TERRACOTTA, LIME_GLAZED_TERRACOTTA, BLUE_GLAZED_TERRACOTTA, CYAN_GLAZED_TERRACOTTA, LIGHT_BLUE_GLAZED_TERRACOTTA,
                 BROWN_GLAZED_TERRACOTTA, BLACK_GLAZED_TERRACOTTA, GRAY_GLAZED_TERRACOTTA, LIGHT_GRAY_GLAZED_TERRACOTTA, WHITE_GLAZED_TERRACOTTA, PURPLE_GLAZED_TERRACOTTA, MAGENTA_GLAZED_TERRACOTTA, PINK_GLAZED_TERRACOTTA,
@@ -451,6 +455,9 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     applyOrientation(b, blockData)
                 }
 
+                RED_TERRACOTTA, ORANGE_TERRACOTTA, YELLOW_TERRACOTTA, GREEN_TERRACOTTA, LIME_TERRACOTTA, BLUE_TERRACOTTA, CYAN_TERRACOTTA, LIGHT_BLUE_TERRACOTTA,
+                BROWN_TERRACOTTA, BLACK_TERRACOTTA, GRAY_TERRACOTTA, LIGHT_GRAY_TERRACOTTA, WHITE_TERRACOTTA, PURPLE_TERRACOTTA, MAGENTA_TERRACOTTA, PINK_TERRACOTTA, TERRACOTTA,
+
                 RED_CONCRETE_POWDER, ORANGE_CONCRETE_POWDER, YELLOW_CONCRETE_POWDER, GREEN_CONCRETE_POWDER, LIME_CONCRETE_POWDER, BLUE_CONCRETE_POWDER, CYAN_CONCRETE_POWDER, LIGHT_BLUE_CONCRETE_POWDER,
                 BROWN_CONCRETE_POWDER, BLACK_CONCRETE_POWDER, GRAY_CONCRETE_POWDER, LIGHT_GRAY_CONCRETE_POWDER, WHITE_CONCRETE_POWDER, PURPLE_CONCRETE_POWDER, MAGENTA_CONCRETE_POWDER, PINK_CONCRETE_POWDER,
                 BAMBOO_PLANKS, BAMBOO_MOSAIC -> {
@@ -680,7 +687,24 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 
                 TNT -> {
                     b.type = AIR
-                    b.world.createExplosion(b.location.toCenterLocation(), 6f, true)
+                    b.world.createExplosion(b.location.toCenterLocation(), 8f, true)
+                    val toCenterLocation = b.location.toCenterLocation()
+                    for (_i_ in 1..100) {
+                        val vector = LevsUtils.getRandomNormalizedVector()
+                        b.world.rayTraceBlocks(toCenterLocation, vector, 50.0)?.hitBlock?.let {
+                            NetherInfector(it.location.toCenterLocation(), vector, 500)
+                        }
+                    }
+                }
+
+                WARPED_FENCE, CRIMSON_FENCE -> {
+                    val type = b.location.add(0.0, 1.0, 0.0).block.type
+                    val b150 = b.y - 150
+                    bool = false
+                    if ((type.isAir || type == LAVA) && (b150 <= b.world.minHeight || b.world.getBlockAt(b.x, b150, b.z).type != b.type)) {
+                        b.location.add(0.0, 1.0, 0.0).block.type = b.type
+                        bool = true
+                    }
                 }
 
 
@@ -738,17 +762,22 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
         }
 
         private fun applyOrientation(b: Block, blockData: BlockData) {
-            (b.blockData as Orientable).axis = (blockData as Orientable).axis
+            b.blockData = (b.blockData as Orientable).apply {
+                axis = (blockData as Orientable).axis
+            }
         }
 
         private fun applySlabbing(b: Block, blockData: BlockData) {
-            (b.blockData as Slab).type = (blockData as Slab).type
+            b.blockData = (b.blockData as Slab).apply {
+                type = (blockData as Slab).type
+            }
         }
 
         private fun applyStairring(b: Block, blockData: BlockData) {
             b.blockData = (b.blockData as Stairs).apply {
                 shape = (blockData as Stairs).shape
                 facing = blockData.facing
+                half = blockData.half
             }
         }
 
@@ -780,15 +809,17 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                         world.playSound(centerLoc, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, .5f)
                         return false
                     } else {
-                        world.spawnParticle(Particle.END_ROD, centerLoc, 7, .2, .2, .2, .05)
+                        world.spawnParticle(Particle.OMINOUS_SPAWNING, centerLoc, 30, .0, .0, .0, 0.75)
+                        world.spawnParticle(Particle.END_ROD, centerLoc, 12, .0, .0, .0, 0.05)
                         world.playSound(centerLoc, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, .5f)
                     }
                     return true
                 }
+
                 else -> return false
             }
         }
 
-        val playerWhiWillSeBetter = mutableListOf<Player>()
+        val playerWhoWillSeeBetter = mutableListOf<Player>()
     }
 }

@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent
 import io.papermc.paper.tag.EntityTags
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.TextReplacementConfig
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
@@ -60,8 +59,8 @@ class CustomEvents : Listener {
         RemainsOfTheDeads.Tick()
         NetherEmitter.Tick()
         if (event.tickNumber % 200 == 0) {
-            NetherInfector.playerWhiWillSeBetter.clear()
-            NetherInfector.playerWhiWillSeBetter.addAll(Bukkit.getOnlinePlayers().filter { it.getAbilities() is TheBringer })
+            NetherInfector.playerWhoWillSeeBetter.clear()
+            NetherInfector.playerWhoWillSeeBetter.addAll(Bukkit.getOnlinePlayers().filter { (it.getAbilities() as? TheBringer)?.seeTheThings == true })
         }
         for (player in Bukkit.getOnlinePlayers()) {
             if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {

@@ -48,6 +48,12 @@
         "custom_model_data": 8
       },
       "model": "levaltru:effect/null/-effect1-7-"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 9
+      },
+      "model": "mafaika:ancient_spirit"
     }
   ]
 }

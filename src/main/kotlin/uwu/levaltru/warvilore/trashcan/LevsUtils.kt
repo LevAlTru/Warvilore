@@ -7,6 +7,7 @@ import org.bukkit.*
 import org.bukkit.Material.*
 import org.bukkit.damage.DamageSource
 import org.bukkit.entity.Item
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemRarity
 import org.bukkit.inventory.ItemStack
@@ -15,6 +16,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
 import uwu.levaltru.warvilore.protocolManager
@@ -353,8 +355,26 @@ object LevsUtils {
             RED_STAINED_GLASS, ORANGE_STAINED_GLASS, YELLOW_STAINED_GLASS, GREEN_STAINED_GLASS, LIME_STAINED_GLASS, BLUE_STAINED_GLASS, CYAN_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS,
             BROWN_STAINED_GLASS, BLACK_STAINED_GLASS, GRAY_STAINED_GLASS, LIGHT_GRAY_STAINED_GLASS, WHITE_STAINED_GLASS, PURPLE_STAINED_GLASS, MAGENTA_STAINED_GLASS, PINK_STAINED_GLASS
                 -> true
+
             else -> false
         }
+    }
+
+    fun LivingEntity?.damageBypassArmor(damageBypass: Double, damage: Double, damageSource: DamageSource) {
+        if (this == null) return
+        if (this.isDead) return
+        if (this.noDamageTicks > 0) return
+
+        val healthBeforeDamage = this.health
+        this.damage(damage, damageSource)
+        if (healthBeforeDamage == this.health) return
+        this.noDamageTicks = 0
+        this.health = (this.health - damageBypass).coerceAtLeast(min(0.01, this.health))
+        this.damage(0.1, damageSource)
+    }
+
+    fun LivingEntity?.damageBypassArmor(damageBypass: Double, damageSource: DamageSource) {
+        this.damageBypassArmor(damageBypass, 1.0, damageSource)
     }
 
     object Deads {
@@ -481,11 +501,13 @@ object LevsUtils {
 
         fun soulBeer(itemMeta: ItemMeta, usingConvertsTo: ItemStack) {
             val food = itemMeta.food
+            val soul = itemMeta.getSoulInTheBottle()
+            food.usingConvertsTo = usingConvertsTo.also {
+                if (usingConvertsTo.itemMeta.getAsCustomItem() != CustomItems.TANKARD) it.setSoulInTheBottle(soul)
+            }
             food.nutrition = 5
             food.saturation = 6.5f
             food.setCanAlwaysEat(true)
-            val soul = itemMeta.getSoulInTheBottle()
-            food.usingConvertsTo = usingConvertsTo.also { it.setSoulInTheBottle(soul) }
             itemMeta.setFood(food)
 
             itemMeta.itemName(itemMeta.itemName().append(Component.text(" $soul")))

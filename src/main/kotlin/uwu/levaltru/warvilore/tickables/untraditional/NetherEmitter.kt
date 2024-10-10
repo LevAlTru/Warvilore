@@ -96,7 +96,9 @@ class NetherEmitter(val x: Int, val z: Int, val world: World, var maxPower: Int,
 
         if (intensity < 0 || maxPower < 0) markedForRemoval = true
 
-        if (intensity > random.nextDouble()) {
+        var d = intensity.coerceAtMost(100f)
+        while (d > random.nextDouble()) {
+            d--
             world.rayTraceBlocks(
                 (Position.block(x, world.minHeight, z)),
                 LevsUtils.getRandomNormalizedVector().multiply(Vector(1.0, 0.001, 1.0)),
@@ -104,7 +106,7 @@ class NetherEmitter(val x: Int, val z: Int, val world: World, var maxPower: Int,
                 FluidCollisionMode.NEVER,
                 true
             ) { it.type == Material.BEDROCK }?.hitBlock?.let {
-                NetherInfector(it.location.add(0.0, 1.0, 0.0), Vector(0, 1, 0), LevsUtils.roundToRandomInt(random.nextDouble(.5, 1.0) * maxPower))
+                NetherInfector(it.location, Vector(0, 1, 0), LevsUtils.roundToRandomInt(random.nextDouble(.5, 1.0) * maxPower))
             }
         }
 

@@ -185,7 +185,7 @@ class WalkingComputer(string: String) : AbilitiesCore(string), CantLeaveSouls {
     override fun onPotionGain(event: EntityPotionEffectEvent) {
         if (event.action == EntityPotionEffectEvent.Action.ADDED) {
             when (event.cause) {
-                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH -> when (event.newEffect?.type) {
+                EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH, EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD -> when (event.newEffect?.type) {
                     PotionEffectType.WITHER, PotionEffectType.POISON, PotionEffectType.REGENERATION,
                     PotionEffectType.INSTANT_HEALTH, PotionEffectType.INSTANT_DAMAGE,
                     PotionEffectType.HUNGER, PotionEffectType.NAUSEA
