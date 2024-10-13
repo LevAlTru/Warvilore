@@ -9,6 +9,7 @@ import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.tickables.NetherInfector
+import uwu.levaltru.warvilore.tickables.TheUpperEmitter
 import uwu.levaltru.warvilore.tickables.untraditional.NetherEmitter
 import kotlin.math.floor
 
@@ -89,6 +90,10 @@ class TheBringer(n: String) : AbilitiesCore(n) {
                     }
                 }
             }
+
+            "upper_emitter" -> {
+                TheUpperEmitter(player!!.location, args[2].toDouble(), args[3].toDouble(), args[1].toInt())
+            }
         }
     }
 
@@ -99,17 +104,22 @@ class TheBringer(n: String) : AbilitiesCore(n) {
         args: Array<out String>
     ): List<String>? {
         return when (args.size) {
-            1 -> listOf("blocks", "spawn", "emitter", "toggle")
+            1 -> listOf("blocks", "spawn", "emitter", "toggle", "upper_emitter")
 
-            2 -> if (args[0].lowercase() == "spawn")
+            2 -> if (args[0].lowercase() == "spawn" || args[0].lowercase() == "upper_emitter")
                 listOf("energy")
             else if (args[0].lowercase() == "emitter")
                 listOf("edit", "create")
             else listOf()
 
-            3 -> if (args[0].lowercase() == "emitter") listOf("intensity") else listOf()
+            3 -> if (args[0].lowercase() == "emitter" || args[0].lowercase() == "upper_emitter")
+                listOf("intensity") else listOf()
 
-            4 -> if (args[0].lowercase() == "emitter") listOf("power") else listOf()
+            4 -> if (args[0].lowercase() == "emitter")
+                listOf("power")
+            else if (args[0].lowercase() == "upper_emitter")
+                listOf("size")
+            else listOf()
 
             else -> listOf()
         }

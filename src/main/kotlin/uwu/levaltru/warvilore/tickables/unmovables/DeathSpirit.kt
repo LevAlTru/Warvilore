@@ -1,4 +1,4 @@
-package uwu.levaltru.warvilore.tickables
+package uwu.levaltru.warvilore.tickables.unmovables
 
 import org.bukkit.Bukkit
 import org.bukkit.Location

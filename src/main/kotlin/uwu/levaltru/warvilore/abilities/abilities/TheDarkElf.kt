@@ -15,11 +15,12 @@ import org.bukkit.damage.DamageType
 import org.bukkit.entity.Display
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
@@ -143,20 +144,21 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
                     if (ghostDisplay.world != player.world) summonGhostDisplay(spiritLoc)
                     spiritLoc.direction = ghostDisplay.location.subtract(spiritLoc).toVector().multiply(-1)
                     ghostDisplay.teleport(spiritLoc)
+                    if (random.nextInt(3) == 0) {
+                        player.world.spawnParticle(
+                            Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
+                            ghostDisplay.location,
+                            1,
+                            .2,
+                            .2,
+                            .2,
+                            .05,
+                            null,
+                            false
+                        )
+                    }
                 }
             } else ghostDisplay?.remove()
-            if (random.nextInt(3) == 0)
-                player.world.spawnParticle(
-                    Particle.TRIAL_SPAWNER_DETECTION_OMINOUS,
-                    getSpiritLoc(),
-                    1,
-                    .2,
-                    .2,
-                    .2,
-                    .05,
-                    null,
-                    false
-                )
         }
         if (player.ticksLived % 20 == 0) {
             if (ghostState == GhostStates.PARTICLES.ordinal) {
@@ -250,7 +252,7 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
     }
 
     override fun onPotionGain(event: EntityPotionEffectEvent) {
-        if (isShieldActive) return
+        if (!isShieldActive) return
         if (event.action == EntityPotionEffectEvent.Action.ADDED) {
             when (event.cause) {
                 EntityPotionEffectEvent.Cause.ATTACK, EntityPotionEffectEvent.Cause.POTION_SPLASH, EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD -> {
@@ -261,6 +263,15 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
                 else -> {}
             }
         }
+    }
+
+    override fun onDeath(event: PlayerDeathEvent) {
+        mana = 1
+        isShieldActive = false
+    }
+
+    override fun onLeave(event: PlayerQuitEvent) {
+        ghostDisplay?.remove()
     }
 
     private fun blockEffects() {

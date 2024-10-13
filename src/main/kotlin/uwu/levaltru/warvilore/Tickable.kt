@@ -16,17 +16,22 @@ abstract class Tickable {
             val list = LinkedList<Tickable>()
             list.addAll(LIST)
             LIST.clear()
-            list.removeIf { try { it.tick() } catch (e: Exception) {
-                e.printStackTrace()
-                true }
+            list.removeIf {
+                try {
+                    if (it.tick()) {
+                        it.collapse()
+                        return@removeIf true
+                    } else false
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    true
+                }
             }
             LIST.addAll(list)
         }
 
         fun clearWithEffects() {
-            for (tickable in LIST) {
-                tickable.collapse()
-            }
+            for (tickable in LIST) tickable.collapse()
             LIST.clear()
         }
     }

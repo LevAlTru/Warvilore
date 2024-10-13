@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.persistence.PersistentDataType
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
-import uwu.levaltru.warvilore.tickables.HealZone
+import uwu.levaltru.warvilore.tickables.unmovables.HealZone
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 

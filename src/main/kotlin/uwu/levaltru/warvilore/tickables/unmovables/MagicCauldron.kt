@@ -1,4 +1,4 @@
-package uwu.levaltru.warvilore.tickables
+package uwu.levaltru.warvilore.tickables.unmovables
 
 import org.bukkit.*
 import org.bukkit.block.data.Levelled
@@ -14,7 +14,6 @@ import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Tickable
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.abilities.OneAngelZero
-import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
 import uwu.levaltru.warvilore.abilities.abilities.TheDarkElf
 import uwu.levaltru.warvilore.tickables.effect.LegendaryItemSpawner
 import uwu.levaltru.warvilore.tickables.effect.SoulSucker

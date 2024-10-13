@@ -18,7 +18,7 @@ import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isMeatOrFish
 
-class KittyCat(nickname: String) : AbilitiesCore(nickname) {
+open class KittyCat(nickname: String) : AbilitiesCore(nickname) {
 
     override fun onJoin(event: PlayerJoinEvent) {
         player!!.getAttribute(Attribute.GENERIC_JUMP_STRENGTH)!!.addModifier(

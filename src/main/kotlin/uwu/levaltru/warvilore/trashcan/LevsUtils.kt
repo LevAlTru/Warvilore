@@ -3,6 +3,7 @@ package uwu.levaltru.warvilore.trashcan
 import com.comphenix.protocol.PacketType
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.*
 import org.bukkit.Material.*
 import org.bukkit.damage.DamageSource
@@ -16,7 +17,6 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
-import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.abilities.abilities.TheColdestOne
 import uwu.levaltru.warvilore.protocolManager
@@ -367,6 +367,7 @@ object LevsUtils {
 
         val healthBeforeDamage = this.health
         this.damage(damage, damageSource)
+        if (this.isDead) return
         if (healthBeforeDamage == this.health) return
         this.noDamageTicks = 0
         this.health = (this.health - damageBypass).coerceAtLeast(min(0.01, this.health))
@@ -375,6 +376,29 @@ object LevsUtils {
 
     fun LivingEntity?.damageBypassArmor(damageBypass: Double, damageSource: DamageSource) {
         this.damageBypassArmor(damageBypass, 1.0, damageSource)
+    }
+
+    fun rainbowText(string: String, fromColor: TextColor, toColor: TextColor): Component {
+        val component = Component.text()
+        for ((i, c) in string.withIndex()) {
+            val fromR = fromColor.red()
+            val fromG = fromColor.green()
+            val fromB = fromColor.blue()
+            val toR = toColor.red()
+            val toG = toColor.green()
+            val toB = toColor.blue()
+
+            val d = i.toDouble() / string.length
+
+            val r = (fromR * (1 - d) + toR * d).roundToInt()
+            val g = (fromG * (1 - d) + toG * d).roundToInt()
+            val b = (fromB * (1 - d) + toB * d).roundToInt()
+
+            val color = TextColor.color(r, g, b)
+
+            component.append(Component.text(c.toString()).color(color))
+        }
+        return component.build()
     }
 
     object Deads {

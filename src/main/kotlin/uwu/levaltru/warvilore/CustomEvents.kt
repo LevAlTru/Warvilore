@@ -34,8 +34,8 @@ import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.CollabsePoint
-import uwu.levaltru.warvilore.tickables.DeathSpirit
 import uwu.levaltru.warvilore.tickables.NetherInfector
+import uwu.levaltru.warvilore.tickables.unmovables.DeathSpirit
 import uwu.levaltru.warvilore.tickables.untraditional.NetherEmitter
 import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.tickables.untraditional.Zone

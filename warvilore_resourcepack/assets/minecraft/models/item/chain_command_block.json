@@ -54,6 +54,36 @@
         "custom_model_data": 9
       },
       "model": "mafaika:ancient_spirit"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 10
+      },
+      "model": "levaltru:effect/the_upper_emitter_4"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 11
+      },
+      "model": "levaltru:effect/the_upper_emitter_3"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 12
+      },
+      "model": "levaltru:effect/the_upper_emitter_2"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 13
+      },
+      "model": "levaltru:effect/the_upper_emitter_1"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 14
+      },
+      "model": "levaltru:effect/the_upper_emitter_0"
     }
   ]
 }

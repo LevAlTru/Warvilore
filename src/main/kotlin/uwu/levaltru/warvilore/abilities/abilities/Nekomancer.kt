@@ -18,7 +18,7 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
-import uwu.levaltru.warvilore.tickables.DeathSpirit
+import uwu.levaltru.warvilore.tickables.unmovables.DeathSpirit
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.Namespaces
 

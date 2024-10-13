@@ -5,7 +5,6 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.Title
-import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import uwu.levaltru.warvilore.SoftwareBase

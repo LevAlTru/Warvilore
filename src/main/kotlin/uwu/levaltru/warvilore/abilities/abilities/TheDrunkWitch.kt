@@ -21,8 +21,8 @@ import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CanSeeSouls
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
-import uwu.levaltru.warvilore.tickables.DeathSpirit
-import uwu.levaltru.warvilore.tickables.MagicCauldron
+import uwu.levaltru.warvilore.tickables.unmovables.DeathSpirit
+import uwu.levaltru.warvilore.tickables.unmovables.MagicCauldron
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
@@ -105,7 +105,12 @@ class TheDrunkWitch(string: String) : AbilitiesCore(string), EvilAurable, CanSee
             } else if (item.type == Material.AMETHYST_SHARD) {
                 neatestCauldron ?: return
                 if (loc.distanceSquared(neatestCauldron.location) < .2) {
-                    val a = mana - (neatestCauldron.findRecipeNode()?.manaCost ?: return)
+                    val i = neatestCauldron.findRecipeNode()?.manaCost
+                    if (i == null) {
+                        neatestCauldron.ejectItems()
+                        return
+                    }
+                    val a = mana - i
                     if (a < 0) {
                         val manaFromHealth = ((player!!.health - 0.1) * HEALTH_TO_MANA_CONVERSION_RATE)
                         if (a < -manaFromHealth) {

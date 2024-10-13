@@ -3,7 +3,10 @@ package uwu.levaltru.warvilore.abilities.abilities
 import com.destroystokyo.paper.event.server.ServerTickEndEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.*
+import org.bukkit.GameMode
+import org.bukkit.Particle
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.damage.DamageSource

@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "levaltru:item/effect/the_upper_emitter/the_upper_emitter_2"
+	}
+}

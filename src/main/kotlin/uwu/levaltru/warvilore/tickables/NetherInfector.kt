@@ -2,16 +2,10 @@ package uwu.levaltru.warvilore.tickables
 
 import org.bukkit.*
 import org.bukkit.Material.*
+import org.bukkit.Material.TNT
 import org.bukkit.block.Block
 import org.bukkit.block.data.*
-import org.bukkit.block.data.type.CopperBulb
-import org.bukkit.block.data.type.Door
-import org.bukkit.block.data.type.Gate
-import org.bukkit.block.data.type.Lantern
-import org.bukkit.block.data.type.Slab
-import org.bukkit.block.data.type.Stairs
-import org.bukkit.block.data.type.Switch
-import org.bukkit.block.data.type.TrapDoor
+import org.bukkit.block.data.type.*
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
 import org.bukkit.entity.Player
@@ -25,8 +19,8 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils.damageBypassArmor
 import kotlin.random.Random
 
 private val random by lazy { Random }
-private const val MAX_TRIES = 16
-private const val CHANCE_TO_MAKE_OBSIDIAN_MUL_MAX_TRIES = 12 * MAX_TRIES
+private const val MAX_TRIES = 12
+private const val CHANCE_TO_MAKE_LAVA_MUL_MAX_TRIES = 100 * MAX_TRIES
 
 class NetherInfector(location: Location, direction: Vector, var energy: Int) : Tickable() {
 
@@ -36,9 +30,15 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
     override fun tick(): Boolean {
 
         if (age++ % 2 != 0) return false
-        if (random.nextInt(10 * 30) == 0) direction = LevsUtils.getRandomNormalizedVector().multiply(.2)
+        if (random.nextInt(10 * 20) == 0) direction = LevsUtils.getRandomNormalizedVector().multiply(.2)
 
-        location.world.spawnParticle(Particle.CRIMSON_SPORE, location, 1, .2, .2, .2, .2, null, false)
+        for (offset in LevsUtils.neighboringBlocksLocs()) {
+            val type = location.clone().add(offset).block.type
+            if (!type.isOccluding || type.isAir) {
+                location.world.spawnParticle(Particle.SOUL_FIRE_FLAME, location, 2, .2, .2, .2, .07, null, false)
+                break
+            }
+        }
 
         for (player in playerWhoWillSeeBetter)
             if (player.world == location.world && player.location.distanceSquared(location) < 96.0 * 96.0)
@@ -51,8 +51,12 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
             livingEntity.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 115, 4, false, true, true))
         }
 
-        if (location.block.type.isAir) energy /= 2
+        if (location.block.type.isAir) energy = energy / 2 - 200
         if (amethystFun(location)) energy = 0
+
+        if (location.y <= location.world.minHeight + 1) {
+            direction.add(Vector(0.0, 0.2, 0.0))
+        }
 
         a@ for (tries in 1..MAX_TRIES) {
             val moveVector = LevsUtils.getRandomNormalizedVector().add(direction)
@@ -61,14 +65,16 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
             val type = add.block.type
 
             if (type.isAir) {
-                if (random.nextInt(CHANCE_TO_MAKE_OBSIDIAN_MUL_MAX_TRIES) == 0) {
-                    add.block.type = OBSIDIAN
+                if (random.nextInt(CHANCE_TO_MAKE_LAVA_MUL_MAX_TRIES) == 0 && moveVector.y <= 0) {
+                    add.block.type = LAVA
+                    energy /= 3
                     break@a
                 }
                 continue
             }
             for (offset in LevsUtils.neighboringBlocksLocs()) {
-                if (add.clone().add(offset).block.type.isOccluding || tries == 1) {
+                val type = add.clone().add(offset).block.type
+                if (!type.isOccluding || tries == 1) {
                     if (changeBlockWithEffects(location.add(moveVector))) {
                         energy -= 15
                         if (random.nextInt(20 * 3) == 0) {
@@ -91,18 +97,13 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
             }
         }
-
-        if (location.y <= location.world.minHeight) {
-            location.add(0.0, 1.0, 0.0)
-            direction = Vector(0.0, 0.3, 0.0)
-        }
         return energy-- <= 0
     }
 
     companion object {
         fun changeBlockWithEffects(location: Location): Boolean {
             if (changeBlock(location)) {
-                location.world.playSound(location, Sound.BLOCK_SCULK_SENSOR_CLICKING_STOP, 1f, .5f)
+                if (random.nextDouble() < .5) location.world.playSound(location, Sound.BLOCK_SCULK_SENSOR_CLICKING_STOP, 1f, .5f)
                 return true
             }
             return false
@@ -581,8 +582,9 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 //                RED_MUSHROOM -> b.type = CRIMSON_FUNGUS
 //                BROWN_MUSHROOM -> b.type = WARPED_FUNGUS
 
-                WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP, LADDER
-                    -> b.type = OBSIDIAN
+                ICE, SNOW, SNOW_BLOCK, POWDER_SNOW -> b.type = WATER
+
+                WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP, LADDER -> b.type = OBSIDIAN
 
                 VINE -> applyToSameBlockAboveAndBelow(b.location, { it.setType(WARPED_FENCE, false) })
 
@@ -719,8 +721,6 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 SCULK_VEIN,
 
                 PINK_PETALS, MOSS_CARPET,
-
-                ICE, SNOW, SNOW_BLOCK, POWDER_SNOW,
 
                 COBWEB, TALL_GRASS, SHORT_GRASS, DEAD_BUSH, LARGE_FERN, FERN, PEONY, ROSE_BUSH, LILAC, SUNFLOWER,
 

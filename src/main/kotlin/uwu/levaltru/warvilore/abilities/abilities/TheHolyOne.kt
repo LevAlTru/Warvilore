@@ -6,8 +6,6 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.*
-import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -17,12 +15,9 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
-import uwu.levaltru.warvilore.DeveloperMode
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
-import uwu.levaltru.warvilore.tickables.NetherInfector
 import uwu.levaltru.warvilore.tickables.projectiles.BloodySlice
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
-import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomItem
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomWeapon
 import uwu.levaltru.warvilore.trashcan.Namespaces
 import kotlin.math.max

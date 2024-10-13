@@ -1,14 +1,17 @@
 package uwu.levaltru.warvilore.tickables.untraditional
 
 import io.papermc.paper.math.Position
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.FluidCollisionMode
+import org.bukkit.Material
+import org.bukkit.World
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import uwu.levaltru.warvilore.Warvilore
 import uwu.levaltru.warvilore.tickables.NetherInfector
-import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads.Companion
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 import java.util.*
+import kotlin.math.absoluteValue
 
 class NetherEmitter(val x: Int, val z: Int, val world: World, var maxPower: Int, var intensity: Float) {
 
@@ -106,7 +109,11 @@ class NetherEmitter(val x: Int, val z: Int, val world: World, var maxPower: Int,
                 FluidCollisionMode.NEVER,
                 true
             ) { it.type == Material.BEDROCK }?.hitBlock?.let {
-                NetherInfector(it.location, Vector(0, 1, 0), LevsUtils.roundToRandomInt(random.nextDouble(.5, 1.0) * maxPower))
+                NetherInfector(
+                    it.location,
+                    LevsUtils.getRandomNormalizedVector().apply { y = y.absoluteValue },
+                    LevsUtils.roundToRandomInt(random.nextDouble(.5, 1.0) * maxPower)
+                )
             }
         }
 
