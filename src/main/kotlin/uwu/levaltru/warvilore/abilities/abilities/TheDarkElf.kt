@@ -114,9 +114,9 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
             val nextDouble = random.nextDouble(0.0, PI * 2)
             val sin = sin(nextDouble) * dx * 1.3
             val cos = cos(nextDouble) * dz * 1.3
-            val pV = player.velocity
             val vSin = sin(nextDouble - PI / 3 * 2)
             val vCos = cos(nextDouble - PI / 3 * 2)
+            val pV = player.velocity
 
             player.world.spawnParticle(
                 Particle.SCULK_SOUL,
@@ -239,7 +239,7 @@ class TheDarkElf(nickname: String) : AbilitiesCore(nickname), EvilAurable {
             when (event.cause) {
                 EntityDamageEvent.DamageCause.MAGIC, EntityDamageEvent.DamageCause.WITHER,
                 EntityDamageEvent.DamageCause.PROJECTILE,
-                EntityDamageEvent.DamageCause.ENTITY_ATTACK, EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK-> {
+                EntityDamageEvent.DamageCause.ENTITY_ATTACK, EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK -> {
                     mana -= (event.damage * MANA_TO_DAMAGE_CONVERSION).toInt()
                     player!!.noDamageTicks = player!!.maximumNoDamageTicks / 3 * 2
                     if (mana > 0) {

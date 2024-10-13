@@ -20,7 +20,8 @@ import kotlin.random.Random
 
 private val random by lazy { Random }
 private const val MAX_TRIES = 12
-private const val CHANCE_TO_MAKE_LAVA_MUL_MAX_TRIES = 100 * MAX_TRIES
+private const val CHANCE_TO_MAKE_LAVA = 100
+private const val CHANCE_TO_MAKE_LAVA_MUL_MAX_TRIES = CHANCE_TO_MAKE_LAVA * MAX_TRIES
 
 class NetherInfector(location: Location, direction: Vector, var energy: Int) : Tickable() {
 
@@ -315,22 +316,65 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     applyStairring(b, blockData)
                 }
 
-                OAK_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN,
-                OAK_WALL_SIGN, JUNGLE_WALL_SIGN, ACACIA_WALL_SIGN, DARK_OAK_WALL_SIGN, MANGROVE_WALL_SIGN,
-                    -> b.blockData = b.state.apply { type = CRIMSON_SIGN }.blockData
+                OAK_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN, -> {
+                    b.type = CRIMSON_SIGN
+                    b.blockData = (b.blockData as Sign).apply {
+                        this.rotation = (blockData as Sign).rotation
+                    }
+                }
 
+                OAK_WALL_SIGN, JUNGLE_WALL_SIGN, ACACIA_WALL_SIGN, DARK_OAK_WALL_SIGN, MANGROVE_WALL_SIGN, -> {
+                    b.type = CRIMSON_WALL_SIGN
+                    b.blockData = (b.blockData as WallSign).apply {
+                        this.facing = (blockData as WallSign).facing
+                    }
+                }
 
-                BIRCH_SIGN, CHERRY_SIGN, SPRUCE_SIGN, BAMBOO_SIGN,
-                BIRCH_WALL_SIGN, CHERRY_WALL_SIGN, SPRUCE_WALL_SIGN, BAMBOO_WALL_SIGN,
-                    -> b.blockData = b.state.apply { type = WARPED_SIGN }.blockData
+                BIRCH_SIGN, CHERRY_SIGN, SPRUCE_SIGN, BAMBOO_SIGN, -> {
+                    b.type = WARPED_SIGN
+                    b.blockData = (b.blockData as Sign).apply {
+                        this.rotation = (blockData as Sign).rotation
+                    }
+                }
 
-                OAK_WALL_HANGING_SIGN, JUNGLE_WALL_HANGING_SIGN, ACACIA_WALL_HANGING_SIGN, DARK_OAK_WALL_HANGING_SIGN, MANGROVE_WALL_HANGING_SIGN,
-                OAK_HANGING_SIGN, JUNGLE_HANGING_SIGN, ACACIA_HANGING_SIGN, DARK_OAK_HANGING_SIGN, MANGROVE_HANGING_SIGN,
-                    -> b.blockData = b.state.apply { type = CRIMSON_HANGING_SIGN }.blockData
+                BIRCH_WALL_SIGN, CHERRY_WALL_SIGN, SPRUCE_WALL_SIGN, BAMBOO_WALL_SIGN, -> {
+                    b.type = WARPED_WALL_SIGN
+                    b.blockData = (b.blockData as WallSign).apply {
+                        this.facing = (blockData as WallSign).facing
+                    }
+                }
 
-                BIRCH_HANGING_SIGN, CHERRY_HANGING_SIGN, SPRUCE_HANGING_SIGN, BAMBOO_HANGING_SIGN,
-                BIRCH_WALL_HANGING_SIGN, CHERRY_WALL_HANGING_SIGN, SPRUCE_WALL_HANGING_SIGN, BAMBOO_WALL_HANGING_SIGN,
-                    -> b.blockData = b.state.apply { type = WARPED_HANGING_SIGN }.blockData
+                OAK_HANGING_SIGN, JUNGLE_HANGING_SIGN, ACACIA_HANGING_SIGN, DARK_OAK_HANGING_SIGN, MANGROVE_HANGING_SIGN, -> {
+                    b.type = CRIMSON_HANGING_SIGN
+                    b.blockData = (b.blockData as HangingSign).apply {
+                        this.rotation = (blockData as HangingSign).rotation
+                        this.isAttached = blockData.isAttached
+                    }
+                }
+
+                OAK_WALL_HANGING_SIGN, JUNGLE_WALL_HANGING_SIGN, ACACIA_WALL_HANGING_SIGN, DARK_OAK_WALL_HANGING_SIGN, MANGROVE_WALL_HANGING_SIGN, -> {
+                    b.type = CRIMSON_WALL_HANGING_SIGN
+                    b.blockData = (b.blockData as HangingSign).apply {
+                        this.rotation = (blockData as HangingSign).rotation
+                        this.isAttached = blockData.isAttached
+                    }
+                }
+
+                BIRCH_HANGING_SIGN, CHERRY_HANGING_SIGN, SPRUCE_HANGING_SIGN, BAMBOO_HANGING_SIGN, -> {
+                    b.type = WARPED_HANGING_SIGN
+                    b.blockData = (b.blockData as HangingSign).apply {
+                        this.rotation = (blockData as HangingSign).rotation
+                        this.isAttached = blockData.isAttached
+                    }
+                }
+
+                BIRCH_WALL_HANGING_SIGN, CHERRY_WALL_HANGING_SIGN, SPRUCE_WALL_HANGING_SIGN, BAMBOO_WALL_HANGING_SIGN, -> {
+                    b.type = WARPED_WALL_HANGING_SIGN
+                    b.blockData = (b.blockData as HangingSign).apply {
+                        this.rotation = (blockData as HangingSign).rotation
+                        this.isAttached = blockData.isAttached
+                    }
+                }
 
                 OAK_DOOR, JUNGLE_DOOR, ACACIA_DOOR, DARK_OAK_DOOR, MANGROVE_DOOR -> {
                     applyDooring(b, blockData, CRIMSON_DOOR)
@@ -584,7 +628,17 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 
                 ICE, SNOW, SNOW_BLOCK, POWDER_SNOW -> b.type = WATER
 
-                WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP, LADDER -> b.type = OBSIDIAN
+                WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP -> b.type = OBSIDIAN
+
+                LADDER,
+                CRIMSON_SIGN, WARPED_SIGN, CRIMSON_WALL_SIGN, WARPED_WALL_SIGN,
+                CRIMSON_HANGING_SIGN, WARPED_HANGING_SIGN, CRIMSON_WALL_HANGING_SIGN, WARPED_WALL_HANGING_SIGN, -> {
+                    bool = false
+                    if (random.nextInt(CHANCE_TO_MAKE_LAVA) == 0) {
+                        b.type = OBSIDIAN
+                        bool = true
+                    }
+                }
 
                 VINE -> applyToSameBlockAboveAndBelow(b.location, { it.setType(WARPED_FENCE, false) })
 
