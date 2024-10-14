@@ -496,12 +496,12 @@ object LevsUtils {
             )
         }
 
-        fun hidePlayerPacket(uuid: UUID, afterTicks: Long) {
-            hidePlayerPacket(listOf(uuid), afterTicks)
+        fun hidePlayerPacket(uuid: UUID?, afterTicks: Long) {
+            hidePlayerPacket(listOf(uuid ?: return), afterTicks)
         }
 
-        fun hidePlayerPacket(uuids: List<UUID>, afterTicks: Long) {
-            if (protocolManager == null) return
+        fun hidePlayerPacket(uuids: List<UUID>?, afterTicks: Long) {
+            if (protocolManager == null || uuids == null) return
             Bukkit.getScheduler().runTaskLater(Warvilore.instance, Runnable {
                 val packet = protocolManager.createPacket(PacketType.Play.Server.PLAYER_INFO_REMOVE)
                 packet.uuidLists.write(0, uuids)

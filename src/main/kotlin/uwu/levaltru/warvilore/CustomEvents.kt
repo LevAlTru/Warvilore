@@ -131,8 +131,9 @@ class CustomEvents : Listener {
             }
         }
 
-        if (damager is Projectile) damager = Bukkit.getEntity(damager.ownerUniqueId ?: return) ?: return
-        (damager as? Player)?.getAbilities()?.onAttack(event)
+        (damager as? Projectile)?.ownerUniqueId?.let {
+            Bukkit.getPlayer(it)?.getAbilities()?.onAttack(event)
+        } ?: player?.getAbilities()?.onAttack(event)
     }
 
     @EventHandler
@@ -181,14 +182,12 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onKill(event: EntityDeathEvent) {
-        val killer = event.damageSource.causingEntity ?: return
-        if (killer is Player) killer.getAbilities()?.onKill(event)
+        (event.damageSource.causingEntity as? Player)?.getAbilities()?.onKill(event)
     }
 
     @EventHandler
     fun onHeal(event: EntityRegainHealthEvent) {
-        val entity = event.entity
-        if (entity is Player) entity.getAbilities()?.onHeal(event)
+        (event.entity as? Player)?.getAbilities()?.onHeal(event)
     }
 
     @EventHandler

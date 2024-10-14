@@ -7,6 +7,9 @@ import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketContainer
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
+import com.comphenix.protocol.wrappers.PlayerInfoData
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -114,7 +117,8 @@ class Warvilore : JavaPlugin() {
                 override fun onPacketSending(event: PacketEvent?) {
                     if (event == null) return
 
-                    val pk = event.packet
+                    try {
+                        val pk = event.packet
 //                    log(pk.type.toString() + "  1")
 //                    log(pk.strings.values.toString() + "  2")
 //                    log(pk.integers.values.toString() + "  3")
@@ -123,35 +127,79 @@ class Warvilore : JavaPlugin() {
 //                    log(pk.playerInfoActions.values.toString() + "  6")
 //                    log(pk.playerInfoAction.values.toString() + "  7")
 //                    log(pk.playerActions.values.toString() + "  8")
-                    val playerInfoDataLists = pk.playerInfoDataLists
+                        val playerInfoDataLists = pk.playerInfoDataLists
 //                    log(playerInfoDataLists.values.toString() + "  9")
 
-                    val nickname = playerInfoDataLists?.read(1)?.get(0)?.profile?.name
-                    if (
-                        pk.playerInfoActions.read(0).contains(EnumWrappers.PlayerInfoAction.ADD_PLAYER)/* ||
+                        val get = playerInfoDataLists?.read(1)?.get(0)
+                        val nickname = get?.profile?.name
+
+                        if (
+                            pk.playerInfoActions.read(0).contains(EnumWrappers.PlayerInfoAction.ADD_PLAYER)/* ||
                         pk.playerInfoActions.read(0).contains(EnumWrappers.PlayerInfoAction.UPDATE_LATENCY) ||
                         pk.playerInfoActions.read(0).contains(EnumWrappers.PlayerInfoAction.UPDATE_DISPLAY_NAME) ||
                         pk.playerInfoActions.read(0).contains(EnumWrappers.PlayerInfoAction.UPDATE_GAME_MODE)*/
-                    ) {
-                        if (LevsUtils.Hiddens.isHidden(nickname)) {
-                            protocolHashmap[nickname!!] = pk
+                        ) {
+                            if (LevsUtils.Hiddens.isHidden(nickname)) protocolHashmap[nickname!!] = pk
+                            return
                         }
-                        return
-                    }
-//                    log("1111111111111111111111")
-//                    log(playerInfoDataLists?.values.toString())
-//                    log(playerInfoDataLists?.read(1).toString())
-//                    log(playerInfoDataLists?.read(1)?.get(0).toString())
-//                    log(playerInfoDataLists?.read(1)?.get(0)?.profile.toString())
-//                    log(nickname.toString())
-                    if (!LevsUtils.Hiddens.isHidden(nickname)) return
-//                    log("2222222222222222222222")
+                        if (DeveloperMode) log("111111111111111111111111")
 
-                    protocolManager.sendServerPacket(event.player, protocolHashmap[nickname!!])
+                        if (nickname != null) {
+                            val player = Bukkit.getPlayer(nickname)
+                            val hashMapDataLists = protocolHashmap[nickname]?.playerInfoDataLists
+//                            if (DeveloperMode) {
+//                                log("nick not null")
+//                                log(protocolHashmap[nickname].toString())
+//                                log(hashMapDataLists.toString())
+//                                log(hashMapDataLists?.values.toString())
+//                                log(hashMapDataLists?.read(1).toString())
+//                                log(hashMapDataLists?.read(1)?.get(0).toString())
+//                            }
+                            hashMapDataLists?.read(1)?.get(0)?.let {
+                                if (DeveloperMode) log(it.toString())
+                                val gameMode = player?.gameMode
+                                protocolHashmap[nickname]!!.playerInfoDataLists.write(
+                                    1,
+                                    listOf(
+                                        PlayerInfoData(
+                                            it.profile,
+                                            it.latency,
+                                            EnumWrappers.NativeGameMode.fromBukkit(gameMode),
+                                            it.displayName,
+                                            it.profileKeyData
+                                        )
+                                    )
+                                )
+                                if (DeveloperMode) log(it.toString())
+                            }
+
+//                    if (DeveloperMode) {
+//                        log(playerInfoDataLists?.values.toString())
+//                        log(playerInfoDataLists?.read(1).toString())
+//                        log(playerInfoDataLists?.read(1)?.get(0).toString())
+//                        log(playerInfoDataLists?.read(1)?.get(0)?.gameMode.toString())
+//                        log(playerInfoDataLists?.read(1)?.get(0)?.profile.toString())
+//                    }
+//                    log(nickname.toString())
+                            if (!LevsUtils.Hiddens.isHidden(nickname)) return
+//                    log("2222222222222222222222")
+                            protocolHashmap[nickname!!]?.let {
+                                protocolManager.sendServerPacket(event.player, it)
+                                LevsUtils.Hiddens.hidePlayerPacket(player?.uniqueId, 2L)
+                            } ?: Bukkit.getPlayer(nickname)
+                                ?.kick(
+                                    Component.text("Sowwy but your join packet is null\n(rejoin)")
+                                        .color(NamedTextColor.RED)
+                                )
 //                    Bukkit.getScheduler().runTaskLater(instance, Runnable {
 //                        log("33333333333333333333333333")
 //                        protocolManager.sendServerPacket(event.player, deepClone)
 //                    }, 50)
+                        }
+                    } catch (e: Exception) {
+                        severe(e.toString())
+                        severe(e.message)
+                    }
                 }
 
                 override fun onPacketReceiving(event: PacketEvent?) {}
