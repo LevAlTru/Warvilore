@@ -26,7 +26,7 @@ import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 
-const val DeveloperMode = true
+const val DeveloperMode = false
 val protocolManager: ProtocolManager? = ProtocolLibrary.getProtocolManager()
 
 class Warvilore : JavaPlugin() {
