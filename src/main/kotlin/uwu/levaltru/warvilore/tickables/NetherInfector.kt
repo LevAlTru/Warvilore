@@ -6,6 +6,7 @@ import org.bukkit.Material.TNT
 import org.bukkit.block.Block
 import org.bukkit.block.data.*
 import org.bukkit.block.data.type.*
+import org.bukkit.block.sign.Side
 import org.bukkit.damage.DamageSource
 import org.bukkit.damage.DamageType
 import org.bukkit.entity.Player
@@ -104,7 +105,12 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
     companion object {
         fun changeBlockWithEffects(location: Location): Boolean {
             if (changeBlock(location)) {
-                if (random.nextDouble() < .5) location.world.playSound(location, Sound.BLOCK_SCULK_SENSOR_CLICKING_STOP, 1f, .5f)
+                if (random.nextDouble() < .5) location.world.playSound(
+                    location,
+                    Sound.BLOCK_SCULK_SENSOR_CLICKING_STOP,
+                    1f,
+                    .5f
+                )
                 return true
             }
             return false
@@ -122,12 +128,12 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 BROWN_GLAZED_TERRACOTTA, BLACK_GLAZED_TERRACOTTA, GRAY_GLAZED_TERRACOTTA, LIGHT_GRAY_GLAZED_TERRACOTTA, WHITE_GLAZED_TERRACOTTA, PURPLE_GLAZED_TERRACOTTA, MAGENTA_GLAZED_TERRACOTTA, PINK_GLAZED_TERRACOTTA,
 
                 STONE_SWORD, INFESTED_STONE, GRANITE, DIORITE, ANDESITE, STONE,
-                    -> b.type = SMOOTH_BASALT
+                -> b.type = SMOOTH_BASALT
 
                 INFESTED_COBBLESTONE, INFESTED_DEEPSLATE, COBBLESTONE, MOSSY_COBBLESTONE,
                 DEEPSLATE, COBBLED_DEEPSLATE, TUFF,
                 MUD_BRICKS, PACKED_MUD,
-                    -> b.type = BLACKSTONE
+                -> b.type = BLACKSTONE
 
                 SANDSTONE_SLAB, SMOOTH_SANDSTONE_SLAB, CUT_SANDSTONE_SLAB, BRICK_SLAB, DEEPSLATE_TILE_SLAB -> {
                     b.type = NETHER_BRICK_SLAB
@@ -141,16 +147,16 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 
                 DEEPSLATE_COAL_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_DIAMOND_ORE, DEEPSLATE_LAPIS_ORE, DEEPSLATE_EMERALD_ORE, DEEPSLATE_REDSTONE_ORE, DEEPSLATE_COPPER_ORE, DEEPSLATE_GOLD_ORE,
                 COAL_ORE, IRON_ORE, DIAMOND_ORE, LAPIS_ORE, EMERALD_ORE, REDSTONE_ORE, COPPER_ORE, GOLD_ORE,
-                    -> b.type = GILDED_BLACKSTONE
+                -> b.type = GILDED_BLACKSTONE
 
                 POLISHED_TUFF, POLISHED_ANDESITE, POLISHED_DIORITE, POLISHED_GRANITE, POLISHED_DEEPSLATE,
-                    -> b.type = POLISHED_BLACKSTONE
+                -> b.type = POLISHED_BLACKSTONE
 
                 CHISELED_TUFF, CHISELED_TUFF_BRICKS,
                 CHISELED_DEEPSLATE,
                 CHISELED_STONE_BRICKS, INFESTED_CHISELED_STONE_BRICKS,
                 SMOOTH_STONE,
-                    -> b.type = CHISELED_POLISHED_BLACKSTONE
+                -> b.type = CHISELED_POLISHED_BLACKSTONE
 
                 DEEPSLATE_BRICKS,
                 CRACKED_DEEPSLATE_BRICKS,
@@ -158,16 +164,16 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 STONE_BRICKS, INFESTED_STONE_BRICKS,
                 MOSSY_STONE_BRICKS, INFESTED_MOSSY_STONE_BRICKS,
                 CRACKED_STONE_BRICKS, INFESTED_CRACKED_STONE_BRICKS,
-                    -> b.type = POLISHED_BLACKSTONE_BRICKS
+                -> b.type = POLISHED_BLACKSTONE_BRICKS
 
                 POLISHED_TUFF_WALL, POLISHED_DEEPSLATE_WALL,
-                    -> b.type = POLISHED_BLACKSTONE_WALL
+                -> b.type = POLISHED_BLACKSTONE_WALL
 
                 TUFF_BRICK_WALL, MOSSY_STONE_BRICK_WALL, STONE_BRICK_WALL, MUD_BRICK_WALL, DEEPSLATE_BRICK_WALL,
-                    -> b.type = POLISHED_BLACKSTONE_BRICK_WALL
+                -> b.type = POLISHED_BLACKSTONE_BRICK_WALL
 
                 TUFF_WALL, ANDESITE_WALL, GRANITE_WALL, DIORITE_WALL, COBBLESTONE_WALL, MOSSY_COBBLESTONE_WALL, COBBLED_DEEPSLATE_WALL,
-                    -> b.type = BLACKSTONE_WALL
+                -> b.type = BLACKSTONE_WALL
 
                 POLISHED_TUFF_SLAB, POLISHED_DEEPSLATE_SLAB, COBBLED_DEEPSLATE_SLAB, POLISHED_ANDESITE_SLAB, POLISHED_DIORITE_SLAB, POLISHED_GRANITE_SLAB, SMOOTH_STONE_SLAB -> {
                     b.type = POLISHED_BLACKSTONE_SLAB
@@ -200,7 +206,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
 
                 DIRT, ROOTED_DIRT,
-                    -> b.type = NETHERRACK
+                -> b.type = NETHERRACK
 
                 GRASS_BLOCK -> {
                     b.type = CRIMSON_NYLIUM
@@ -228,7 +234,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 RED_WOOL, WHITE_WOOL, BLUE_WOOL, YELLOW_WOOL, PURPLE_WOOL, PINK_WOOL, ORANGE_WOOL, MAGENTA_WOOL, LIME_WOOL, LIGHT_GRAY_WOOL, LIGHT_BLUE_WOOL, GREEN_WOOL, GRAY_WOOL, CYAN_WOOL, BROWN_WOOL, BLACK_WOOL,
                 MUD, GRAVEL, SUSPICIOUS_GRAVEL, RED_SAND, COARSE_DIRT, CLAY, MUDDY_MANGROVE_ROOTS,
                 SCULK, SCULK_SENSOR, CALIBRATED_SCULK_SENSOR, SCULK_CATALYST, SCULK_SHRIEKER,
-                    -> b.type = SOUL_SOIL
+                -> b.type = SOUL_SOIL
 
 
                 RED_STAINED_GLASS, ORANGE_STAINED_GLASS, YELLOW_STAINED_GLASS, GREEN_STAINED_GLASS, LIME_STAINED_GLASS, BLUE_STAINED_GLASS, CYAN_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS,
@@ -236,7 +242,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 RED_STAINED_GLASS_PANE, ORANGE_STAINED_GLASS_PANE, YELLOW_STAINED_GLASS_PANE, GREEN_STAINED_GLASS_PANE, LIME_STAINED_GLASS_PANE, BLUE_STAINED_GLASS_PANE, CYAN_STAINED_GLASS_PANE, LIGHT_BLUE_STAINED_GLASS_PANE,
                 BROWN_STAINED_GLASS_PANE, BLACK_STAINED_GLASS_PANE, GRAY_STAINED_GLASS_PANE, LIGHT_GRAY_STAINED_GLASS_PANE, WHITE_STAINED_GLASS_PANE, PURPLE_STAINED_GLASS_PANE, MAGENTA_STAINED_GLASS_PANE, PINK_STAINED_GLASS_PANE, GLASS_PANE,
                 SAND, SUSPICIOUS_SAND, DIRT_PATH,
-                    -> b.type = SOUL_SAND
+                -> b.type = SOUL_SAND
 
                 FARMLAND -> {
                     changeBlock(b.location.clone().add(0.0, 1.0, 0.0))
@@ -251,7 +257,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
 
                 SANDSTONE, SMOOTH_SANDSTONE, CUT_SANDSTONE, DEEPSLATE_TILES, CRACKED_DEEPSLATE_TILES, BRICKS,
-                    -> b.type = NETHER_BRICKS
+                -> b.type = NETHER_BRICKS
 
                 SANDSTONE_STAIRS, SMOOTH_SANDSTONE_STAIRS, BRICK_STAIRS, DEEPSLATE_TILE_STAIRS -> {
                     b.type = NETHER_BRICK_STAIRS
@@ -266,10 +272,10 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 CHISELED_SANDSTONE -> b.type = CHISELED_NETHER_BRICKS
 
                 RED_SANDSTONE, SMOOTH_RED_SANDSTONE, CUT_RED_SANDSTONE, CHISELED_RED_SANDSTONE
-                    -> b.type = RED_NETHER_BRICKS
+                -> b.type = RED_NETHER_BRICKS
 
                 SANDSTONE_WALL, DEEPSLATE_TILE_WALL, BRICK_WALL
-                    -> b.type = NETHER_BRICK_WALL
+                -> b.type = NETHER_BRICK_WALL
 
                 RED_SANDSTONE_WALL -> b.type = RED_NETHER_BRICK_WALL
 
@@ -284,11 +290,11 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
 
                 OAK_SAPLING, JUNGLE_SAPLING, ACACIA_SAPLING, DARK_OAK_SAPLING, MANGROVE_PROPAGULE
-                    -> b.type = CRIMSON_FUNGUS
+                -> b.type = CRIMSON_FUNGUS
 
 
                 BIRCH_SAPLING, CHERRY_SAPLING, SPRUCE_SAPLING
-                    -> b.type = WARPED_FUNGUS
+                -> b.type = WARPED_FUNGUS
 
 
                 OAK_PRESSURE_PLATE, JUNGLE_PRESSURE_PLATE, ACACIA_PRESSURE_PLATE, DARK_OAK_PRESSURE_PLATE, MANGROVE_PRESSURE_PLATE -> {
@@ -316,64 +322,36 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     applyStairring(b, blockData)
                 }
 
-                OAK_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN, -> {
-                    b.type = CRIMSON_SIGN
-                    b.blockData = (b.blockData as Sign).apply {
-                        this.rotation = (blockData as Sign).rotation
-                    }
+                OAK_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN -> {
+                    applySigning(b, blockData, CRIMSON_SIGN, 0)
                 }
 
-                OAK_WALL_SIGN, JUNGLE_WALL_SIGN, ACACIA_WALL_SIGN, DARK_OAK_WALL_SIGN, MANGROVE_WALL_SIGN, -> {
-                    b.type = CRIMSON_WALL_SIGN
-                    b.blockData = (b.blockData as WallSign).apply {
-                        this.facing = (blockData as WallSign).facing
-                    }
+                OAK_WALL_SIGN, JUNGLE_WALL_SIGN, ACACIA_WALL_SIGN, DARK_OAK_WALL_SIGN, MANGROVE_WALL_SIGN -> {
+                    applySigning(b, blockData, CRIMSON_WALL_SIGN, 1)
                 }
 
-                BIRCH_SIGN, CHERRY_SIGN, SPRUCE_SIGN, BAMBOO_SIGN, -> {
-                    b.type = WARPED_SIGN
-                    b.blockData = (b.blockData as Sign).apply {
-                        this.rotation = (blockData as Sign).rotation
-                    }
+                BIRCH_SIGN, CHERRY_SIGN, SPRUCE_SIGN, BAMBOO_SIGN -> {
+                    applySigning(b, blockData, WARPED_SIGN, 0)
                 }
 
-                BIRCH_WALL_SIGN, CHERRY_WALL_SIGN, SPRUCE_WALL_SIGN, BAMBOO_WALL_SIGN, -> {
-                    b.type = WARPED_WALL_SIGN
-                    b.blockData = (b.blockData as WallSign).apply {
-                        this.facing = (blockData as WallSign).facing
-                    }
+                BIRCH_WALL_SIGN, CHERRY_WALL_SIGN, SPRUCE_WALL_SIGN, BAMBOO_WALL_SIGN -> {
+                    applySigning(b, blockData, WARPED_WALL_SIGN, 1)
                 }
 
-                OAK_HANGING_SIGN, JUNGLE_HANGING_SIGN, ACACIA_HANGING_SIGN, DARK_OAK_HANGING_SIGN, MANGROVE_HANGING_SIGN, -> {
-                    b.type = CRIMSON_HANGING_SIGN
-                    b.blockData = (b.blockData as HangingSign).apply {
-                        this.rotation = (blockData as HangingSign).rotation
-                        this.isAttached = blockData.isAttached
-                    }
+                OAK_HANGING_SIGN, JUNGLE_HANGING_SIGN, ACACIA_HANGING_SIGN, DARK_OAK_HANGING_SIGN, MANGROVE_HANGING_SIGN -> {
+                    applySigning(b, blockData, CRIMSON_HANGING_SIGN, 2)
                 }
 
-                OAK_WALL_HANGING_SIGN, JUNGLE_WALL_HANGING_SIGN, ACACIA_WALL_HANGING_SIGN, DARK_OAK_WALL_HANGING_SIGN, MANGROVE_WALL_HANGING_SIGN, -> {
-                    b.type = CRIMSON_WALL_HANGING_SIGN
-                    b.blockData = (b.blockData as HangingSign).apply {
-                        this.rotation = (blockData as HangingSign).rotation
-                        this.isAttached = blockData.isAttached
-                    }
+                OAK_WALL_HANGING_SIGN, JUNGLE_WALL_HANGING_SIGN, ACACIA_WALL_HANGING_SIGN, DARK_OAK_WALL_HANGING_SIGN, MANGROVE_WALL_HANGING_SIGN -> {
+                    applySigning(b, blockData, CRIMSON_WALL_HANGING_SIGN, 3)
                 }
 
-                BIRCH_HANGING_SIGN, CHERRY_HANGING_SIGN, SPRUCE_HANGING_SIGN, BAMBOO_HANGING_SIGN, -> {
-                    b.type = WARPED_HANGING_SIGN
-                    b.blockData = (b.blockData as HangingSign).apply {
-                        this.rotation = (blockData as HangingSign).rotation
-                        this.isAttached = blockData.isAttached
-                    }
+                BIRCH_HANGING_SIGN, CHERRY_HANGING_SIGN, SPRUCE_HANGING_SIGN, BAMBOO_HANGING_SIGN -> {
+                    applySigning(b, blockData, WARPED_HANGING_SIGN, 2)
                 }
 
-                BIRCH_WALL_HANGING_SIGN, CHERRY_WALL_HANGING_SIGN, SPRUCE_WALL_HANGING_SIGN, BAMBOO_WALL_HANGING_SIGN, -> {
-                    b.type = WARPED_WALL_HANGING_SIGN
-                    b.blockData = (b.blockData as HangingSign).apply {
-                        this.rotation = (blockData as HangingSign).rotation
-                        this.isAttached = blockData.isAttached
-                    }
+                BIRCH_WALL_HANGING_SIGN, CHERRY_WALL_HANGING_SIGN, SPRUCE_WALL_HANGING_SIGN, BAMBOO_WALL_HANGING_SIGN -> {
+                    applySigning(b, blockData, WARPED_WALL_HANGING_SIGN, 3)
                 }
 
                 OAK_DOOR, JUNGLE_DOOR, ACACIA_DOOR, DARK_OAK_DOOR, MANGROVE_DOOR -> {
@@ -460,10 +438,10 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
 
                 OAK_FENCE, JUNGLE_FENCE, ACACIA_FENCE, DARK_OAK_FENCE, MANGROVE_FENCE, MANGROVE_ROOTS
-                    -> b.type = CRIMSON_FENCE
+                -> b.type = CRIMSON_FENCE
 
                 BIRCH_FENCE, CHERRY_FENCE, SPRUCE_FENCE, BAMBOO_FENCE,
-                    -> b.type = WARPED_FENCE
+                -> b.type = WARPED_FENCE
 
                 STRIPPED_OAK_LOG, STRIPPED_JUNGLE_LOG, STRIPPED_ACACIA_LOG, STRIPPED_DARK_OAK_LOG, STRIPPED_MANGROVE_LOG -> {
                     b.type = STRIPPED_CRIMSON_STEM
@@ -512,16 +490,16 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
 
                 OAK_PLANKS, JUNGLE_PLANKS, ACACIA_PLANKS, DARK_OAK_PLANKS, MANGROVE_PLANKS
-                    -> b.type = CRIMSON_PLANKS
+                -> b.type = CRIMSON_PLANKS
 
                 BIRCH_PLANKS, CHERRY_PLANKS, SPRUCE_PLANKS
-                    -> b.type = WARPED_PLANKS
+                -> b.type = WARPED_PLANKS
 
                 OAK_LEAVES, JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES
-                    -> b.type = NETHER_WART_BLOCK
+                -> b.type = NETHER_WART_BLOCK
 
                 BIRCH_LEAVES, CHERRY_LEAVES, SPRUCE_LEAVES, AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES,
-                    -> b.type = WARPED_WART_BLOCK
+                -> b.type = WARPED_WART_BLOCK
 
                 WET_SPONGE -> b.type = SPONGE
 
@@ -542,7 +520,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                         val block = location.clone().add(Vector(thing.x, thing.y, thing.z)).block
                         when (block.type) {
                             WATER, SEAGRASS, TALL_SEAGRASS, BUBBLE_COLUMN, KELP_PLANT, KELP
-                                -> block.type = OBSIDIAN
+                            -> block.type = OBSIDIAN
 
                             else -> {
                                 val localBlockData = block.blockData
@@ -574,7 +552,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 CACTUS -> applyToSameBlockAboveAndBelow(b.location, { it.setType(BONE_BLOCK, false) })
 
                 AZALEA, FLOWERING_AZALEA
-                    -> b.type = STRIPPED_WARPED_HYPHAE
+                -> b.type = STRIPPED_WARPED_HYPHAE
 
                 MOSS_BLOCK -> b.type = WARPED_WART_BLOCK
 
@@ -611,7 +589,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                 }
 
                 POPPY, DANDELION, BLUE_ORCHID, ALLIUM, AZURE_BLUET, RED_TULIP, PINK_TULIP, WHITE_TULIP, ORANGE_TULIP, OXEYE_DAISY, CORNFLOWER, LILY_OF_THE_VALLEY, TORCHFLOWER,
-                    -> b.type = WITHER_ROSE
+                -> b.type = WITHER_ROSE
 
 
                 POTTED_OAK_SAPLING, POTTED_JUNGLE_SAPLING, POTTED_ACACIA_SAPLING, POTTED_DARK_OAK_SAPLING, POTTED_MANGROVE_PROPAGULE,
@@ -621,7 +599,7 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 
                 POTTED_POPPY, POTTED_DANDELION, POTTED_BLUE_ORCHID, POTTED_ALLIUM, POTTED_AZURE_BLUET, POTTED_RED_TULIP,
                 POTTED_PINK_TULIP, POTTED_WHITE_TULIP, POTTED_ORANGE_TULIP, POTTED_OXEYE_DAISY, POTTED_CORNFLOWER, POTTED_LILY_OF_THE_VALLEY, POTTED_TORCHFLOWER,
-                    -> b.type = POTTED_WITHER_ROSE
+                -> b.type = POTTED_WITHER_ROSE
 
 //                RED_MUSHROOM -> b.type = CRIMSON_FUNGUS
 //                BROWN_MUSHROOM -> b.type = WARPED_FUNGUS
@@ -632,7 +610,8 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 
                 LADDER,
                 CRIMSON_SIGN, WARPED_SIGN, CRIMSON_WALL_SIGN, WARPED_WALL_SIGN,
-                CRIMSON_HANGING_SIGN, WARPED_HANGING_SIGN, CRIMSON_WALL_HANGING_SIGN, WARPED_WALL_HANGING_SIGN, -> {
+                CRIMSON_HANGING_SIGN, WARPED_HANGING_SIGN, CRIMSON_WALL_HANGING_SIGN, WARPED_WALL_HANGING_SIGN,
+                -> {
                     bool = false
                     if (random.nextInt(CHANCE_TO_MAKE_LAVA) == 0) {
                         b.type = OBSIDIAN
@@ -757,7 +736,12 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
                     val type = b.location.add(0.0, 1.0, 0.0).block.type
                     val b150 = b.y - 150
                     bool = false
-                    if ((type.isAir || type == LAVA) && (b150 <= b.world.minHeight || b.world.getBlockAt(b.x, b150, b.z).type != b.type)) {
+                    if ((type.isAir || type == LAVA) && (b150 <= b.world.minHeight || b.world.getBlockAt(
+                            b.x,
+                            b150,
+                            b.z
+                        ).type != b.type)
+                    ) {
                         b.location.add(0.0, 1.0, 0.0).block.type = b.type
                         bool = true
                     }
@@ -780,13 +764,57 @@ class NetherInfector(location: Location, direction: Vector, var energy: Int) : T
 
                 RED_CARPET, WHITE_CARPET, BLUE_CARPET, YELLOW_CARPET, PURPLE_CARPET, PINK_CARPET, ORANGE_CARPET, MAGENTA_CARPET,
                 LIME_CARPET, LIGHT_GRAY_CARPET, LIGHT_BLUE_CARPET, GREEN_CARPET, GRAY_CARPET, CYAN_CARPET, BROWN_CARPET, BLACK_CARPET,
-                    -> b.type = AIR
+                -> b.type = AIR
 
                 else -> bool = false
             }
             if ((b.blockData as? Waterlogged)?.isWaterlogged == true) b.blockData =
                 (b.blockData as Waterlogged).apply { isWaterlogged = false }
             return bool
+        }
+
+        /**
+         * @param whichSign
+        * 0 -> Sign;
+        * 1 -> WallSign;
+        * 2 -> HangingSign;
+        * 3 -> WallHangingSign;
+        */
+        private fun applySigning(b: Block, blockData: BlockData, material: Material, whichSign: Int) {
+            val sign = b.getState(true) as org.bukkit.block.Sign
+            val lines = sign.getSide(Side.FRONT).lines()
+            val color = sign.getSide(Side.FRONT).color
+            val glowingText = sign.getSide(Side.FRONT).isGlowingText
+            val linesBack = sign.getSide(Side.BACK).lines()
+            val colorBack = sign.getSide(Side.BACK).color
+            val glowingTextBack = sign.getSide(Side.BACK).isGlowingText
+            b.type = material
+            b.blockData = when (whichSign) {
+                0 -> (b.blockData as Sign).apply {
+                    this.rotation = (blockData as Sign).rotation
+                }
+                1 -> (b.blockData as WallSign).apply {
+                    this.facing = (blockData as WallSign).facing
+                }
+                2 -> (b.blockData as HangingSign).apply {
+                    this.rotation = (blockData as HangingSign).rotation
+                    this.isAttached = blockData.isAttached
+                }
+                3 -> (b.blockData as WallHangingSign).apply {
+                    this.facing = (blockData as WallHangingSign).facing
+                }
+                else -> return
+            }
+            val newSign = b.state as org.bukkit.block.Sign
+            for ((i, line) in lines.withIndex())
+                newSign.getSide(Side.FRONT).line(i, line)
+            newSign.getSide(Side.FRONT).color = color
+            newSign.getSide(Side.FRONT).isGlowingText = glowingText
+            for ((i, line) in linesBack.withIndex())
+                newSign.getSide(Side.BACK).line(i, line)
+            newSign.getSide(Side.BACK).color = colorBack
+            newSign.getSide(Side.BACK).isGlowingText = glowingTextBack
+            newSign.update()
         }
 
         private fun applyDooring(b: Block, blockData: BlockData, material: Material) {

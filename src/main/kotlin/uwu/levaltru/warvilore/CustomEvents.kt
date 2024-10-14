@@ -24,20 +24,16 @@ import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.event.world.PortalCreateEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import org.bukkit.potion.PotionEffectType
+import uwu.levaltru.warvilore.EventsEnums.PerTickEvents
 import uwu.levaltru.warvilore.abilities.AbilitiesCore
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.getAbilities
 import uwu.levaltru.warvilore.abilities.AbilitiesCore.Companion.hashMap
 import uwu.levaltru.warvilore.abilities.abilities.BoilingAssasin
-import uwu.levaltru.warvilore.abilities.abilities.TheBringer
 import uwu.levaltru.warvilore.abilities.bases.Undead
 import uwu.levaltru.warvilore.abilities.interfaces.EvilAurable
 import uwu.levaltru.warvilore.abilities.interfaces.tagInterfaces.CantLeaveSouls
 import uwu.levaltru.warvilore.tickables.CollabsePoint
-import uwu.levaltru.warvilore.tickables.NetherInfector
 import uwu.levaltru.warvilore.tickables.unmovables.DeathSpirit
-import uwu.levaltru.warvilore.tickables.untraditional.NetherEmitter
-import uwu.levaltru.warvilore.tickables.untraditional.RemainsOfTheDeads
 import uwu.levaltru.warvilore.tickables.untraditional.Zone
 import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.LevsUtils
@@ -46,7 +42,6 @@ import uwu.levaltru.warvilore.trashcan.LevsUtils.getAsCustomWeapon
 import uwu.levaltru.warvilore.trashcan.LevsUtils.getSoulBound
 import uwu.levaltru.warvilore.trashcan.LevsUtils.isSoulBound
 import uwu.levaltru.warvilore.trashcan.Namespaces
-import java.util.*
 
 private const val DEATH_TICKS_MAX = 20 * 40
 
@@ -54,68 +49,7 @@ class CustomEvents : Listener {
 
     @EventHandler
     fun onTick(event: ServerTickEndEvent) {
-        Tickable.Tick()
-        Zone.getInstance().tick()
-        RemainsOfTheDeads.Tick()
-        NetherEmitter.Tick()
-        if (event.tickNumber % 200 == 0) {
-            NetherInfector.playerWhoWillSeeBetter.clear()
-            NetherInfector.playerWhoWillSeeBetter.addAll(Bukkit.getOnlinePlayers().filter { (it.getAbilities() as? TheBringer)?.seeTheThings == true })
-        }
-        for (player in Bukkit.getOnlinePlayers()) {
-            if ((player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.amplifier ?: -1) > 0) {
-                if (
-                    player.isOnGround ||
-                    player.isInWaterOrBubbleColumn ||
-                    player.isFlying
-                )
-
-                    player.removePotionEffect(PotionEffectType.SLOW_FALLING)
-                else LevsUtils.addInfiniteSlowfall(player)
-            }
-            val abilities = player.getAbilities()
-            val i = player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER]
-            val trialParticle =
-                if (abilities is EvilAurable) Particle.TRIAL_SPAWNER_DETECTION_OMINOUS else Particle.TRIAL_SPAWNER_DETECTION
-            if (i != null && i > 0) {
-                player.persistentDataContainer[Namespaces.TICK_TIME_OF_DEATH.namespace, PersistentDataType.INTEGER] =
-                    i - 1
-                player.world.spawnParticle(
-                    trialParticle,
-                    player.location.add(0.0, player.height / 2, 0.0), 1,
-                    .2, .4, .2, .033, null, true
-                )
-                if (player.ticksLived % 8 == 0)
-                    player.world.playSound(
-                        player.location, Sound.BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS,
-                        SoundCategory.MASTER, 1f, 0.5f
-                    )
-            }
-            if (player.ticksLived % 20 == 0) {
-                val i1 = player.persistentDataContainer[Namespaces.LIVES_REMAIN.namespace, PersistentDataType.INTEGER]
-                if (i1 != null) {
-                    val boundingBox = player.boundingBox
-                    val random = Random()
-                    val loce = Location(
-                        player.world,
-                        random.nextDouble(boundingBox.minX, boundingBox.maxX),
-                        random.nextDouble(boundingBox.minY, boundingBox.maxY),
-                        random.nextDouble(boundingBox.minZ, boundingBox.maxZ),
-                    )
-                    loce.world.spawnParticle(
-                        trialParticle, loce, 1, 0.0, 0.0, 0.0, 0.1
-                    )
-                }
-            }
-            abilities?.let {
-                it.player = player
-                try {
-                    it.onTick(event)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
+        PerTickEvents.entries.forEach { it.execute(event) }
     }
 
     @EventHandler

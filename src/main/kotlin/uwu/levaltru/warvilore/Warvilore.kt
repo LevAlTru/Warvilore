@@ -26,7 +26,7 @@ import uwu.levaltru.warvilore.trashcan.CustomItems
 import uwu.levaltru.warvilore.trashcan.CustomWeapons
 import uwu.levaltru.warvilore.trashcan.LevsUtils
 
-const val DeveloperMode = false
+const val DeveloperMode = true
 val protocolManager: ProtocolManager? = ProtocolLibrary.getProtocolManager()
 
 class Warvilore : JavaPlugin() {
@@ -189,11 +189,11 @@ class Warvilore : JavaPlugin() {
         var softwareList: MutableList<String>? = null
         val protocolHashmap: HashMap<String, PacketContainer?> = hashMapOf()
 
-        fun log(string: String) {
+        fun log(string: String?) {
             instance.logger.info(string)
         }
 
-        fun severe(string: String) {
+        fun severe(string: String?) {
             instance.logger.severe(string)
         }
 
